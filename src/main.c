@@ -53,13 +53,16 @@ int main(void)
 	//Variables:
 	unsigned char toggle_led0 = 0;
 
+	//Prepare FlexSEA stack:
+	init_flexsea_payload_ptr();
+
 	//Initialize all the peripherals
 	init_peripherals();
 
 	//Start with an empty buffer
 	flexsea_clear_slave_read_buffer();
 
-	// start receiving from master via interrupts
+	//Start receiving from master via interrupts
 	flexsea_start_receiving_from_master();
 
 	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
