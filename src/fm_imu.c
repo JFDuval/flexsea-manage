@@ -39,6 +39,8 @@
 // Variable(s)
 //****************************************************************************
 
+struct imu_s imu;
+
 //****************************************************************************
 // Private Function Prototype(s)
 //****************************************************************************
@@ -52,14 +54,14 @@ static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 // Public Function(s)
 //****************************************************************************
 
-// Initialize the IMU w/ default values in config registers
+//Initialize the IMU w/ default values in config registers
 void init_imu(void)
 {
-	// Reset the IMU.
+	//Reset the IMU.
 	reset_imu();
 	// Initialize the config registers.
-	uint8_t config[4] = { D_IMU_CONFIG, D_IMU_GYRO_CONFIG, D_IMU_ACCEL_CONFIG,
-	D_IMU_ACCEL_CONFIG2 };
+	uint8_t config[4] = { D_IMU_CONFIG, D_IMU_GYRO_CONFIG, D_IMU_ACCEL_CONFIG, \
+							D_IMU_ACCEL_CONFIG2 };
 	uint8_t imu_addr = IMU_CONFIG;
 	for(int i = 0; i < 4; i++)
 	{
@@ -75,14 +77,14 @@ void reset_imu(void)
 }
 
 // Get accel X
-uint16_t get_accel_x(void)
+int16_t get_accel_x(void)
 {
 	uint8_t data[2] = { 0, 0 };
 	imu_read(IMU_ACCEL_XOUT_H, data, 2);
 	return ((uint16_t) data[0] << 8) | (data[1]);
 }
 // Get accel Y
-uint16_t get_accel_y(void)
+int16_t get_accel_y(void)
 {
 	uint8_t data[2];
 	imu_read(IMU_ACCEL_YOUT_H, data, 2);
@@ -90,15 +92,24 @@ uint16_t get_accel_y(void)
 }
 
 // Get accel Z
-uint16_t get_accel_z(void)
+int16_t get_accel_z(void)
 {
 	uint8_t data[2];
 	imu_read(IMU_ACCEL_ZOUT_H, data, 2);
 	return ((uint16_t) data[0] << 8) | (data[1]);
 }
 
+//Puts all the accelerometer values in the structure:
+void get_accel_xyz(void)
+{
+	uint8_t tmp_data[7] = {0,0,0,0,0,0};
+	
+	//According to the documentation it's X_H, X_L, Y_H, ...
+	imu_read(IMU_ACCEL_XOUT_H, tmp_data, 7);
+}
+
 // Get gyro X
-uint16_t get_gyro_x(void)
+int16_t get_gyro_x(void)
 {
 	uint8_t data[2];
 	imu_read(IMU_GYRO_XOUT_H, data, 2);
@@ -106,7 +117,7 @@ uint16_t get_gyro_x(void)
 }
 
 // Get gyro Y
-uint16_t get_gyro_y(void)
+int16_t get_gyro_y(void)
 {
 	uint8_t data[2];
 	imu_read(IMU_GYRO_YOUT_H, data, 2);
@@ -114,11 +125,20 @@ uint16_t get_gyro_y(void)
 }
 
 // Get gyro Z
-uint16_t get_gyro_z(void)
+int16_t get_gyro_z(void)
 {
 	uint8_t data[2];
 	imu_read(IMU_GYRO_ZOUT_H, data, 2);
 	return ((uint16_t) data[0] << 8) | (data[1]);
+}
+
+//Puts all the gyroscope values in the structure:
+void get_gyro_xyz(void)
+{
+	uint8 tmp_data[7] = {0,0,0,0,0,0,0};
+	
+	//According to the documentation it's X_H, X_L, Y_H, ...
+	imu_read(IMU_GYRO_XOUT_H, tmp_data, 6);
 }
 
 //****************************************************************************
