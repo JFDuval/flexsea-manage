@@ -57,6 +57,7 @@
 #include "fm_timer.h"
 #include "fm_misc.h"
 #include "fm_ui.h"
+#include "rgb_led.h"
 #include "fm_uarts.h"
 #include "fm_adc.h"
 #include "fm_adv_analog.h"

@@ -1,6 +1,6 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
-	[Sub-project] 'flexsea-manage' Mid-level computing, and networking
+	[Sub-project] 'flexsea-execute' Advanced Motion Controller
 	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
@@ -16,15 +16,15 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
-	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
+	[Lead developper] Jean-Francois Duval, jfduval at dephy dot com.
 	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] main_fsm: Contains all the case() code for the main FSM
+	[This file] RGB LED: Onboard LED Driver that supports fading
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-23 | jfduval | Initial GPL-3.0 release
+	* 2016-10-05 | jfduval | Copied from UI to make it more portable
 	*
 ****************************************************************************/
 
@@ -33,136 +33,119 @@
 //****************************************************************************
 
 #include "main.h"
-#include "main_fsm.h"
+#include "rgb_led.h"
 
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
 
-uint8_t slave_comm_trig = 0;
-uint8_t new_cmd_led = 0;
+uint8_t rgbFade = 0;
+
+//RGB LED:
+uint8_t rgbPeriodR = 0, rgbPeriodG = 0, rgbPeriodB = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
-//****************************************************************************	
+//****************************************************************************
+
 
 //****************************************************************************
 // Public Function(s)
 //****************************************************************************
 
-//1kHz time slots:
-//================
-
-//Case 0: 
-void main_fsm_case_0(void)
+//Use this to set a new value
+void rgbLedSet(uint8_t r, uint8_t g, uint8_t b)
 {
-	slave_comm_trig = 1;
-
-	//test_comm_rw_master_v2(systick_100us_timeshare);
+	rgbPeriodR = r;
+	rgbPeriodG = g;
+	rgbPeriodB = b;
 }
 
-//Case 1: 
-void main_fsm_case_1(void)
+//Timer-based RGB driver - w/ fading.
+//Call this function at 10kHz
+void rgbLedRefresh(void)
 {
-
-}
-
-//Case 2:
-void main_fsm_case_2(void)
-{
-	//Test code 03/22/2016:
-
-	/*
-	static uint8_t xmit_toggle = 0;
-	int tx_byte = 0, commstrlen = 0;
-	unsigned char test_payload[PAYLOAD_BUF_LEN];
-
-	 xmit_toggle ^= 1;	//500Hz
-	 if(xmit_toggle)
-	 {
-	 tx_byte = tx_cmd_ctrl_special_1(FLEXSEA_EXECUTE_1, CMD_READ, test_payload, PAYLOAD_BUF_LEN, 0, 0, 0, 0, 0, 0);
-	 commstrlen = comm_gen_str(test_payload, comm_str_485_1, tx_byte);
-	 commstrlen = COMM_STR_BUF_LEN;
-	 flexsea_send_serial_slave(PORT_RS485_1, comm_str_485_1, commstrlen);
-
-	 slaves_485_1.xmit.listen = 1;
-	 }
-	 */
-	//test_comm_rw_master_v1();
-}
-
-//Case 3: 
-void main_fsm_case_3(void)
-{
-
-}
-
-//Case 4: User Functions
-void main_fsm_case_4(void)
-{
-	#if(RUNTIME_FSM1 == ENABLED)
-	user_fsm_1();
-	#endif //RUNTIME_FSM1 == ENABLED
-}
-
-//Case 5:
-void main_fsm_case_5(void)
-{
-	slave_comm_trig = 2;
-}
-
-//Case 6:
-void main_fsm_case_6(void)
-{
-
-}
-
-//Case 7:
-void main_fsm_case_7(void)
-{
-}
-
-//Case 8: User functions
-void main_fsm_case_8(void)
-{
-	#if(RUNTIME_FSM2 == ENABLED)
-	user_fsm_2();
-	#endif //RUNTIME_FSM2 == ENABLED
-}
-
-//Case 9: User Interface
-void main_fsm_case_9(void)
-{
-	//UI RGB LED
-	rgbLedRefreshFade();
-	rgb_led_ui(0, 0, 0, new_cmd_led);    //ToDo add error codes
-	if(new_cmd_led)
+	static uint8_t cnt = 0;
+	static uint8_t rON = 0, gON = 0, bON = 0;
+	
+	//New cycle?
+	if(!cnt)
 	{
-		new_cmd_led = 0;
+		//All ON
+		LEDR(1);
+		LEDG(1);
+		LEDB(1);
+		rON = 1;
+		gON = 1;
+		bON = 1;
 	}
+	
+	//Ready to turn OFF?
+	
+	if(rON && cnt >= rgbPeriodR)
+	{
+		LEDR(0);
+		rON = 0;
+	}
+	
+	if(gON && cnt >= rgbPeriodG)
+	{
+		LEDG(0);
+		gON = 0;
+	}
+	
+	if(bON && cnt >= rgbPeriodB)
+	{
+		LEDB(0);
+		bON = 0;
+	}
+	
+	//Increment counter. It will eventually roll over.
+	cnt += 2;
 }
 
-//10kHz time slot:
-//================
-
-void main_fsm_10kHz(void)
+//Accessor
+uint8_t rgbLedGetFade(void)
 {
-	//Master-Slave communications
-	slave_comm(&slave_comm_trig);
-
-	//RGB:
-	rgbLedRefresh();
+	return rgbFade;
 }
 
-//Asynchronous time slots:
-//========================
-
-void main_fsm_asynchronous(void)
+//Call this function every ms. It will update the rgbFade variable.
+void rgbLedRefreshFade(void)
 {
+	static uint16_t fade = 0, val = 0;
 
+	val++;
+	val %= FADE_PERIOD_MS;
+	
+	if(val > FADE_MIDPOINT-2)
+		fade = FADE_PERIOD_MS - val;
+	else
+		fade = val;
+	
+	rgbFade = (uint8_t) (fade>>1 & 0xFF);
+}
+
+//Test code
+void rgbLedRefresh_testcode_blocking(void)
+{
+	uint8_t div = 0;
+	
+	while(1)
+	{		
+		rgbLedSet(0, rgbFade, 0);
+		CyDelayUs(100);
+		
+		div++;
+		div %= 10;
+		if(!div)
+		{
+			//1ms
+			rgbLedRefreshFade();
+		}
+	}
 }
 
 //****************************************************************************
 // Private Function(s)
 //****************************************************************************
-
