@@ -95,10 +95,23 @@ void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned 
 
 void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned char length)
 {
+	//Hack for SPI. TODO Clean this
+	int i = 0;
+	for(i = 0; i < length; i++)
+	{
+		comm_str_spi[i] = str[i];
+	}
+	//This will be sent during the next SPI transaction
+
+	//USB is currently deactivated. With this code, you'll only be able to use
+	//Manage via SPI (at least for Read Reply). This whole thing will be fixed
+	//in the next software release.
+	/*
 	if(port == PORT_USB)
 	{
 		CDC_Transmit_FS(str, length);
 	}
+	*/
 }
 
 //Fill the buffer with 0s
