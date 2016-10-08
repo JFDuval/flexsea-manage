@@ -134,7 +134,6 @@ void rgbLedRefresh_testcode_blocking(void)
 	while(1)
 	{		
 		rgbLedSet(0, rgbFade, 0);
-		//CyDelayUs(100);
 		HAL_Delay(100);
 		
 		div++;

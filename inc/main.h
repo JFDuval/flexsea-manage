@@ -66,7 +66,6 @@
 #include "fm_i2c.h"
 #include "fm_imu.h"
 #include "fm_pwr_out.h"
-//#include "fm_stm32f4xx_hal_spi.h"
 #include "user.h"
 #include "flexsea_board.h"
 #include "../../flexsea-system/inc/flexsea_system.h"
@@ -82,8 +81,4 @@ int main(void);
 // Definition(s):
 //****************************************************************************
 
-//Enable/disable sub-modules:
-#define		USE_USB
-
 #endif // MAIN_H_
-
