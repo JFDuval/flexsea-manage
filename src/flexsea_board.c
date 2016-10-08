@@ -61,11 +61,13 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //===============
 //</FlexSEA User>
 
+/*
 //ToDo: This used to be in flexsea_rx_cmd... not clean. 
 uint8_t read_offset = 0;
 
 //Slave Read Buffer:
 unsigned char slave_read_buffer[SLAVE_READ_BUFFER_LEN];
+*/
 
 uint8_t bytes_ready_spi = 0;
 uint8_t cmd_ready_spi = 0;
@@ -114,6 +116,7 @@ void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned
 	*/
 }
 
+/*
 //Fill the buffer with 0s
 void flexsea_clear_slave_read_buffer(void)
 {
@@ -124,6 +127,7 @@ void flexsea_clear_slave_read_buffer(void)
 		slave_read_buffer[i] = 0;
 	}
 }
+*/
 
 void flexsea_receive_from_master(void)
 {
@@ -200,6 +204,7 @@ void flexsea_receive_from_slave(void)
 	}
 }
 
+/*
 //ToDo: deprecated function?
 //Packages data in one unified array: slave_read_buffer[]
 void flexsea_update_slave_read_buffer(unsigned char read_offset)
@@ -241,7 +246,9 @@ void flexsea_update_slave_read_buffer(unsigned char read_offset)
 	slave_read_buffer[15] = b2;
 	slave_read_buffer[16] = b3;
 }
+*/
 
+/*
 void build_slave_payload(unsigned char base_addr)
 {
 	unsigned char i = 0;
@@ -262,6 +269,7 @@ void build_slave_payload(unsigned char base_addr)
 
     return;
 }
+*/
 
 //Copies the generated comm_str to the aTxBuffer
 //It will be transfered the next time the master writes to us.
@@ -276,6 +284,7 @@ void comm_str_to_txbuffer(void)
 	}
 }
 
+/*
 //Everytime we receive an SPI string we transmit data
 //This function prepares the data to be sent.
 //ToDo delete?
@@ -286,3 +295,4 @@ void flexsea_prepare_spi_tx_buffer(uint8_t base_addr)
 	comm_gen_str(payload_str, comm_str_spi, PAYLOAD_BUF_LEN);
 	comm_str_to_txbuffer();
 }
+*/

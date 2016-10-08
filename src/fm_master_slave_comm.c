@@ -112,6 +112,7 @@ void slave_comm(uint8_t *autosample_trig)
 void parse_master_slave_commands(uint8_t *new_cmd)
 {
 	volatile uint32_t i = 0;
+	uint8_t info[2] = {0,0};
 
 	//Valid communication from SPI?
 	if(cmd_ready_spi != 0)
@@ -124,7 +125,8 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 			tmp_rx_command_spi[i] = rx_command_spi[0][i];
 		}
 		// parse the command and execute it
-		payload_parse_str(tmp_rx_command_spi);
+		info[0] = PORT_SPI;
+		payload_parse_str(tmp_rx_command_spi, info);
 
 		//LED:
 		*new_cmd = 1;
@@ -141,7 +143,8 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 			tmp_rx_command_usb[i] = rx_command_usb[0][i];
 		}
 		// parse the command and execute it
-		payload_parse_str(tmp_rx_command_usb);
+		info[0] = PORT_USB;
+		payload_parse_str(tmp_rx_command_usb, info);
 
 		//LED:
 		*new_cmd = 1;
@@ -158,7 +161,8 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 			tmp_rx_command_485_1[i] = rx_command_485_1[0][i];
 		}
 		// parse the command and execute it
-		payload_parse_str(tmp_rx_command_485_1);
+		info[0] = PORT_485_1;
+		payload_parse_str(tmp_rx_command_485_1, info);
 	}
 
 	//Valid communication from RS-485 #2?
@@ -172,7 +176,8 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 			tmp_rx_command_485_2[i] = rx_command_485_2[0][i];
 		}
 		// parse the command and execute it
-		payload_parse_str(tmp_rx_command_485_2);
+		info[0] = PORT_485_2;
+		payload_parse_str(tmp_rx_command_485_2, info);
 	}
 }
 

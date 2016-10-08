@@ -49,11 +49,11 @@ void flexsea_send_serial_master(unsigned char port, unsigned char *str,
 void flexsea_receive_from_master(void);
 void flexsea_start_receiving_from_master(void);
 void flexsea_receive_from_slave(void);
-void flexsea_clear_slave_read_buffer(void);
-void flexsea_update_slave_read_buffer(unsigned char read_offset);
-void build_slave_payload(unsigned char base_addr);
+//void flexsea_clear_slave_read_buffer(void);
+//void flexsea_update_slave_read_buffer(unsigned char read_offset);
+//void build_slave_payload(unsigned char base_addr);
 void comm_str_to_txbuffer(void);
-void flexsea_prepare_spi_tx_buffer(uint8_t base_addr);
+//void flexsea_prepare_spi_tx_buffer(uint8_t base_addr);
 
 //****************************************************************************
 // Definition(s):
@@ -74,13 +74,13 @@ void flexsea_prepare_spi_tx_buffer(uint8_t base_addr);
 //Note: only Manage can have a value different than 0 or 1
 
 //Slave Read Buffer Size:
-#define SLAVE_READ_BUFFER_LEN		32		//ToDo TBD
+//#define SLAVE_READ_BUFFER_LEN		32		//ToDo TBD
 
 //Enabled the required FlexSEA Buffers for this board:
-#define ENABLE_FLEXSEA_BUF_1				//RS-485 #1
-#define ENABLE_FLEXSEA_BUF_2				//RS-485 #2
-#define ENABLE_FLEXSEA_BUF_3				//SPI
-#define ENABLE_FLEXSEA_BUF_4				//USB
+#define ENABLE_FLEXSEA_BUF_1		//RS-485 #1
+#define ENABLE_FLEXSEA_BUF_2		//RS-485 #2
+#define ENABLE_FLEXSEA_BUF_3		//SPI
+#define ENABLE_FLEXSEA_BUF_4		//USB
 
 //Overload buffer & function names (for user convenience):
 

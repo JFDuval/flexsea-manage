@@ -59,9 +59,6 @@ int main(void)
 	//Initialize all the peripherals
 	init_peripherals();
 
-	//Start with an empty buffer
-	flexsea_clear_slave_read_buffer();
-
 	//Start receiving from master via interrupts
 	flexsea_start_receiving_from_master();
 

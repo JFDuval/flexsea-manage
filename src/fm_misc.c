@@ -92,6 +92,7 @@ void init_peripherals(void)
 	set_default_analog();
 }
 
+/*
 //Test communication - Read & Write - Master function - v1
 //Use that function in the main FSM. By default it talks to 1 Execute at 500Hz.
 
@@ -232,7 +233,9 @@ void test_comm_rw_master_v2(uint8_t fsm_state)
 		}
 	}
 }
+*/
 
+/*
 int usbtx(void)
 {
 	static int delayed_start = 0;
@@ -283,6 +286,7 @@ int usbtx(void)
 
 	return -2;
 }
+*/
 
 //****************************************************************************
 // Private Function(s)
