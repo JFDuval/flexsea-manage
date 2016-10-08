@@ -142,13 +142,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 		// transfer over the buffer
 		// Todo: transfer over the number of bytes that have been received instead of COMM_STR_BUF_LEN every time
-		for(unsigned char i = 0; i < COMM_STR_BUF_LEN; i++)
+		for(uint8_t i = 0; i < COMM_STR_BUF_LEN; i++)
 		{
 			update_rx_buf_byte_spi(aRxBuffer[i]);
 			//ToDo update to array
 		}
 		// clear the SPI buffer
-		for(unsigned char i = 0; i < COMM_STR_BUF_LEN; i++)
+		for(uint8_t i = 0; i < COMM_STR_BUF_LEN; i++)
 		{
 			aRxBuffer[i] = 0;
 		}

@@ -61,14 +61,6 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //===============
 //</FlexSEA User>
 
-/*
-//ToDo: This used to be in flexsea_rx_cmd... not clean. 
-uint8_t read_offset = 0;
-
-//Slave Read Buffer:
-unsigned char slave_read_buffer[SLAVE_READ_BUFFER_LEN];
-*/
-
 uint8_t bytes_ready_spi = 0;
 uint8_t cmd_ready_spi = 0;
 uint8_t cmd_ready_usb = 0;
@@ -78,7 +70,7 @@ uint8_t cmd_ready_usb = 0;
 //****************************************************************************
 //Wrapper for the specific serial functions. Useful to keep flexsea_network
 //platform independent (for example, we don't need need puts_rs485() for Plan)
-void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned char length)
+void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
 {
 	if(port == PORT_RS485_1)
 	{
@@ -95,7 +87,7 @@ void flexsea_send_serial_slave(unsigned char port, unsigned char *str, unsigned 
 	}
 }
 
-void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned char length)
+void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
 {
 	//Hack for SPI. TODO Clean this
 	int i = 0;
@@ -115,19 +107,6 @@ void flexsea_send_serial_master(unsigned char port, unsigned char *str, unsigned
 	}
 	*/
 }
-
-/*
-//Fill the buffer with 0s
-void flexsea_clear_slave_read_buffer(void)
-{
-	int i;
-
-	for(i = 0; i < SLAVE_READ_BUFFER_LEN; i++)
-	{
-		slave_read_buffer[i] = 0;
-	}
-}
-*/
 
 void flexsea_receive_from_master(void)
 {
@@ -204,95 +183,15 @@ void flexsea_receive_from_slave(void)
 	}
 }
 
-/*
-//ToDo: deprecated function?
-//Packages data in one unified array: slave_read_buffer[]
-void flexsea_update_slave_read_buffer(unsigned char read_offset)
-{
-	uint8_t b0 = 0, b1 = 0, b2 = 0, b3 = 0;
-
-	//Base address:
-	slave_read_buffer[0] = read_offset;
-
-	//IMU, 3x2 bytes:
-	uint16_to_bytes((uint16_t)exec1.gyro.x, &b0, &b1);
-	slave_read_buffer[1] = b0;
-	slave_read_buffer[2] = b1;
-	uint16_to_bytes((uint16_t)exec1.gyro.y, &b0, &b1);
-	slave_read_buffer[3] = b0;
-	slave_read_buffer[4] = b1;
-	uint16_to_bytes((uint16_t)exec1.gyro.z, &b0, &b1);
-	slave_read_buffer[5] = b0;
-	slave_read_buffer[6] = b1;
-
-	//Strain:
-	uint16_to_bytes(exec1.strain, &b0, &b1);
-	slave_read_buffer[7] = b0;
-	slave_read_buffer[8] = b1;
-
-	//Analog:
-	uint16_to_bytes(exec1.analog[0], &b0, &b1);
-	slave_read_buffer[9] = b0;
-	slave_read_buffer[10] = b1;
-
-	//Current:
-	uint16_to_bytes((uint16_t)exec1.current, &b0, &b1);
-	slave_read_buffer[11] = b0;
-	slave_read_buffer[12] = b1;
-
-	uint32_to_bytes((uint32_t)exec1.enc_control, &b0, &b1, &b2, &b3);
-	slave_read_buffer[13] = b0;
-	slave_read_buffer[14] = b1;
-	slave_read_buffer[15] = b2;
-	slave_read_buffer[16] = b3;
-}
-*/
-
-/*
-void build_slave_payload(unsigned char base_addr)
-{
-	unsigned char i = 0;
-
-    //Fresh string:
-    prepare_empty_payload(board_id, FLEXSEA_PLAN_1, payload_str, PAYLOAD_BUF_LEN); //ToDo extract from command, not hcoded
-
-    //Command:
-    payload_str[P_CMDS] = 1;                     //1 command in string
-    payload_str[P_CMD1] = 0; //CMD_MEM_READ_REPLY;
-
-    //Copy a portion of slave_read_buffer[] in payload_str[]
-    payload_str[P_DATA1] = slave_read_buffer[SRB_MANAGE_OFFSET];	//Always the offset
-    for(i = 1; i < PAYLOAD_BYTES; i++)
-    {
-    	payload_str[P_DATA1 + i] = slave_read_buffer[base_addr + i];
-    }
-
-    return;
-}
-*/
-
 //Copies the generated comm_str to the aTxBuffer
 //It will be transfered the next time the master writes to us.
 //ToDo generalize, use buffers as arguments
 void comm_str_to_txbuffer(void)
 {
-	unsigned char i = 0;
+	uint8_t i = 0;
 
 	for(i = 0; i < COMM_STR_BUF_LEN; i++)
 	{
 		aTxBuffer[i] = comm_str_spi[i];
 	}
 }
-
-/*
-//Everytime we receive an SPI string we transmit data
-//This function prepares the data to be sent.
-//ToDo delete?
-void flexsea_prepare_spi_tx_buffer(uint8_t base_addr)
-{
-	flexsea_update_slave_read_buffer(base_addr);
-	build_slave_payload(base_addr);
-	comm_gen_str(payload_str, comm_str_spi, PAYLOAD_BUF_LEN);
-	comm_str_to_txbuffer();
-}
-*/

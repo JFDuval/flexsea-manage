@@ -152,7 +152,7 @@ void ankle_2dof_fsm_2(void)
 	static uint8_t ex_refresh_fsm_state = 0;
 	static uint32_t timer = 0;
 	int tx_byte = 0, commstrlen = 0;
-	unsigned char test_payload[PAYLOAD_BUF_LEN];
+	uint8_t test_payload[PAYLOAD_BUF_LEN];
 
 	//This FSM talks to the slaves at 250Hz each
 	switch(ex_refresh_fsm_state)

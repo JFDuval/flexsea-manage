@@ -75,7 +75,7 @@ void main_fsm_case_2(void)
 	/*
 	static uint8_t xmit_toggle = 0;
 	int tx_byte = 0, commstrlen = 0;
-	unsigned char test_payload[PAYLOAD_BUF_LEN];
+	uint8_t test_payload[PAYLOAD_BUF_LEN];
 
 	 xmit_toggle ^= 1;	//500Hz
 	 if(xmit_toggle)

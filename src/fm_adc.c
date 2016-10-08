@@ -119,7 +119,7 @@ unsigned int adc_conv(void)
 	return result;
 }
 
-void adc_set_channel(unsigned char ch)
+void adc_set_channel(uint8_t ch)
 {
 	sConfig.Channel = ch;
 	sConfig.Rank = 1;

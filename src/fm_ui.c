@@ -100,7 +100,7 @@ void init_switches(void)
 	init_sw1();
 }
 
-void set_led_rgb(unsigned char r, unsigned char g, unsigned char b)
+void set_led_rgb(uint8_t r, uint8_t g, uint8_t b)
 {
 	//No fading, we use 1 or 0 for now.
 
@@ -227,8 +227,8 @@ void rgb_led_ui(uint8_t err_l0, uint8_t err_l1, uint8_t err_l2,
 //Cycles through all the colors
 void rgb_led_test_code_blocking(void)
 {
-	unsigned char r = 0, g = 0, b = 0;
-	unsigned char cnt = 0;
+	uint8_t r = 0, g = 0, b = 0;
+	uint8_t cnt = 0;
 	unsigned long delay = 0;
 
 	while(1)

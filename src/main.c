@@ -51,7 +51,7 @@ uint8_t autosampling = 0;
 int main(void)
 {
 	//Variables:
-	unsigned char toggle_led0 = 0;
+	uint8_t toggle_led0 = 0;
 
 	//Prepare FlexSEA stack:
 	init_flexsea_payload_ptr();

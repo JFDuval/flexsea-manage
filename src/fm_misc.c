@@ -40,7 +40,7 @@
 // Variable(s)
 //****************************************************************************
 
-unsigned char test_payload[PAYLOAD_BUF_LEN];
+uint8_t test_payload[PAYLOAD_BUF_LEN];
 uint8_t usb_test_string[40] = "[FlexSEA-Manage 0.1 USB]\n";
 
 //****************************************************************************

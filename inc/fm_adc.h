@@ -50,7 +50,7 @@
 
 void init_adc1(void);
 unsigned int adc_conv(void);
-void adc_set_channel(unsigned char ch);
+void adc_set_channel(uint8_t ch);
 
 //****************************************************************************
 // Definition(s):

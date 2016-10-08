@@ -42,16 +42,16 @@
 // Prototype(s):
 //****************************************************************************
 
-void flexsea_send_serial_slave(unsigned char port, unsigned char *str,
-		unsigned char length);
-void flexsea_send_serial_master(unsigned char port, unsigned char *str,
-		unsigned char length);
+void flexsea_send_serial_slave(uint8_t port, uint8_t *str,
+		uint8_t length);
+void flexsea_send_serial_master(uint8_t port, uint8_t *str,
+		uint8_t length);
 void flexsea_receive_from_master(void);
 void flexsea_start_receiving_from_master(void);
 void flexsea_receive_from_slave(void);
 //void flexsea_clear_slave_read_buffer(void);
-//void flexsea_update_slave_read_buffer(unsigned char read_offset);
-//void build_slave_payload(unsigned char base_addr);
+//void flexsea_update_slave_read_buffer(uint8_t read_offset);
+//void build_slave_payload(uint8_t base_addr);
 void comm_str_to_txbuffer(void);
 //void flexsea_prepare_spi_tx_buffer(uint8_t base_addr);
 
