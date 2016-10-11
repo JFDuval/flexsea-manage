@@ -262,32 +262,38 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 	}
 	else if(hi2c->Instance == I2C2)
 	{
-		///// SET UP GPIO /////
-		//GPIO initialization constants
+		/*Apparently I2C2 is buggy. AFter experimenting and reading on ST
+		 * forums I used the workaround of 1) not enabling the I2C clock before
+		 * the GPIO and 2) enabling SCL first, then SDA. It solved the "I2C is
+		 * always busy" error. */
+
 		GPIO_InitTypeDef GPIO_InitStruct;
 
 		//Enable peripheral and GPIO clockS
 		__GPIOF_CLK_ENABLE();
-		__I2C2_CLK_ENABLE();
 		initOptionalPullUps();
 
-		 //SCL2	-> PF1
-		 //SDA2	-> PF0
-
-		//Config inputs:
-		//We are configuring these pins.
-		GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
-		//I2C wants to have open drain lines pulled up by resistors
+		//SCL -> PF1
+		GPIO_InitStruct.Pin = GPIO_PIN_1;
 		GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-		//Although we need pullups for I2C, we have them externally on
-		// the board.
 		GPIO_InitStruct.Pull = GPIO_NOPULL;
-		//Set GPIO speed to fastest speed.
 		GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-		//Assign function to pins.
 		GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
-		//Initialize the pins.
 		HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+		HAL_Delay(1);
+
+		//SDA -> PF0
+		GPIO_InitStruct.Pin = GPIO_PIN_0;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+		GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
+		HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+		HAL_Delay(1);
+
+		__I2C2_CLK_ENABLE();
 	}
 }
 
