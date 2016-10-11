@@ -42,6 +42,7 @@
 I2C_HandleTypeDef hi2c1, hi2c2;
 uint8_t i2c1_last_request = 0;
 volatile uint8_t i2c_1_r_buf[24];
+volatile uint8_t i2c_2_r_buf[24];
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -105,7 +106,7 @@ void i2c1_fsm(void)
 
 void i2c2_fsm(void)
 {
-	//Note: function named "fsm" for convention and future-proofness, but
+	//Note: function named "fsm" for convention and future proof-ness, but
 	//as of now there is only one slot
 
 	#ifdef USE_I2C_2
@@ -119,14 +120,11 @@ void i2c2_fsm(void)
 			cnt %= 4;
 			if(!cnt)
 			{
-				//Test, ToDo replace by function
-				HAL_I2C_Mem_Write(&hi2c2, 100, 123,
-									I2C_MEMADD_SIZE_8BIT, pData, 3, 1000);
-
-
+				//Refresh battery once every 4 cycles (250Hz):
+				readBattery();
 			}
 
-		#endif
+		#endif	//USE_BATTBOARD
 
 	#endif //USE_I2C_2
 }
@@ -213,6 +211,14 @@ void init_i2c2(void)
 void disable_i2c2(void)
 {
 	HAL_I2C_DeInit(&hi2c2);
+}
+
+//Associate data with the right structure. We need that because of the way the ISR-based
+//I2C works (we always get data from the last request)
+void assign_i2c2_data(uint8_t *newdata)
+{
+	//(Function isn't used at this point)
+	(void)newdata;
 }
 
 //****************************************************************************

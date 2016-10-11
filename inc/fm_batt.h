@@ -19,17 +19,17 @@
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
 	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] Erin Main (ermain@mit.edu)
+	[Contributors]
 *****************************************************************************
-	[This file] fm_i2c: i2c comms
+	[This file] fm_batt: Battery board driver
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-23 | jfduval | Initial GPL-3.0 release
+	* 2016-12-27 | jfduval | Initial release
 	*
 ****************************************************************************/
 
-#ifndef INC_FM_I2C_H
-#define INC_FM_I2C_H
+#ifndef INC_FM_BATTBOARD_H
+#define INC_FM_BATTBOARD_H
 
 //****************************************************************************
 // Include(s)
@@ -38,43 +38,47 @@
 #include <stdlib.h>
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2c.h"
 
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
 
-extern I2C_HandleTypeDef hi2c1, hi2c2;
-extern volatile uint8_t i2c_1_r_buf[24];
-extern volatile uint8_t i2c_2_r_buf[24];
+//****************************************************************************
+// Definition(s):
+//****************************************************************************
+
+//set to 1 if we want to use blocking read/write
+#define BATT_BLOCKING 	1
+
+// I2C Comms Constants
+#define BATT_BLOCK_TIMEOUT 		10000 	//may want to reduce this?
+#define BATT_ADDR 				0x66	//7-bits addr is 0x33
+#define BATT_MAX_BUF_SIZE 		16 		//
+
+//EZI2C Buffer:
+#define EZI2C_WBUF_SIZE			4
+#define EZI2C_RBUF_SIZE			8
+#define EZI2C_BUF_SIZE			(EZI2C_WBUF_SIZE + EZI2C_RBUF_SIZE)
+
+//EZI2C Shared memory locations:
+#define MEM_W_CONTROL1			0
+#define MEM_W_CONTROL2			1
+//#define UNUSED			2
+//#define UNUSED			3
+#define MEM_R_STATUS1			5
+#define MEM_R_STATUS2			6
+#define MEM_R_VOLT_MSB			7
+#define MEM_R_VOLT_LSB			8
+#define MEM_R_CURRENT_MSB		9
+#define MEM_R_CURRENT_LSB		10
+#define MEM_R_TEMP			11
 
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
 
-void i2c1_fsm(void);
-void assign_i2c1_data(uint8_t *newdata);
-void init_i2c1(void);
-void disable_i2c1(void);
-void init_i2c2(void);
-void i2c2_fsm(void);
-void assign_i2c2_data(uint8_t *newdata);
-void disable_i2c2(void);
-void initOptionalPullUps(void);
+void init_battery(void);
+void readBattery(void);
 
-//****************************************************************************
-// Definition(s):
-//****************************************************************************
+#endif //INC_FM_BATTBOARD_H
 
-//set to 1 if we want to use interrupt driven I2C.
-#define I2C1_USE_INT 		0
-//#define I2C1_CLOCK_RATE 	100000 	//in Hz, corresponds to "Regular Speed" I2C
-#define I2C1_CLOCK_RATE 	400000 	//in Hz, corresponds to "Full Speed" I2C
-#define I2C2_CLOCK_RATE 	400000 	//in Hz, corresponds to "Full Speed" I2C
-
-//ISR reading of I2C1 sensors (IMU, Battery, etc):
-#define I2C1_RQ_GYRO			1
-#define I2C1_RQ_ACCEL			2
-#define I2C1_RQ_BATTBOARD		3
-
-#endif //INC_FM_I2C_H

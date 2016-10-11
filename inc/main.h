@@ -66,6 +66,7 @@
 #include "fm_i2c.h"
 #include "fm_imu.h"
 #include "fm_pwr_out.h"
+#include "fm_batt.h"
 #include "flexsea_board.h"
 #include "../flexsea-user/inc/user-mn.h"
 #include "../flexsea-system/inc/flexsea_system.h"

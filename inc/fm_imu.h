@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] Erin Main (ermain@mit.edu)
 *****************************************************************************
-	[This file] fm_i2c: IMU configuration
+	[This file] fm_imu: IMU configuration
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-23 | jfduval | Initial GPL-3.0 release
@@ -62,7 +62,7 @@ typedef enum {
 
 // I2C Comms Constants
 #define IMU_BLOCK_TIMEOUT 	10000 //may want to reduce this?
-#define IMU_ADDR 			0xD0 //device address of the IMU.
+#define IMU_ADDR 			0xD0 //device address of the IMU (8bits)
 #define IMU_MAX_BUF_SIZE 	16 //
 
 // IMU Register Addresses (names correspond to those in the datasheet)
