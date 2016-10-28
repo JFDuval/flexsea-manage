@@ -24,16 +24,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>flexsea-comm</name>
-			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/flexsea-comm</locationURI>
-		</link>
-		<link>
-			<name>flexsea-system</name>
-			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/flexsea-system</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

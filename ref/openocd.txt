@@ -1,0 +1,1 @@
+openocd -s "C:\Program Files\GNU ARM Eclipse\OpenOCD\0.10.0-201601101000-dev\bin\openocd\scripts\" -f interface/stlink-v2.cfg -f target/stm32f4x_stlink.cfg -c init -c "reset halt" -c "sleep 100" -c "wait_halt 2" -c "flash write_image erase manage.elf" -c "sleep 100" -c "verify_image manage.elf" -c "sleep 100" -c "reset run" -c "shutdown"
