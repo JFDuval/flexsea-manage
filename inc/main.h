@@ -67,7 +67,7 @@
 #include "fm_imu.h"
 #include "fm_pwr_out.h"
 #include "flexsea_board.h"
-#include "user-mn.h"
+#include "../flexsea-user/inc/user-mn.h"
 #include "../flexsea-system/inc/flexsea_system.h"
 #include "../flexsea-comm/inc/flexsea.h"
 #include "../flexsea-system/test/flexsea-system_test-all.h"

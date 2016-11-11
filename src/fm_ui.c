@@ -90,9 +90,13 @@ void init_sw1()
 	HAL_GPIO_Init(GPIOE, &GPIO_InitStructure);
 }
 
-int read_sw1(void)
+uint8_t read_sw1(void)
 {
-	return HAL_GPIO_ReadPin(GPIOE, 1 << 3);
+	uint8_t state = 0;
+	GPIO_PinState bitstatus;
+	bitstatus = HAL_GPIO_ReadPin(GPIOE, 1 << 3);
+	state = bitstatus;
+	return state;
 }
 
 void init_switches(void)
@@ -224,6 +228,10 @@ void rgb_led_ui(uint8_t err_l0, uint8_t err_l1, uint8_t err_l2,
 	}
 }
 
+//****************************************************************************
+// Test Code
+//****************************************************************************
+
 //Cycles through all the colors
 void rgb_led_test_code_blocking(void)
 {
@@ -243,9 +251,22 @@ void rgb_led_test_code_blocking(void)
 		set_led_rgb(r, g, b);
 
 		//Waste some time:
-		for(delay = 0; delay < 75000000; delay++)
-			;
+		for(delay = 0; delay < 75000000; delay++);
 	}
+}
+
+void user_button_test_blocking(void)
+{
+	if(read_sw1())
+	{
+		LED1(0);
+	}
+	else
+	{
+		LED1(1);
+	}
+
+	//HAL_Delay(10);
 }
 
 //****************************************************************************

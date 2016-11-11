@@ -114,7 +114,8 @@ void main_fsm_case_5(void)
 //Case 6:
 void main_fsm_case_6(void)
 {
-
+	//User switch:
+	manag1.sw1 = read_sw1();
 }
 
 //Case 7:
