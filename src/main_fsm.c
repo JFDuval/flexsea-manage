@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] main_fsm: Contains all the case() code for the main FSM
 *****************************************************************************
@@ -44,7 +44,7 @@ uint8_t new_cmd_led = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
-//****************************************************************************	
+//****************************************************************************
 
 //****************************************************************************
 // Public Function(s)
@@ -53,7 +53,7 @@ uint8_t new_cmd_led = 0;
 //1kHz time slots:
 //================
 
-//Case 0: 
+//Case 0:
 void main_fsm_case_0(void)
 {
 	slave_comm_trig = 1;
@@ -61,10 +61,14 @@ void main_fsm_case_0(void)
 	//test_comm_rw_master_v2(systick_100us_timeshare);
 }
 
-//Case 1: 
+//Case 1:
 void main_fsm_case_1(void)
 {
-
+	//Test code ToDo remove
+	user_data_1.r[0] = user_data_1.w[0] + 1;
+	user_data_1.r[1] = user_data_1.w[1] * 2;
+	user_data_1.r[2] = 123;
+	user_data_1.r[3] = -76543;
 }
 
 //Case 2:
@@ -91,7 +95,7 @@ void main_fsm_case_2(void)
 	//test_comm_rw_master_v1();
 }
 
-//Case 3: 
+//Case 3:
 void main_fsm_case_3(void)
 {
 
