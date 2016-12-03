@@ -64,11 +64,7 @@ void main_fsm_case_0(void)
 //Case 1:
 void main_fsm_case_1(void)
 {
-	//Test code ToDo remove
-	user_data_1.r[0] = user_data_1.w[0] + 1;
-	user_data_1.r[1] = user_data_1.w[1] * 2;
-	user_data_1.r[2] = 123;
-	user_data_1.r[3] = -76543;
+
 }
 
 //Case 2:
