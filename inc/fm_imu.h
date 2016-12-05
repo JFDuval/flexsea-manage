@@ -61,10 +61,9 @@ typedef enum {
 } imu_data_set;
 
 // I2C Comms Constants
-#define IMU_BLOCK_TIMEOUT 10000 //may want to reduce this?
-//#define IMU_ADDR 0x68 //0b1101000
-#define IMU_ADDR 0xD0 //device address of the IMU.
-#define IMU_MAX_BUF_SIZE 100 //(in bytes) (somewhat arbitrary)
+#define IMU_BLOCK_TIMEOUT 	10000 //may want to reduce this?
+#define IMU_ADDR 			0xD0 //device address of the IMU.
+#define IMU_MAX_BUF_SIZE 	16 //
 
 // IMU Register Addresses (names correspond to those in the datasheet)
 // These are internal to the imu.

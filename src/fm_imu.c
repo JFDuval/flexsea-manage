@@ -40,6 +40,7 @@
 //****************************************************************************
 
 struct imu_s imu;
+volatile uint8_t i2c_tmp_buf[IMU_MAX_BUF_SIZE];
 
 //****************************************************************************
 // Private Function Prototype(s)
@@ -59,6 +60,8 @@ void init_imu(void)
 {
 	//Reset the IMU.
 	reset_imu();
+	HAL_Delay(25);
+
 	// Initialize the config registers.
 	uint8_t config[4] = { D_IMU_CONFIG, D_IMU_GYRO_CONFIG, D_IMU_ACCEL_CONFIG, \
 							D_IMU_ACCEL_CONFIG2 };
@@ -152,8 +155,30 @@ void get_gyro_xyz(void)
 static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 		uint16_t Size)
 {
-	return HAL_I2C_Mem_Write(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
-	I2C_MEMADD_SIZE_8BIT, pData, Size, IMU_BLOCK_TIMEOUT);
+	uint8_t i = 0;
+	HAL_StatusTypeDef retVal;
+
+	i2c_tmp_buf[0] = internal_reg_addr;
+	for(i = 1; i < Size + 1; i++)
+	{
+		i2c_tmp_buf[i] = pData[i-1];
+	}
+
+	//Try to write it up to 5 times
+	for(i = 0; i < 5; i++)
+	{
+		retVal = HAL_I2C_Mem_Write(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
+					I2C_MEMADD_SIZE_8BIT, pData, Size, IMU_BLOCK_TIMEOUT);
+
+		if(retVal == HAL_OK)
+		{
+			break;
+		}
+
+		HAL_Delay(10);
+	}
+
+	return retVal;
 }
 
 //read data from an internal register of the IMU.
@@ -180,7 +205,7 @@ static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 	//<<<<
 
 	retVal = HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
-	I2C_MEMADD_SIZE_8BIT, pData, Size, IMU_BLOCK_TIMEOUT);
+	I2C_MEMADD_SIZE_8BIT, i2c_1_r_buf, Size, IMU_BLOCK_TIMEOUT);
 
 	return retVal;
 }
