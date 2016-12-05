@@ -164,8 +164,25 @@ static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 		uint16_t Size)
 {
-	return HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
+	uint8_t i = 0;
+	HAL_StatusTypeDef retVal;
+
+	//>>> Copy of Execute's code - todo improve
+	//Currently having trouble detecting the flags to know when data is ready.
+	//For now I'll transfer the previous buffer.
+	for(i = 0; i < Size; i++)
+	{
+		pData[i] = i2c_1_r_buf[i];
+	}
+
+	//Store data:
+	assign_i2c_data(&i2c_1_r_buf);
+	//<<<<
+
+	retVal = HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
 	I2C_MEMADD_SIZE_8BIT, pData, Size, IMU_BLOCK_TIMEOUT);
+
+	return retVal;
 }
 
 //****************************************************************************

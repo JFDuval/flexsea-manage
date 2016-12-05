@@ -53,12 +53,15 @@ uint8_t new_cmd_led = 0;
 //1kHz time slots:
 //================
 
-//Case 0:
+//Case 0: I2C1
 void main_fsm_case_0(void)
 {
 	slave_comm_trig = 1;
 
 	//test_comm_rw_master_v2(systick_100us_timeshare);
+
+	i2c_1_fsm();
+
 }
 
 //Case 1:

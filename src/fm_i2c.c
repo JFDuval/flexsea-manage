@@ -40,6 +40,8 @@
 //****************************************************************************
 
 I2C_HandleTypeDef hi2c1;
+uint8_t i2c_last_request = 0;
+volatile uint8_t i2c_1_r_buf[24];
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -51,6 +53,95 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c);
 //****************************************************************************
 // Public Function(s)
 //****************************************************************************
+
+void i2c_1_fsm(void)
+{
+	static uint8_t i2c_time_share = 0;
+
+	i2c_time_share++;
+	i2c_time_share %= 4;
+
+	#ifdef USE_I2C_1
+
+	//Subdivided in 4 slots (250Hz)
+	switch(i2c_time_share)
+	{
+		//Case 0.0: Accelerometer
+		case 0:
+
+			#ifdef USE_IMU
+			get_accel_xyz();
+			i2c_last_request = I2C_RQ_ACCEL;
+			#endif 	//USE_IMU
+
+			break;
+
+		//Case 0.1: Gyroscope
+		case 1:
+
+			#ifdef USE_IMU
+			get_gyro_xyz();
+			i2c_last_request = I2C_RQ_GYRO;
+			#endif 	//USE_IMU
+
+			break;
+
+		//Case 0.2:
+		case 2:
+
+			break;
+
+		//Case 0.3:
+		case 3:
+
+			break;
+
+		default:
+			break;
+	}
+
+	#endif //USE_I2C_1
+}
+
+//Associate data with the right structure. We need that because of the way the ISR-based
+//I2C works (we always get data from the last request)
+void assign_i2c_data(uint8_t *newdata)
+{
+	uint16_t tmp = 0;
+
+	if(i2c_last_request == I2C_RQ_GYRO)
+	{
+		//Gyro X:
+		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
+		imu.gyro.x = (int16_t)tmp;
+
+		//Gyro Y:
+		tmp = ((uint16_t)newdata[2] << 8) | ((uint16_t) newdata[3]);
+		imu.gyro.y = (int16_t)tmp;
+
+		//Gyro Z:
+		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
+		imu.gyro.z = (int16_t)tmp;
+	}
+	else if(i2c_last_request == I2C_RQ_ACCEL)
+	{
+		//Accel X:
+		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
+		imu.accel.x = (int16_t)tmp;
+
+		//Accel Y:
+		tmp = ((uint16_t)newdata[2] << 8) | ((uint16_t) newdata[3]);
+		imu.accel.y = (int16_t)tmp;
+
+		//Accel Z:
+		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
+		imu.accel.z = (int16_t)tmp;
+	}
+	else if(i2c_last_request == I2C_RQ_BATTBOARD)
+	{
+		//...
+	}
+}
 
 // Initialize i2c1. Currently connected to the IMU and the digital pot
 void init_i2c1(void)
