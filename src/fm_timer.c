@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_timer: SysTick & Timer functions
 *****************************************************************************
@@ -85,8 +85,6 @@ void timebases(void)
 
 	//100us flag:
 	tb_100us_flag = 1;
-	tb_100us_timeshare++;
-	tb_100us_timeshare %= 10;
 
 	//1ms flag:
 	cnt_1ms++;

@@ -131,6 +131,10 @@ int main(void)
 					break;
 			}
 
+			//Increment value, limits to 0-9
+			tb_100us_timeshare++;
+			tb_100us_timeshare %= 10;
+
 			//The code below is executed every 100us, after the previous slot.
 			//Keep it short!
 			main_fsm_10kHz();
