@@ -158,16 +158,12 @@ int main(void)
 			//Constant LED0 flashing while the code runs
 			toggle_led0 ^= 1;
 			LED0(toggle_led0);
-
-			//LED1 tracks the user switch:
-			LED1(!manag1.sw1);
 		}
 
 		//1000ms
 		if(tb_1000ms_flag)
 		{
 			tb_1000ms_flag = 0;
-
 		}
 	}
 }

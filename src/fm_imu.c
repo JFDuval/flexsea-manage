@@ -63,13 +63,6 @@ void init_imu(void)
 	uint8_t config[4] = { D_IMU_CONFIG, D_IMU_GYRO_CONFIG, D_IMU_ACCEL_CONFIG, \
 							D_IMU_ACCEL_CONFIG2 };
 	uint8_t imu_addr = IMU_CONFIG;
-
-	/*
-	for(int i = 0; i < 4; i++)
-	{
-		imu_write(imu_addr + i, &config[i], 1);
-	}
-	*/
 	imu_write(imu_addr, config, 4);
 }
 
