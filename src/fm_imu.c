@@ -201,7 +201,7 @@ static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 	}
 
 	//Store data:
-	assign_i2c_data(&i2c_1_r_buf);
+	assign_i2c1_data(&i2c_1_r_buf);
 	//<<<<
 
 	retVal = HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
@@ -219,7 +219,7 @@ void imu_test_code_blocking(void)
 	//IMU test code
 
 	uint8_t led_state = 0;
-	int16_t imu_accel_x = 0;
+	//int16_t imu_accel_x = 0;
 
 	/*
 	//Single channel test:

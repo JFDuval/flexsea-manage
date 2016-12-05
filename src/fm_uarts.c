@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_uarts: Deals with the 3 USARTs
 *****************************************************************************
@@ -397,8 +397,6 @@ uint8_t reception_rs485_2_blocking(void)
 //Function called after a completed DMA transfer, UART1 RX
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
-	volatile uint32_t empty_dr = 0;
-
 	if(hdma->Instance == DMA2_Stream2)
 	{
 		//Clear the UART receiver. Might not be needed, but harmless
@@ -419,8 +417,6 @@ void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 //Function called after a completed DMA transfer, UART6 RX
 void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
-	volatile uint32_t empty_dr = 0;
-
 	if(hdma->Instance == DMA2_Stream1)
 	{
 		//Clear the UART receiver. Might not be needed, but harmless

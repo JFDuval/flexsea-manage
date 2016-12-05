@@ -105,7 +105,7 @@ void i2c_1_fsm(void)
 
 //Associate data with the right structure. We need that because of the way the ISR-based
 //I2C works (we always get data from the last request)
-void assign_i2c_data(uint8_t *newdata)
+void assign_i2c1_data(uint8_t *newdata)
 {
 	uint16_t tmp = 0;
 

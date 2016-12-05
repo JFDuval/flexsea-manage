@@ -52,7 +52,7 @@ extern volatile uint8_t i2c_1_r_buf[24];
 //****************************************************************************
 
 void i2c_1_fsm(void);
-void assign_i2c_data(uint8_t *newdata);
+void assign_i2c1_data(uint8_t *newdata);
 void init_i2c1(void);
 void disable_i2c(void);
 
