@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] fm_misc: when it doesn't belong in any another file, it 
+	[This file] fm_misc: when it doesn't belong in any another file, it
 	ends up here...
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
@@ -90,6 +90,27 @@ void init_peripherals(void)
 
 	//Default analog input states:
 	set_default_analog();
+}
+
+void test_code_blocking(void)
+{
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+	//Blocking Test code - enable one and only one for special
+	//debugging. Normal code WILL NOT EXECUTE when this is enabled!
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	//rgb_led_test_code_blocking();
+	//user_button_test_blocking();
+	//imu_test_code_blocking();
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+}
+
+void test_code_non_blocking(void)
+{
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	//Non-Blocking Test code
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 }
 
 //****************************************************************************

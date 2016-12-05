@@ -62,14 +62,9 @@ int main(void)
 	//Start receiving from master via interrupts
 	flexsea_start_receiving_from_master();
 
-	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	//Test code - enable one and only one for special debugging
-	//Normal code WILL NOT EXECUTE when this is enabled!
-	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	//rgb_led_test_code_blocking();
-	//user_button_test_blocking();
-	//imu_test_code_blocking();
-	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	//Test code, use with care. Normal code might NOT run when enabled!
+	//test_code_blocking();
+	//test_code_non_blocking();
 
 	init_user();
 
