@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] Erin Main (ermain@mit.edu)
 *****************************************************************************
@@ -58,7 +58,7 @@ void init_i2c1(void)
 	//I2C_HandleTypeDef *hi2c1 contains our handle information
 	//set config for the initial state of the i2c.
 	hi2c1.Instance = I2C1;
-	hi2c1.Init.ClockSpeed = I2C_CLOCK_RATE;  				//clock frequency; less than 400kHz
+	hi2c1.Init.ClockSpeed = I2C1_CLOCK_RATE;  				//clock frequency; less than 400kHz
 	hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2; 				//for fast mode (doesn't matter now)
 	hi2c1.Init.OwnAddress1 = 0x0; 							//device address of the STM32 (doesn't matter)
 	hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;	//using 7 bit addresses

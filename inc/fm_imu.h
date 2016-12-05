@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] Erin Main (ermain@mit.edu)
 *****************************************************************************
@@ -137,6 +137,7 @@ int16_t get_gyro_z(void);		//Zgyro data
 void get_gyro_xyz(void);
 void reset_imu(void);			//reset IMU registers to default
 void disable_imu(void);			//disable the IMU by shutting down clocks, etc.
+void imu_test_code_blocking(void);
 
 #endif //INC_FM_IMU_H
 

@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] Erin Main (ermain@mit.edu)
 *****************************************************************************
@@ -63,10 +63,14 @@ void init_imu(void)
 	uint8_t config[4] = { D_IMU_CONFIG, D_IMU_GYRO_CONFIG, D_IMU_ACCEL_CONFIG, \
 							D_IMU_ACCEL_CONFIG2 };
 	uint8_t imu_addr = IMU_CONFIG;
+
+	/*
 	for(int i = 0; i < 4; i++)
 	{
 		imu_write(imu_addr + i, &config[i], 1);
 	}
+	*/
+	imu_write(imu_addr, config, 4);
 }
 
 // Reset the IMU to default settings
@@ -103,9 +107,9 @@ int16_t get_accel_z(void)
 void get_accel_xyz(void)
 {
 	uint8_t tmp_data[7] = {0,0,0,0,0,0};
-	
+
 	//According to the documentation it's X_H, X_L, Y_H, ...
-	imu_read(IMU_ACCEL_XOUT_H, tmp_data, 7);
+	imu_read(IMU_ACCEL_XOUT_H, tmp_data, 6);
 }
 
 // Get gyro X
@@ -136,7 +140,7 @@ int16_t get_gyro_z(void)
 void get_gyro_xyz(void)
 {
 	uint8_t tmp_data[7] = {0,0,0,0,0,0,0};
-	
+
 	//According to the documentation it's X_H, X_L, Y_H, ...
 	imu_read(IMU_GYRO_XOUT_H, tmp_data, 6);
 }
@@ -169,4 +173,41 @@ static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 {
 	return HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
 	I2C_MEMADD_SIZE_8BIT, pData, Size, IMU_BLOCK_TIMEOUT);
+}
+
+//****************************************************************************
+// Test Function(s) - Use with care!
+//****************************************************************************
+
+void imu_test_code_blocking(void)
+{
+	//IMU test code
+
+	uint8_t led_state = 0;
+	int16_t imu_accel_x = 0;
+
+	/*
+	//Single channel test:
+	while(1)
+	{
+		imu_accel_x = get_accel_x();
+
+		led_state ^= 1;
+		LED1(led_state);
+
+		HAL_Delay(75);
+	}
+	*/
+
+	// 3 channels test (only one displayed)
+	while(1)
+	{
+		get_accel_xyz();
+		//get_gyro_xyz();
+
+		led_state ^= 1;
+		LED1(led_state);
+
+		HAL_Delay(75);
+	}
 }

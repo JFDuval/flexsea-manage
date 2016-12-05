@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] Erin Main (ermain@mit.edu)
 *****************************************************************************
@@ -58,8 +58,8 @@ void disable_i2c(void);
 //****************************************************************************
 
 //set to 1 if we want to use interrupt driven I2C.
-#define I2C_USE_INT 0
-#define I2C_CLOCK_RATE 100000 //in Hz, corresponds to "Regular Speed" I2C
+#define I2C1_USE_INT 		0
+//#define I2C1_CLOCK_RATE 	100000 	//in Hz, corresponds to "Regular Speed" I2C
+#define I2C1_CLOCK_RATE 	400000 	//in Hz, corresponds to "Full Speed" I2C
 
 #endif //INC_FM_I2C_H
-
