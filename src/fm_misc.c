@@ -70,14 +70,39 @@ void init_peripherals(void)
 	init_spi4();				//Plan
 	//init_spi5();				//FLASH
 	//init_spi6();				//Expansion
-	init_i2c1();
-	init_imu();
+
+	#ifdef USE_I2C_1
+
+		init_i2c1();
+
+		#ifdef USE_IMU
+
+			init_imu();
+
+		#endif	//USE_IMU
+
+	#endif	//USE_I2C_1
+
+	#ifdef USE_I2C_2
+
+		init_i2c2();
+
+		#ifdef USE_BATTBOARD
+
+			init_battery_board();
+
+		#endif	//USE_IMU
+
+	#endif	//USE_I2C_2
+
 	init_adva_fc_pins();
 	init_pwr_out();
 
 	//USB
 	#ifdef USE_USB
-	MX_USB_DEVICE_Init();
+
+		MX_USB_DEVICE_Init();
+
 	#endif	//USE_USB
 
 	//Software:

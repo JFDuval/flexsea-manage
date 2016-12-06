@@ -39,8 +39,8 @@
 // Variable(s)
 //****************************************************************************
 
-I2C_HandleTypeDef hi2c1;
-uint8_t i2c_last_request = 0;
+I2C_HandleTypeDef hi2c1, hi2c2;
+uint8_t i2c1_last_request = 0;
 volatile uint8_t i2c_1_r_buf[24];
 
 //****************************************************************************
@@ -54,7 +54,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c);
 // Public Function(s)
 //****************************************************************************
 
-void i2c_1_fsm(void)
+void i2c1_fsm(void)
 {
 	static uint8_t i2c_time_share = 0;
 
@@ -71,7 +71,7 @@ void i2c_1_fsm(void)
 
 			#ifdef USE_IMU
 			get_accel_xyz();
-			i2c_last_request = I2C_RQ_ACCEL;
+			i2c1_last_request = I2C1_RQ_ACCEL;
 			#endif 	//USE_IMU
 
 			break;
@@ -81,7 +81,7 @@ void i2c_1_fsm(void)
 
 			#ifdef USE_IMU
 			get_gyro_xyz();
-			i2c_last_request = I2C_RQ_GYRO;
+			i2c1_last_request = I2C1_RQ_GYRO;
 			#endif 	//USE_IMU
 
 			break;
@@ -103,13 +103,25 @@ void i2c_1_fsm(void)
 	#endif //USE_I2C_1
 }
 
+void i2c2_fsm(void)
+{
+	//Note: function named "fsm" for convention and future-proofness, but
+	//as of now there is only one slot
+
+	#ifdef USE_I2C_2
+
+
+
+	#endif //USE_I2C_2
+}
+
 //Associate data with the right structure. We need that because of the way the ISR-based
 //I2C works (we always get data from the last request)
 void assign_i2c1_data(uint8_t *newdata)
 {
 	uint16_t tmp = 0;
 
-	if(i2c_last_request == I2C_RQ_GYRO)
+	if(i2c1_last_request == I2C1_RQ_GYRO)
 	{
 		//Gyro X:
 		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
@@ -123,7 +135,7 @@ void assign_i2c1_data(uint8_t *newdata)
 		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
 		imu.gyro.z = (int16_t)tmp;
 	}
-	else if(i2c_last_request == I2C_RQ_ACCEL)
+	else if(i2c1_last_request == I2C1_RQ_ACCEL)
 	{
 		//Accel X:
 		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
@@ -136,10 +148,6 @@ void assign_i2c1_data(uint8_t *newdata)
 		//Accel Z:
 		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
 		imu.accel.z = (int16_t)tmp;
-	}
-	else if(i2c_last_request == I2C_RQ_BATTBOARD)
-	{
-		//...
 	}
 }
 
@@ -162,10 +170,33 @@ void init_i2c1(void)
 }
 
 // Disable I2C and free the I2C handle.
-void disable_i2c(void)
+void disable_i2c1(void)
 {
 	HAL_I2C_DeInit(&hi2c1);
-	//free((void *)hi2c1);
+}
+
+// Initialize i2c2. Currently connected to the expansion connector
+void init_i2c2(void)
+{
+	//I2C_HandleTypeDef *hi2c2 contains our handle information
+	//set config for the initial state of the i2c.
+	hi2c2.Instance = I2C2;
+	hi2c2.Init.ClockSpeed = I2C2_CLOCK_RATE;  				//clock frequency
+	hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2; 				//for fast mode (doesn't matter now)
+	hi2c2.Init.OwnAddress1 = 0x0; 							//device address of the STM32 (doesn't matter)
+	hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;	//using 7 bit addresses
+	hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;  //disable dual address
+	hi2c2.Init.OwnAddress2 = 0x0;							//second device addr (doesn't matter)
+	hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;  //don't use 0x0 addr
+	hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLED; 		//allow slave to stretch SCL
+	hi2c2.State = HAL_I2C_STATE_RESET;
+	HAL_I2C_Init(&hi2c2);
+}
+
+// Disable I2C and free the I2C handle.
+void disable_i2c2(void)
+{
+	HAL_I2C_DeInit(&hi2c2);
 }
 
 //****************************************************************************
@@ -175,54 +206,83 @@ void disable_i2c(void)
 // Implement I2C MSP Init, as called for in the stm32f4xx_hal_i2c.c file
 void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
-	///// SET UP GPIO /////
-	//GPIO initialization constants
-	GPIO_InitTypeDef GPIO_InitStruct;
+	if(hi2c->Instance == I2C1)
+	{
+		///// SET UP GPIO /////
+		//GPIO initialization constants
+		GPIO_InitTypeDef GPIO_InitStruct;
 
-	//Enable peripheral and GPIO clockS
-	__GPIOB_CLK_ENABLE();
-	__I2C1_CLK_ENABLE();
+		//Enable peripheral and GPIO clockS
+		__GPIOB_CLK_ENABLE();
+		__I2C1_CLK_ENABLE();
 
-	//IMU GPIO configuration
-	/*
-	 T_SWO	-> PB3
-	 SCL1	-> PB8 (pin 23 on MPU6500)
-	 SDA1	-> PB9 (pin 24 on MPU6500)
-	 Be mindful that the SPI pins are also located on this bus!
-	 Also:
-	 IMUINT (pin 12 on MPU6500)
+		 //SCL1	-> PB8 (pin 23 on MPU6500)
+		 //SDA1	-> PB9 (pin 24 on MPU6500)
 
-	 Note: AD0/SDO grounded -> address for MPU6500 is 0b1101000
-	 */
+		//Config inputs:
+		//We are configuring these pins.
+		GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+		//I2C wants to have open drain lines pulled up by resistors
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+		//Although we need pullups for I2C, we have them externally on
+		// the board.
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		//Set GPIO speed to fastest speed.
+		GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+		//Assign function to pins.
+		GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+		//Initialize the pins.
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	//Config inputs:
-	//We are configuring these pins.
-	GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
-	//I2C wants to have open drain lines pulled up by resistors
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-	//Although we need pullups for I2C, we have them externally on
-	// the board.
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	//Set GPIO speed to fastest speed.
-	GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-	//Assign function to pins.
-	GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-	//Initialize the pins.
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		///// SET UP NVIC ///// (interrupts!)
+		#if I2C1_USE_INT == 1
 
-	///// SET UP NVIC ///// (interrupts!)
-	#if I2C_USE_INT == 1
-	HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 1);    //event interrupt
-	HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
-	HAL_NVIC_SetPriority(I2C1_ER_IRQn, 0, 1);//error interrupt
-	HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
-	#endif
+			HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 1);    //event interrupt
+			HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+			HAL_NVIC_SetPriority(I2C1_ER_IRQn, 0, 1);//error interrupt
+			HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
+
+		#endif
+	}
+	else if(hi2c->Instance == I2C2)
+	{
+		///// SET UP GPIO /////
+		//GPIO initialization constants
+		GPIO_InitTypeDef GPIO_InitStruct;
+
+		//Enable peripheral and GPIO clockS
+		__GPIOF_CLK_ENABLE();
+		__I2C2_CLK_ENABLE();
+
+		 //SCL2	-> PF1
+		 //SDA2	-> PF0
+
+		//Config inputs:
+		//We are configuring these pins.
+		GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+		//I2C wants to have open drain lines pulled up by resistors
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+		//Although we need pullups for I2C, we have them externally on
+		// the board.
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		//Set GPIO speed to fastest speed.
+		GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+		//Assign function to pins.
+		GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
+		//Initialize the pins.
+		HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+	}
 }
 
 // Implement I2C MSP DeInit
 void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 {
-	__I2C1_CLK_DISABLE();
-	//uhh should be careful about this since SPI is on the same bus!
-	//__GPIOB_CLK_DISABLE();
+	if(hi2c->Instance == I2C1)
+	{
+		__I2C1_CLK_DISABLE();
+	}
+	else if(hi2c->Instance == I2C2)
+	{
+		__I2C2_CLK_DISABLE();
+	}
 }

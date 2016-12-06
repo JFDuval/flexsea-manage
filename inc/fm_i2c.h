@@ -51,10 +51,12 @@ extern volatile uint8_t i2c_1_r_buf[24];
 // Public Function Prototype(s):
 //****************************************************************************
 
-void i2c_1_fsm(void);
+void i2c1_fsm(void);
 void assign_i2c1_data(uint8_t *newdata);
 void init_i2c1(void);
-void disable_i2c(void);
+void disable_i2c1(void);
+void init_i2c2(void);
+void disable_i2c2(void);
 
 //****************************************************************************
 // Definition(s):
@@ -64,10 +66,11 @@ void disable_i2c(void);
 #define I2C1_USE_INT 		0
 //#define I2C1_CLOCK_RATE 	100000 	//in Hz, corresponds to "Regular Speed" I2C
 #define I2C1_CLOCK_RATE 	400000 	//in Hz, corresponds to "Full Speed" I2C
+#define I2C2_CLOCK_RATE 	400000 	//in Hz, corresponds to "Full Speed" I2C
 
 //ISR reading of I2C1 sensors (IMU, Battery, etc):
-#define I2C_RQ_GYRO				1
-#define I2C_RQ_ACCEL			2
-#define I2C_RQ_BATTBOARD		3
+#define I2C1_RQ_GYRO			1
+#define I2C1_RQ_ACCEL			2
+#define I2C1_RQ_BATTBOARD		3
 
 #endif //INC_FM_I2C_H

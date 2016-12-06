@@ -53,45 +53,24 @@ uint8_t new_cmd_led = 0;
 //1kHz time slots:
 //================
 
-//Case 0: I2C1
+//Case 0: I2C1 + slaveComm
 void main_fsm_case_0(void)
 {
 	slave_comm_trig = 1;
 
-	//test_comm_rw_master_v2(systick_100us_timeshare);
-
-	i2c_1_fsm();
-
+	i2c1_fsm();
 }
 
-//Case 1:
+//Case 1: I2C2
 void main_fsm_case_1(void)
 {
-
+	i2c2_fsm();
 }
 
 //Case 2:
 void main_fsm_case_2(void)
 {
-	//Test code 03/22/2016:
 
-	/*
-	static uint8_t xmit_toggle = 0;
-	int tx_byte = 0, commstrlen = 0;
-	uint8_t test_payload[PAYLOAD_BUF_LEN];
-
-	 xmit_toggle ^= 1;	//500Hz
-	 if(xmit_toggle)
-	 {
-	 tx_byte = tx_cmd_ctrl_special_1(FLEXSEA_EXECUTE_1, CMD_READ, test_payload, PAYLOAD_BUF_LEN, 0, 0, 0, 0, 0, 0);
-	 commstrlen = comm_gen_str(test_payload, comm_str_485_1, tx_byte);
-	 commstrlen = COMM_STR_BUF_LEN;
-	 flexsea_send_serial_slave(PORT_RS485_1, comm_str_485_1, commstrlen);
-
-	 slaves_485_1.xmit.listen = 1;
-	 }
-	 */
-	//test_comm_rw_master_v1();
 }
 
 //Case 3:
