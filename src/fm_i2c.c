@@ -110,7 +110,23 @@ void i2c2_fsm(void)
 
 	#ifdef USE_I2C_2
 
+		#ifdef USE_BATTBOARD
 
+			static uint8_t cnt = 0;
+			uint8_t pData[8] = {1,2,3,4,5,6,7,8};
+
+			cnt++;
+			cnt %= 4;
+			if(!cnt)
+			{
+				//Test, ToDo replace by function
+				HAL_I2C_Mem_Write(&hi2c2, 100, 123,
+									I2C_MEMADD_SIZE_8BIT, pData, 3, 1000);
+
+
+			}
+
+		#endif
 
 	#endif //USE_I2C_2
 }
@@ -253,6 +269,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 		//Enable peripheral and GPIO clockS
 		__GPIOF_CLK_ENABLE();
 		__I2C2_CLK_ENABLE();
+		initOptionalPullUps();
 
 		 //SCL2	-> PF1
 		 //SDA2	-> PF0
@@ -272,6 +289,24 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 		//Initialize the pins.
 		HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 	}
+}
+
+//I2C2 has optional pull-ups, controlled by PC2
+void initOptionalPullUps(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	__GPIOC_CLK_ENABLE();
+
+	GPIO_InitStruct.Pin = GPIO_PIN_2;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	//Set GPIO speed to fastest speed.
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+	//Always ON:
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, 1);
 }
 
 // Implement I2C MSP DeInit

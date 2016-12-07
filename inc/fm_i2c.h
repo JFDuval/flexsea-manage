@@ -56,7 +56,9 @@ void assign_i2c1_data(uint8_t *newdata);
 void init_i2c1(void);
 void disable_i2c1(void);
 void init_i2c2(void);
+void i2c2_fsm(void);
 void disable_i2c2(void);
+void initOptionalPullUps(void);
 
 //****************************************************************************
 // Definition(s):

@@ -89,7 +89,7 @@ void init_peripherals(void)
 
 		#ifdef USE_BATTBOARD
 
-			init_battery_board();
+			//init_battery_board();
 
 		#endif	//USE_IMU
 
