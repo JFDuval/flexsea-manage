@@ -65,14 +65,12 @@ void init_battery(void)
 //Read from Battery Board:
 void readBattery(void)
 {
-	uint8_t tmpBuf[8] = {0,0,0,0,0,0,0,0};
+	battery_read(MEM_R_STATUS1, batt1.rawBytes, 7);
 
-	battery_read(MEM_R_STATUS1, tmpBuf,7);
-
-	batt1.status = tmpBuf[0];
-	batt1.voltage = (tmpBuf[2] << 8) + tmpBuf[3];
-	batt1.current = (int16_t)(tmpBuf[4] << 8) + tmpBuf[5];
-	batt1.temp = tmpBuf[6];
+	batt1.status = batt1.rawBytes[0];
+	batt1.voltage = (batt1.rawBytes[2] << 8) + batt1.rawBytes[3];
+	batt1.current = (int16_t)(batt1.rawBytes[4] << 8) + batt1.rawBytes[5];
+	batt1.temp = batt1.rawBytes[6];
 }
 
 //****************************************************************************

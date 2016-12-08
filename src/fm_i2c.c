@@ -114,7 +114,6 @@ void i2c2_fsm(void)
 		#ifdef USE_BATTBOARD
 
 			static uint8_t cnt = 0;
-			uint8_t pData[8] = {1,2,3,4,5,6,7,8};
 
 			cnt++;
 			cnt %= 4;
