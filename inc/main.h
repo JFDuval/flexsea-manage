@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] main: FlexSEA-Manage
 *****************************************************************************
@@ -67,6 +67,8 @@
 #include "fm_imu.h"
 #include "fm_pwr_out.h"
 #include "fm_batt.h"
+#include "flash_driver.h"
+#include "flash_logger.h"
 #include "flexsea_board.h"
 #include "../flexsea-user/inc/user-mn.h"
 #include "../flexsea-system/inc/flexsea_system.h"

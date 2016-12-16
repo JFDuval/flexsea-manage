@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_spi: SPI Slave
 *****************************************************************************
@@ -85,7 +85,6 @@ void init_spi4(void)
 //SPI5 peripheral initialization. SPI5 is connected to the FLASH
 void init_spi5(void)
 {
-
 	//Configure SPI5 in Mode 0, Master
 	//CPOL = 0 --> clock is low when idle
 	//CPHA = 0 --> data is sampled at the first edge
@@ -112,7 +111,6 @@ void init_spi5(void)
 //SPI6 peripheral initialization. SPI6 is available on the Expansion connector
 void init_spi6(void)
 {
-
 	//Configure SPI6 in Mode 0, Master
 	//CPOL = 0 --> clock is low when idle
 	//CPHA = 0 --> data is sampled at the first edge

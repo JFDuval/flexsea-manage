@@ -68,7 +68,14 @@ void init_peripherals(void)
 	init_dio();					//All inputs by default
 	init_adc1();
 	init_spi4();				//Plan
-	//init_spi5();				//FLASH
+
+	#ifdef USE_FLASH_MEM
+
+		init_spi5();			//SPI connected to FLASH
+		flashLogInit();			//Start the logger
+
+	#endif
+
 	//init_spi6();				//Expansion
 
 	#ifdef USE_I2C_1
