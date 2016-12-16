@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_slave_comm: Slave R/W
 *****************************************************************************
@@ -181,36 +181,6 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 	}
 }
 
-//Simple test code:
-void write_test_cmd_execute(uint8_t port, uint8_t slave, uint8_t value)
-{
-	uint32_t bytes = 0, bytes2 = 0;
-
-	//bytes = tx_cmd_clutch_write(FLEXSEA_EXECUTE_1, value);
-	bytes = tx_cmd_encoder_read(slave);
-	bytes2 = comm_gen_str(payload_str, comm_str_485_1, bytes + 1);    //Might not need the +1, TBD
-
-	flexsea_send_serial_slave(port, comm_str_485_1, bytes2 + 1);
-}
-
-//Simple test code, modified for the new Special Command:
-void write_test_cmd_execute2(uint8_t port, uint8_t slave, uint8_t value)
-{
-	uint32_t bytes = 0, bytes2 = 0;
-
-	//controller_w (Write New Controller): KEEP/CHANGE
-	//controller (New controller): ignored if ctrl_w == KEEP
-	//encoder_w (Write New Encoder value): KEEP/CHANGE
-	//encoder_cnt (New encoder count): ignored if encoder_w == KEEP
-	//current: current controller setpoint
-	bytes = tx_cmd_ctrl_special_1(slave, CMD_READ, payload_str, PAYLOAD_BUF_LEN,
-	KEEP, 0, KEEP, 0, value, 0);
-
-	bytes2 = comm_gen_str(payload_str, comm_str_485_1, bytes + 1);    //Might not need the +1, TBD
-
-	flexsea_send_serial_slave(port, comm_str_485_1, bytes2 + 1);
-}
-
 //****************************************************************************
 // Private Function(s)
 //****************************************************************************
@@ -333,69 +303,3 @@ static void slaves_485_2_autosample(void)
 	flexsea_send_serial_slave(PORT_RS485_2, comm_str_485_2, numb);
 	slaves_485_2.autosample.listen = 1;
 }
-
-/*
- //Sequentially acquire data from a slave
- //Will request a new read every time it's called
- //Should we include a mechanism to insert Slave commands here? I think so
- uint16_t slave_comm(uint8_t slave, uint8_t port, uint8_t autosample)
- {
- static uint16_t cnt = 0;
- uint8_t bytes = 0, bytes2 = 0;
-
- if(!xmit_flag)
- {
- if(autosample)
- {
- //We start by generating 1 read request:
- switch(cnt)
- {
- case 0:
- bytes = tx_cmd_strain_read(slave);
- cnt++;
- break;
- case 1:
- bytes = tx_cmd_encoder_read(slave);
- cnt++;
- break;
- case 2:
- bytes = tx_cmd_imu_read(slave, 0, 3);
- cnt++;
- break;
- case 3:
- bytes = tx_cmd_analog_read(slave, 0, 1);
- cnt++;
- break;
- case 4:
- bytes = tx_cmd_ctrl_i_read(slave);
- cnt = 0;	//Last command resets the counter
- break;
- }
-
- //Then we package and send it out:
- bytes2 = comm_gen_str(payload_str, bytes + 1);	//Might not need the +1, TBD
- flexsea_send_serial_slave(port, comm_str, bytes2 + 1);
- start_listening_flag = 1;
- }
- }
- else
- {
- //xmit flag is high, we skip refreshing the sensors to send one packet
-
- flexsea_send_serial_slave(port, comm_str_xmit, COMM_STR_BUF_LEN-5);	//ToDo: this will always send the max length, not what we want.
-
- //ToDo: this is ugly, I need a better solution. Table with [CMD Code][R/W][Arguments]?
- //The new R/W commands will fix that
- if((cmd_xmit == CMD_IMU_READ) || (cmd_xmit == CMD_ENCODER_READ) || (cmd_xmit == CMD_STRAIN_READ) || (cmd_xmit == CMD_ANALOG_READ) || (cmd_xmit == CMD_CTRL_I_READ))
- {
- //Place code here to deal with slave answering
- start_listening_flag = 1;
- }
-
- //Lowers the flag
- xmit_flag = 0;
- }
-
- return cnt;
- }
- */
