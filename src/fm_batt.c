@@ -130,7 +130,7 @@ static HAL_StatusTypeDef battery_read(uint8_t internal_reg_addr, uint8_t *pData,
 	}
 
 	//Store data:
-	assign_i2c2_data(&i2c_2_r_buf);
+	//assign_i2c2_data(&i2c_2_r_buf);
 	//<<<<
 
 	retVal = HAL_I2C_Mem_Read(&hi2c2, BATT_ADDR, (uint16_t) internal_reg_addr,

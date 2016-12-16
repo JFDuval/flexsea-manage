@@ -51,7 +51,7 @@
 #define BATT_BLOCKING 	1
 
 // I2C Comms Constants
-#define BATT_BLOCK_TIMEOUT 		10000 	//may want to reduce this?
+#define BATT_BLOCK_TIMEOUT 		10 		//
 #define BATT_ADDR 				0x66	//7-bits addr is 0x33
 #define BATT_MAX_BUF_SIZE 		16 		//
 
@@ -63,15 +63,15 @@
 //EZI2C Shared memory locations:
 #define MEM_W_CONTROL1			0
 #define MEM_W_CONTROL2			1
-//#define UNUSED			2
-//#define UNUSED			3
+//#define UNUSED				2
+//#define UNUSED				3
 #define MEM_R_STATUS1			5
 #define MEM_R_STATUS2			6
 #define MEM_R_VOLT_MSB			7
 #define MEM_R_VOLT_LSB			8
 #define MEM_R_CURRENT_MSB		9
 #define MEM_R_CURRENT_LSB		10
-#define MEM_R_TEMP			11
+#define MEM_R_TEMP				11
 
 //****************************************************************************
 // Public Function Prototype(s):
