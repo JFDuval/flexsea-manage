@@ -103,6 +103,16 @@ void main_fsm_case_6(void)
 //Case 7:
 void main_fsm_case_7(void)
 {
+	//Test code: reset USB reception every second:
+	//ToDo ***Remove***
+	static int cnt = 0;
+	cnt++;
+	cnt %= 1000;
+	if(!cnt)
+	{
+		USBD_CDC_SetRxBuffer(hUsbDevice_0, UserRxBufferFS);
+		USBD_CDC_ReceivePacket(hUsbDevice_0);
+	}
 }
 
 //Case 8: User functions
