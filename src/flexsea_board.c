@@ -167,7 +167,7 @@ void flexsea_receive_from_slave(void)
 	if(slaves_485_1.bytes_ready != 0)
 	{
 		slaves_485_1.bytes_ready = 0;
-        //Got new data in, try to decode
+		//Got new data in, try to decode
 		slaves_485_1.cmd_ready = unpack_payload_485_1();
 	}
 

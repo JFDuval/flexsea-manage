@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_uarts: Deals with the 3 USARTs
 *****************************************************************************
@@ -42,9 +42,9 @@
 // Shared Variable(s)
 //****************************************************************************
 
-extern USART_HandleTypeDef husart1;		//RS-485 #1
-extern USART_HandleTypeDef husart6;		//RS-485 #2
-extern USART_HandleTypeDef husart3;		//Expansion port
+extern USART_HandleTypeDef husart1;			//RS-485 #1
+extern USART_HandleTypeDef husart6;			//RS-485 #2
+extern USART_HandleTypeDef husart3;			//Expansion port
 extern DMA_HandleTypeDef hdma2_str2_ch4;	//DMA for RS-485 #1 RX
 extern DMA_HandleTypeDef hdma2_str7_ch4;	//DMA for RS-485 #1 TX
 extern DMA_HandleTypeDef hdma2_str1_ch5;	//DMA for RS-485 #2 RX
@@ -65,7 +65,6 @@ void puts_rs485_1(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_1_blocking(void);
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
 void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void rs485_1_xmit_dma_rx_test(void);
 
 //RS-485 #2:
 void init_usart6(uint32_t baudrate);
@@ -74,7 +73,6 @@ void puts_rs485_2(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_2_blocking(void);
 void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
 void DMA2_Str6_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void rs485_2_xmit_dma_rx_test(void);
 
 //Other USART:
 void init_usart3(uint32_t baudrate);

@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
-	[Sub-project] 'flexsea-manage' Mid-level computing, and networking
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	[Sub-project] 'flexsea-execute' Advanced Motion Controller
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,65 +16,43 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
-	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
+	[Lead developper] Jean-Francois Duval, jfduval at dephy dot com.
 	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] Erin Main (ermain@mit.edu)
+	[Contributors]
 *****************************************************************************
-	[This file] fm_i2c: i2c comms
+	[This file] Comm Test: Communication quality testing tool
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-23 | jfduval | Initial GPL-3.0 release
+	* 2017-01-11 | jfduval | New file
 	*
 ****************************************************************************/
 
-#ifndef INC_FM_I2C_H
-#define INC_FM_I2C_H
+#ifndef INC_COMMTEST_H
+#define INC_COMMTEST_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
-#include <stdlib.h>
-#include "stm32f4xx.h"
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2c.h"
+#include "main.h"
 
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
 
-extern I2C_HandleTypeDef hi2c1, hi2c2;
-extern volatile uint8_t i2c_1_r_buf[24];
-extern volatile uint8_t i2c_2_r_buf[24];
 
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
 
-void i2c1_fsm(void);
-void assign_i2c1_data(uint8_t *newdata);
-void init_i2c1(void);
-void disable_i2c1(void);
-void init_i2c2(void);
-void i2c2_fsm(void);
-void assign_i2c2_data(uint8_t *newdata);
-void disable_i2c2(void);
-void initOptionalPullUps(void);
+void init_comm_test(void);
+void comm_test(void);
+void reset_comm_test_stats(void);
 
 //****************************************************************************
 // Definition(s):
 //****************************************************************************
 
-//set to 1 if we want to use interrupt driven I2C.
-#define I2C1_USE_INT 			0
-//#define I2C1_CLOCK_RATE 		100000 	//in Hz, corresponds to "Regular Speed" I2C
-#define I2C1_CLOCK_RATE 		400000 	//in Hz, corresponds to "Full Speed" I2C
-#define I2C2_CLOCK_RATE 		400000 	//in Hz, corresponds to "Full Speed" I2C
 
-//ISR reading of I2C1 sensors (IMU, Battery, etc):
-#define I2C1_RQ_GYRO			1
-#define I2C1_RQ_ACCEL			2
-#define I2C1_RQ_BATTBOARD		3
-
-#endif //INC_FM_I2C_H
+#endif	//INC_COMMTEST_H

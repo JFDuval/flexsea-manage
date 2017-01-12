@@ -112,6 +112,12 @@ void init_peripherals(void)
 
 	#endif	//USE_USB
 
+	#ifdef USE_COMM_TEST
+
+		init_comm_test();
+
+	#endif	//USE_COMM_TEST
+
 	//Software:
 	init_master_slave_comm();
 

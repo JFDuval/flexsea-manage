@@ -69,6 +69,7 @@
 #include "fm_batt.h"
 #include "flash_driver.h"
 #include "flash_logger.h"
+#include "comm_test.h"
 #include "flexsea_board.h"
 #include "../flexsea-user/inc/user-mn.h"
 #include "../flexsea-system/inc/flexsea_system.h"

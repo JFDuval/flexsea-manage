@@ -299,24 +299,20 @@ void puts_rs485_1(uint8_t *str, uint16_t length)
 	uart1_dma_buf_ptr = (uint8_t*) &uart1_dma_tx_buf;
 
 	//Copy str to tx buffer:
-	for(i = 0; i < length; i++)
-	{
-		uart1_dma_tx_buf[i] = str[i];
-	}
+	memcpy(uart1_dma_tx_buf, str, length);
 
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_1, RS485_TX);
 
 	//ToDo replace by valid delay function!
-	for(i = 0; i < 1000; i++)
-		;
+	for(i = 0; i < 1000; i++);
 
 	//Send data
-	//HAL_USART_Transmit(&husart1, str, length, UART_TIMEOUT);	//No DMA, legacy
 	HAL_USART_Transmit_IT(&husart1, uart1_dma_buf_ptr, length);
 }
 
 //Prepares the board for a Reply (reception). Blocking.
+//ToDo: add timeout
 uint8_t reception_rs485_1_blocking(void)
 {
 	int delay = 0;
@@ -327,14 +323,11 @@ uint8_t reception_rs485_1_blocking(void)
 	uint32_t tmp = 0;
 
 	//Do not enable if still transmitting:
-	while(husart1.State == HAL_USART_STATE_BUSY_TX)
-		;
-	for(delay = 0; delay < 600; delay++)
-		;		//Short delay
+	while(husart1.State == HAL_USART_STATE_BUSY_TX);
+	for(delay = 0; delay < 600; delay++);		//Short delay
 
 	//Receive enable
 	rs485_set_mode(PORT_RS485_1, RS485_RX);
-	//for(delay = 0; delay < 5000; delay++);		//Short delay
 	tmp = USART1->DR;    //Read buffer to clear
 
 	//Start the DMA peripheral
@@ -352,24 +345,20 @@ void puts_rs485_2(uint8_t *str, uint16_t length)
 	uart6_dma_buf_ptr = (uint8_t*) &uart6_dma_tx_buf;
 
 	//Copy str to tx buffer:
-	for(i = 0; i < length; i++)
-	{
-		uart6_dma_tx_buf[i] = str[i];
-	}
+	memcpy(uart6_dma_tx_buf, str, length);
 
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_2, RS485_TX);
 
 	//ToDo replace by valid delay function!
-	for(i = 0; i < 1000; i++)
-		;
+	for(i = 0; i < 1000; i++);
 
 	//Send data
-	//HAL_USART_Transmit(&husart6, str, length, UART_TIMEOUT);	//No DMA, legacy
 	HAL_USART_Transmit_IT(&husart6, uart6_dma_buf_ptr, length);
 }
 
 //Prepares the board for a Reply (reception). Blocking.
+//ToDo: add timeout
 uint8_t reception_rs485_2_blocking(void)
 {
 	//Pointer to our storage buffer:
@@ -378,13 +367,10 @@ uint8_t reception_rs485_2_blocking(void)
 	uint32_t tmp = 0;
 
 	//Do not enable if still transmitting:
-	while(husart6.State == HAL_USART_STATE_BUSY_TX)
-		;
-	//for(delay = 0; delay < 1000; delay++);		//Short delay
+	while(husart6.State == HAL_USART_STATE_BUSY_TX);
 
 	//Receive enable
 	rs485_set_mode(PORT_RS485_2, RS485_RX);
-	//for(delay = 0; delay < 5000; delay++);		//Short delay
 	tmp = USART6->DR;    //Read buffer to clear
 
 	//Start the DMA peripheral
@@ -432,48 +418,6 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 void DMA2_Str6_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
 	//If something has to happen after a transfer, place code here.
-}
-
-void rs485_1_xmit_dma_rx_test(void)
-{
-	uint32_t delay = 0;
-
-	//Transmit mode:
-	rs485_set_mode(PORT_RS485_1, RS485_TX);
-	for(delay = 0; delay < 5000; delay++)
-		;		//Short delay
-
-	//Send a packet, requesting a read:
-	//write_test_cmd_execute(PORT_RS485_1, 0);
-	write_test_cmd_execute2(PORT_RS485_1, FLEXSEA_EXECUTE_1, 77);
-
-	//Receive enable
-	for(delay = 0; delay < 5000; delay++)
-		;		//Short delay
-	rs485_set_mode(PORT_RS485_1, RS485_RX);
-
-	//At this point use a breakpoint in DMA2_Str1_CompleteTransfer_Callback()
-}
-
-void rs485_2_xmit_dma_rx_test(void)
-{
-	uint32_t delay = 0;
-
-	//Transmit mode:
-	rs485_set_mode(PORT_RS485_2, RS485_TX);
-	for(delay = 0; delay < 5000; delay++)
-		;		//Short delay
-
-	//Send a packet, requesting a read:
-	//write_test_cmd_execute(PORT_RS485_1, 0);
-	write_test_cmd_execute2(PORT_RS485_2, FLEXSEA_EXECUTE_2, 77);
-
-	//Receive enable
-	for(delay = 0; delay < 5000; delay++)
-		;		//Short delay
-	rs485_set_mode(PORT_RS485_2, RS485_RX);
-
-	//At this point use a breakpoint in DMA2_Str2_CompleteTransfer_Callback()
 }
 
 //****************************************************************************
