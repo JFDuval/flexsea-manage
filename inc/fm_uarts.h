@@ -65,6 +65,7 @@ void puts_rs485_1(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_1_blocking(void);
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
 void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
+void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
 
 //RS-485 #2:
 void init_usart6(uint32_t baudrate);
@@ -102,19 +103,19 @@ void init_usart3(uint32_t baudrate);
 //DE4:		PE10
 
 //Common define
-#define RS485_STANDBY			0x00
-#define RS485_RX			0x01
-#define RS485_TX			0x02
-#define RS485_RX_TX			0x03
+#define RS485_STANDBY				0x00
+#define RS485_RX					0x01
+#define RS485_TX					0x02
+#define RS485_RX_TX					0x03
 
 //Interrupt priorities (lower number = higher priority)
-#define UART1_IRQ_CHANNEL		6
+#define UART1_IRQ_CHANNEL			6
 #define UART1_IRQ_SUBCHANNEL		0
 
-#define UART6_IRQ_CHANNEL		UART1_IRQ_CHANNEL
+#define UART6_IRQ_CHANNEL			UART1_IRQ_CHANNEL
 #define UART6_IRQ_SUBCHANNEL		1
 
-#define UART3_IRQ_CHANNEL		8
+#define UART3_IRQ_CHANNEL			8
 #define UART3_IRQ_SUBCHANNEL		0
 
 #define DMA_STR2_IRQ_CHANNEL		5	//UART1 RX

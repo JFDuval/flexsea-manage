@@ -70,7 +70,6 @@ void main_fsm_case_1(void)
 //Case 2:
 void main_fsm_case_2(void)
 {
-
 }
 
 //Case 3:
@@ -103,6 +102,7 @@ void main_fsm_case_6(void)
 //Case 7:
 void main_fsm_case_7(void)
 {
+	/*
 	//Test code: reset USB reception every second:
 	//ToDo ***Remove***
 	static int cnt = 0;
@@ -113,6 +113,7 @@ void main_fsm_case_7(void)
 		USBD_CDC_SetRxBuffer(hUsbDevice_0, UserRxBufferFS);
 		USBD_CDC_ReceivePacket(hUsbDevice_0);
 	}
+	*/
 }
 
 //Case 8: User functions
@@ -140,6 +141,7 @@ void main_fsm_case_9(void)
 
 void main_fsm_10kHz(void)
 {
+
 	#ifdef USE_COMM_TEST
 
 		comm_test();
@@ -147,7 +149,7 @@ void main_fsm_10kHz(void)
 	#endif	//USE_COMM_TEST
 
 	//Master-Slave communications
-	//slave_comm(&slave_comm_trig);		//ToDo Re-enable - test only!
+	slave_comm(&slave_comm_trig);		//ToDo Re-enable - test only!
 
 	//RGB:
 	rgbLedRefresh();

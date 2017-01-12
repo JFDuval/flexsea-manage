@@ -78,10 +78,12 @@ void init_master_slave_comm(void)
 	slaves_485_1.xmit.length = COMM_STR_BUF_LEN;
 	slaves_485_1.xmit.cmd = 0;
 	slaves_485_1.xmit.listen = 0;
+	slaves_485_1.xmit.willListenSoon = 0;
 	slaves_485_1.autosample.flag = 0;
 	slaves_485_1.autosample.length = COMM_STR_BUF_LEN;
 	slaves_485_1.autosample.cmd = 0;
 	slaves_485_1.autosample.listen = 0;
+	slaves_485_1.autosample.willListenSoon = 0;
 
 	//Port #2:
 	slaves_485_2.mode = SC_TRANSPARENT;
@@ -90,10 +92,12 @@ void init_master_slave_comm(void)
 	slaves_485_2.xmit.length = COMM_STR_BUF_LEN;
 	slaves_485_2.xmit.cmd = 0;
 	slaves_485_2.xmit.listen = 0;
+	slaves_485_2.xmit.willListenSoon = 0;
 	slaves_485_2.autosample.flag = 0;
 	slaves_485_2.autosample.length = COMM_STR_BUF_LEN;
 	slaves_485_2.autosample.cmd = 0;
 	slaves_485_2.autosample.listen = 0;
+	slaves_485_2.autosample.willListenSoon = 0;
 }
 
 //This function gets called at a much higher frequency than the slave communication to
@@ -247,7 +251,8 @@ static void write_to_slave_xmit(struct slave_comm_s *slave)
 	if(IS_CMD_RW(slave->xmit.cmd) == READ)
 	{
 		//We expect an answer, start listening:
-		slave->xmit.listen = 1;
+		//slave->xmit.listen = 1;	//Legacy - remove once tested
+		slave->xmit.willListenSoon = 1;	//New version
 	}
 }
 
@@ -262,7 +267,8 @@ static void write_to_slave_autosample(struct slave_comm_s *slave)
 	if(IS_CMD_RW(slave->autosample.cmd) == READ)
 	{
 		//We expect an answer, start listening:
-		slave->autosample.listen = 1;
+		//slave->autosample.listen = 1;	//Legacy - remove once tested
+		slave->autosample.willListenSoon = 1;	//New version
 	}
 }
 
@@ -282,7 +288,8 @@ static void slaves_485_1_autosample(void)
 	numb = COMM_STR_BUF_LEN;
 
 	flexsea_send_serial_slave(PORT_RS485_1, comm_str_485_1, numb);
-	slaves_485_1.autosample.listen = 1;
+	//slaves_485_1.autosample.listen = 1;
+	slaves_485_1.autosample.willListenSoon = 1;
 }
 
 //State-machine for the autosampling on bus #2
@@ -301,5 +308,6 @@ static void slaves_485_2_autosample(void)
 	numb = COMM_STR_BUF_LEN;
 
 	flexsea_send_serial_slave(PORT_RS485_2, comm_str_485_2, numb);
-	slaves_485_2.autosample.listen = 1;
+	//slaves_485_2.autosample.listen = 1;
+	slaves_485_2.autosample.willListenSoon = 1;
 }

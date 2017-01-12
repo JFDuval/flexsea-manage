@@ -43,10 +43,10 @@ USART_HandleTypeDef husart1;		//RS-485 #1
 USART_HandleTypeDef husart6;		//RS-485 #2
 USART_HandleTypeDef husart3;		//Expansion port
 GPIO_InitTypeDef GPIO_InitStruct;
-DMA_HandleTypeDef hdma2_str2_ch4;    //DMA for RS-485 #1 RX
-DMA_HandleTypeDef hdma2_str7_ch4;    //DMA for RS-485 #1 TX
-DMA_HandleTypeDef hdma2_str1_ch5;    //DMA for RS-485 #2 RX
-DMA_HandleTypeDef hdma2_str6_ch5;    //DMA for RS-485 #2 TX
+DMA_HandleTypeDef hdma2_str2_ch4;	//DMA for RS-485 #1 RX
+DMA_HandleTypeDef hdma2_str7_ch4;	//DMA for RS-485 #1 TX
+DMA_HandleTypeDef hdma2_str1_ch5;	//DMA for RS-485 #2 RX
+DMA_HandleTypeDef hdma2_str6_ch5;	//DMA for RS-485 #2 TX
 
 //DMA buffers and config:
 __attribute__ ((aligned (4))) uint8_t uart1_dma_rx_buf[RX_BUF_LEN];
@@ -83,7 +83,7 @@ void init_usart1(uint32_t baudrate)
 	HAL_NVIC_EnableIRQ(USART1_IRQn);
 
 	//UART1 module:
-	husart1.Init.BaudRate = baudrate;    //Wrong, see below
+	husart1.Init.BaudRate = baudrate;	//Wrong, see below
 	husart1.Init.WordLength = USART_WORDLENGTH_8B;
 	husart1.Init.StopBits = USART_STOPBITS_1;
 	husart1.Init.Parity = USART_PARITY_NONE;
@@ -107,7 +107,7 @@ void init_usart1(uint32_t baudrate)
 
 	//Enable DMA:
 	init_dma2_stream2_ch4();	//RX
-	init_dma2_stream7_ch4();	//TX
+	init_dma2_stream7_ch4();	//TX	//Not used...
 }
 
 //USART6 init function: RS-485 #2
@@ -123,7 +123,7 @@ void init_usart6(uint32_t baudrate)
 	HAL_NVIC_EnableIRQ(USART6_IRQn);
 
 	//UART1 module:
-	husart6.Init.BaudRate = baudrate;    //Wrong, see below
+	husart6.Init.BaudRate = baudrate;	//Wrong, see below
 	husart6.Init.WordLength = USART_WORDLENGTH_8B;
 	husart6.Init.StopBits = USART_STOPBITS_1;
 	husart6.Init.Parity = USART_PARITY_NONE;
@@ -174,24 +174,22 @@ void init_usart3(uint32_t baudrate)
 	//flexsea_error(SE_INIT_USART);
 
 	//With only HAL_USART_Init() I never get an interrupt. Manually setting 5 bits:
-	USART6->CR1 |= 0b00000000000000010000000000100100;    //16x oversampling, Receive enable, enable RXNE interrupts
-	USART6->CR2 &= 0b11111111111111111111011111111111;    //Disable synchronous clock
-	USART6->CR3 &= 0b11111111111111111111011111111111;    //3 bits method
+	USART6->CR1 |= 0b00000000000000010000000000100100;	//16x oversampling, Receive enable, enable RXNE interrupts
+	USART6->CR2 &= 0b11111111111111111111011111111111;	//Disable synchronous clock
+	USART6->CR3 &= 0b11111111111111111111011111111111;	//3 bits method
 }
 
 uint8_t putc_data[1];
 void putc_usart1(char c)
 {
 	putc_data[1] = c;
-	//huart1.State = HAL_USART_STATE_READY;
 	HAL_USART_Transmit(&husart1, (uint8_t*) putc_data, 1, UART_TIMEOUT);
 }
 
 void putc_usart6(char c)
 {
 	putc_data[1] = c;
-	//huart1.State = HAL_USART_STATE_READY;
-	HAL_USART_Transmit(&husart6, (uint8_t*) putc_data, 3, UART_TIMEOUT);    //ToDo why 3?
+	HAL_USART_Transmit(&husart6, (uint8_t*) putc_data, 3, UART_TIMEOUT);	//ToDo why 3?
 }
 
 //Initialize GPIOs for RS-485: RE, DE
@@ -235,29 +233,29 @@ void rs485_set_mode(uint32_t port, uint8_t rx_tx)
 		if(rx_tx == RS485_TX)
 		{
 			//Half-duplex TX (Receive disabled):
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 1);    //RE
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 1);    //DE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 1);	//RE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 1);	//DE
 		}
 		else if(rx_tx == RS485_RX)
 		{
 			//Half-duplex RX (Transmit disabled):
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 0);    //RE
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 0);    //DE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 0);	//RE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 0);	//DE
 		}
 		else if(rx_tx == RS485_RX_TX)
 		{
 			//Read & Write:
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 0);    //RE
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 1);    //DE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 0);	//RE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 1);	//DE
 		}
 		else
 		{
 			//Standby: no transmission, no reception
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 1);    //RE
-			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 0);    //DE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, 1);	//RE
+			HAL_GPIO_WritePin(GPIOF, GPIO_PIN_11, 0);	//DE
 		}
 	}
-	else if(port == PORT_RS485_2)    //RS-485 #2 / USART6
+	else if(port == PORT_RS485_2)	//RS-485 #2 / USART6
 	{
 		//USART6 (RS-485 #2):
 		//===================
@@ -267,33 +265,37 @@ void rs485_set_mode(uint32_t port, uint8_t rx_tx)
 		if(rx_tx == RS485_TX)
 		{
 			//Half-duplex TX (Receive disabled):
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 1);    //RE
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 1);    //DE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 1);	//RE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 1);	//DE
 		}
 		else if(rx_tx == RS485_RX)
 		{
 			//Half-duplex RX (Transmit disabled):
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 0);    //RE
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 0);    //DE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 0);	//RE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 0);	//DE
 		}
 		else if(rx_tx == RS485_RX_TX)
 		{
 			//Read & Write:
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 0);    //RE
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 1);    //DE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 0);	//RE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 1);	//DE
 		}
 		else
 		{
 			//Standby: no transmission, no reception
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 1);    //RE
-			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 0);    //DE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, 1);	//RE
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, 0);	//DE
 		}
 	}
 }
 
 //Sends a string via RS-485 #1 (USART1)
+//Note: this is sending via interrupt, but not using the DMA
 void puts_rs485_1(uint8_t *str, uint16_t length)
 {
+	DEBUG_OUT_DIO4(1);	//Debugging only
+	DEBUG_OUT_DIO5(0);	//Debugging only
+
 	unsigned int i = 0;
 	uint8_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint8_t*) &uart1_dma_tx_buf;
@@ -309,12 +311,19 @@ void puts_rs485_1(uint8_t *str, uint16_t length)
 
 	//Send data
 	HAL_USART_Transmit_IT(&husart1, uart1_dma_buf_ptr, length);
+	//HAL_USART_Transmit_DMA(&husart1, uart1_dma_buf_ptr, length);
+
+	DEBUG_OUT_DIO4(0);	//Debugging only
+	DEBUG_OUT_DIO5(1);	//Debugging only
 }
 
 //Prepares the board for a Reply (reception). Blocking.
 //ToDo: add timeout
 uint8_t reception_rs485_1_blocking(void)
 {
+	DEBUG_OUT_DIO6(1);	//Debugging only
+	DEBUG_OUT_DIO7(0);	//Debugging only
+
 	int delay = 0;
 
 	//Pointer to our storage buffer:
@@ -328,11 +337,14 @@ uint8_t reception_rs485_1_blocking(void)
 
 	//Receive enable
 	rs485_set_mode(PORT_RS485_1, RS485_RX);
-	tmp = USART1->DR;    //Read buffer to clear
+	tmp = USART1->DR;	//Read buffer to clear
 
 	//Start the DMA peripheral
 	HAL_DMA_Start_IT(&hdma2_str2_ch4, (uint32_t) &USART1->DR,
 			(uint32_t) uart1_dma_buf_ptr, rs485_1_dma_xfer_len);
+
+	DEBUG_OUT_DIO6(0);	//Debugging only
+	DEBUG_OUT_DIO7(1);	//Debugging only
 
 	return 0;
 }
@@ -371,7 +383,7 @@ uint8_t reception_rs485_2_blocking(void)
 
 	//Receive enable
 	rs485_set_mode(PORT_RS485_2, RS485_RX);
-	tmp = USART6->DR;    //Read buffer to clear
+	tmp = USART6->DR;	//Read buffer to clear
 
 	//Start the DMA peripheral
 	HAL_DMA_Start_IT(&hdma2_str1_ch5, (uint32_t) &USART6->DR,
@@ -383,6 +395,8 @@ uint8_t reception_rs485_2_blocking(void)
 //Function called after a completed DMA transfer, UART1 RX
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
+	DEBUG_OUT_DIO7(0);	//Debugging only
+
 	if(hdma->Instance == DMA2_Stream2)
 	{
 		//Clear the UART receiver. Might not be needed, but harmless
@@ -398,6 +412,41 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
 	//If something has to happen after a transfer, place code here.
+	//(Currently sending via ISR, not DMA. Won't come here)
+}
+
+//Code branches here once a transfer is complete:
+void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
+{
+	DEBUG_OUT_DIO5(0);	//Debugging only
+
+	//Ready to start receiving? RS-485 #1
+	if(husart->Instance == USART1)
+	{
+		if(slaves_485_1.xmit.willListenSoon == 1)
+		{
+			slaves_485_1.xmit.listen = 1;
+		}
+
+		if(slaves_485_1.autosample.willListenSoon == 1)
+		{
+			slaves_485_1.autosample.listen = 1;
+		}
+	}
+
+	//Ready to start receiving? RS-485 #2
+	if(husart->Instance == USART6)
+	{
+		if(slaves_485_2.xmit.willListenSoon == 1)
+		{
+			slaves_485_2.xmit.listen = 1;
+		}
+
+		if(slaves_485_2.autosample.willListenSoon == 1)
+		{
+			slaves_485_2.autosample.listen = 1;
+		}
+	}
 }
 
 //Function called after a completed DMA transfer, UART6 RX
@@ -444,7 +493,7 @@ void HAL_USART_MspInit(USART_HandleTypeDef* husart)
 		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	}
-	else if(husart->Instance == USART6)    //RS-485 #2
+	else if(husart->Instance == USART6)	//RS-485 #2
 	{
 		//Peripheral clock enable:
 		__USART6_CLK_ENABLE();
@@ -461,7 +510,7 @@ void HAL_USART_MspInit(USART_HandleTypeDef* husart)
 		GPIO_InitStruct.Alternate = GPIO_AF8_USART6;
 		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 	}
-	else if(husart->Instance == USART3)    //Expansion port
+	else if(husart->Instance == USART3)	//Expansion port
 	{
 		//Peripheral clock enable:
 		__USART3_CLK_ENABLE();
@@ -503,7 +552,7 @@ static void init_dma2_stream2_ch4(void)
 	hdma2_str2_ch4.Init.Direction = DMA_PERIPH_TO_MEMORY; 	//Receive, so Periph to Mem
 	hdma2_str2_ch4.Init.PeriphInc = DMA_PINC_DISABLE;	//No Periph increment
 	hdma2_str2_ch4.Init.MemInc = DMA_MINC_ENABLE;			//Memory increment
-	hdma2_str2_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;    //Align: bytes
+	hdma2_str2_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str2_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str2_ch4.Init.Mode = DMA_CIRCULAR;
 	hdma2_str2_ch4.Init.Priority = DMA_PRIORITY_MEDIUM;
@@ -545,7 +594,7 @@ static void init_dma2_stream1_ch5(void)
 	hdma2_str1_ch5.Init.Direction = DMA_PERIPH_TO_MEMORY; 	//Receive, so Periph to Mem
 	hdma2_str1_ch5.Init.PeriphInc = DMA_PINC_DISABLE;	//No Periph increment
 	hdma2_str1_ch5.Init.MemInc = DMA_MINC_ENABLE;			//Memory increment
-	hdma2_str1_ch5.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;    //Align: bytes
+	hdma2_str1_ch5.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str1_ch5.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str1_ch5.Init.Mode = DMA_CIRCULAR;
 	hdma2_str1_ch5.Init.Priority = DMA_PRIORITY_MEDIUM;
@@ -587,7 +636,7 @@ static void init_dma2_stream7_ch4(void)
 	hdma2_str7_ch4.Init.Direction = DMA_MEMORY_TO_PERIPH; 	//Transmit, so Mem to Periph
 	hdma2_str7_ch4.Init.PeriphInc = DMA_PINC_DISABLE;	//No Periph increment
 	hdma2_str7_ch4.Init.MemInc = DMA_MINC_ENABLE;			//Memory increment
-	hdma2_str7_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;    //Align: bytes
+	hdma2_str7_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str7_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str7_ch4.Init.Mode = DMA_CIRCULAR;
 	hdma2_str7_ch4.Init.Priority = DMA_PRIORITY_MEDIUM;
@@ -628,7 +677,7 @@ static void init_dma2_stream6_ch5(void)
 	hdma2_str6_ch5.Init.Direction = DMA_MEMORY_TO_PERIPH; 	//Transmit, so Mem to Periph
 	hdma2_str6_ch5.Init.PeriphInc = DMA_PINC_DISABLE;	//No Periph increment
 	hdma2_str6_ch5.Init.MemInc = DMA_MINC_ENABLE;			//Memory increment
-	hdma2_str6_ch5.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;    //Align: bytes
+	hdma2_str6_ch5.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str6_ch5.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str6_ch5.Init.Mode = DMA_CIRCULAR;
 	hdma2_str6_ch5.Init.Priority = DMA_PRIORITY_MEDIUM;
