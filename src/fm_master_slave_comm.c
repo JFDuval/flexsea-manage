@@ -155,7 +155,7 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 	}
 
 	//Valid communication from RS-485 #1?
-	if(slaves_485_1.cmd_ready != 0)
+	if(slaves_485_1.cmd_ready > 0)
 	{
 		slaves_485_1.cmd_ready = 0;
 
@@ -170,7 +170,7 @@ void parse_master_slave_commands(uint8_t *new_cmd)
 	}
 
 	//Valid communication from RS-485 #2?
-	if(slaves_485_2.cmd_ready != 0)
+	if(slaves_485_2.cmd_ready > 0)
 	{
 		slaves_485_2.cmd_ready = 0;
 

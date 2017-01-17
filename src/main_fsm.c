@@ -149,7 +149,7 @@ void main_fsm_10kHz(void)
 	#endif	//USE_COMM_TEST
 
 	//Master-Slave communications
-	slave_comm(&slave_comm_trig);		//ToDo Re-enable - test only!
+	slave_comm(&slave_comm_trig);
 
 	//RGB:
 	rgbLedRefresh();

@@ -78,8 +78,8 @@ void comm_test(void)
 
 		//Prepare and send command:
 		tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20, packetIndex);
+		//tx_cmd_data_read_all_r(TX_N_DEFAULT);
 		packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
-		//slaves_485_1.xmit.listen = 1;	//Legacy - remove once tested
 		slaves_485_1.xmit.willListenSoon = 1;	//New version
 	}
 	else if(cnt == 1)

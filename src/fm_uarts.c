@@ -107,7 +107,7 @@ void init_usart1(uint32_t baudrate)
 
 	//Enable DMA:
 	init_dma2_stream2_ch4();	//RX
-	init_dma2_stream7_ch4();	//TX	//Not used...
+	//init_dma2_stream7_ch4();	//TX	//Not used at this point
 }
 
 //USART6 init function: RS-485 #2
@@ -147,7 +147,7 @@ void init_usart6(uint32_t baudrate)
 
 	//Enable DMA:
 	init_dma2_stream1_ch5();	//RX
-	init_dma2_stream6_ch5();	//TX
+	//init_dma2_stream6_ch5();	//TX		//Not used at this point
 }
 
 //USART3 init function: Expansion port
@@ -293,36 +293,33 @@ void rs485_set_mode(uint32_t port, uint8_t rx_tx)
 //Note: this is sending via interrupt, but not using the DMA
 void puts_rs485_1(uint8_t *str, uint16_t length)
 {
-	DEBUG_OUT_DIO4(1);	//Debugging only
-	DEBUG_OUT_DIO5(0);	//Debugging only
+	//DEBUG_OUT_DIO4(1);	//Debugging only ToDo Remove
 
 	unsigned int i = 0;
 	uint8_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint8_t*) &uart1_dma_tx_buf;
 
-	//Copy str to tx buffer:
-	memcpy(uart1_dma_tx_buf, str, length);
-
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_1, RS485_TX);
+
+	//Copy str to tx buffer:
+	memcpy(uart1_dma_tx_buf, str, length);
 
 	//ToDo replace by valid delay function!
 	for(i = 0; i < 1000; i++);
 
 	//Send data
 	HAL_USART_Transmit_IT(&husart1, uart1_dma_buf_ptr, length);
-	//HAL_USART_Transmit_DMA(&husart1, uart1_dma_buf_ptr, length);
+	//HAL_USART_Transmit_DMA(&husart1, uart1_dma_buf_ptr, length); ToDo
 
-	DEBUG_OUT_DIO4(0);	//Debugging only
-	DEBUG_OUT_DIO5(1);	//Debugging only
+	//DEBUG_OUT_DIO4(0);	//Debugging only ToDo Remove
 }
 
 //Prepares the board for a Reply (reception). Blocking.
 //ToDo: add timeout
 uint8_t reception_rs485_1_blocking(void)
 {
-	DEBUG_OUT_DIO6(1);	//Debugging only
-	DEBUG_OUT_DIO7(0);	//Debugging only
+	//DEBUG_OUT_DIO7(0);	//Debugging only, ToDo remove
 
 	int delay = 0;
 
@@ -343,8 +340,7 @@ uint8_t reception_rs485_1_blocking(void)
 	HAL_DMA_Start_IT(&hdma2_str2_ch4, (uint32_t) &USART1->DR,
 			(uint32_t) uart1_dma_buf_ptr, rs485_1_dma_xfer_len);
 
-	DEBUG_OUT_DIO6(0);	//Debugging only
-	DEBUG_OUT_DIO7(1);	//Debugging only
+	//DEBUG_OUT_DIO7(1);	//Debugging only, ToDo remove
 
 	return 0;
 }
@@ -356,11 +352,11 @@ void puts_rs485_2(uint8_t *str, uint16_t length)
 	uint8_t *uart6_dma_buf_ptr;
 	uart6_dma_buf_ptr = (uint8_t*) &uart6_dma_tx_buf;
 
-	//Copy str to tx buffer:
-	memcpy(uart6_dma_tx_buf, str, length);
-
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_2, RS485_TX);
+
+	//Copy str to tx buffer:
+	memcpy(uart6_dma_tx_buf, str, length);
 
 	//ToDo replace by valid delay function!
 	for(i = 0; i < 1000; i++);
@@ -395,7 +391,7 @@ uint8_t reception_rs485_2_blocking(void)
 //Function called after a completed DMA transfer, UART1 RX
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
-	DEBUG_OUT_DIO7(0);	//Debugging only
+	//DEBUG_OUT_DIO7(0);	//Debugging only, ToDo remove
 
 	if(hdma->Instance == DMA2_Stream2)
 	{
@@ -405,6 +401,8 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 
 	//Deal with FlexSEA buffers here:
 	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
+	//Empty DMA buffer once it's copied:
+	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
 	slaves_485_1.bytes_ready++;
 }
 
@@ -418,8 +416,6 @@ void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 //Code branches here once a transfer is complete:
 void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
-	DEBUG_OUT_DIO5(0);	//Debugging only
-
 	//Ready to start receiving? RS-485 #1
 	if(husart->Instance == USART1)
 	{
@@ -460,6 +456,8 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 
 	//Deal with FlexSEA buffers here:
 	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
+	//Empty DMA buffer once it's copied:
+	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
 	slaves_485_2.bytes_ready++;
 }
 
