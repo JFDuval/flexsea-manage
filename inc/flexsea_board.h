@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] flexsea_board: configuration and functions for this 
+	[This file] flexsea_board: configuration and functions for this
 	particular board
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
@@ -131,8 +131,8 @@ extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT];
 extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT];
 
 extern uint8_t bytes_ready_spi;
-extern uint8_t cmd_ready_spi;
-extern uint8_t cmd_ready_usb;
+extern int8_t cmd_ready_spi;
+extern int8_t cmd_ready_usb;
 
 #endif	//INC_FLEXSEA_BOARD_H
 

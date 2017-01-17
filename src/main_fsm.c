@@ -141,6 +141,7 @@ void main_fsm_case_9(void)
 
 void main_fsm_10kHz(void)
 {
+	DEBUG_OUT_DIO4(1);
 
 	#ifdef USE_COMM_TEST
 
@@ -153,6 +154,22 @@ void main_fsm_10kHz(void)
 
 	//RGB:
 	rgbLedRefresh();
+
+	//Communication with our Master & Slave(s):
+	//=========================================
+
+	//SPI or USB reception from a Plan board:
+	DEBUG_OUT_DIO5(1);
+	flexsea_receive_from_master();
+	DEBUG_OUT_DIO5(0);
+
+	//RS-485 reception from an Execute board:
+	flexsea_receive_from_slave();
+
+	//Did we receive new commands? Can we parse them?
+	parse_master_slave_commands(&new_cmd_led);
+
+	DEBUG_OUT_DIO4(0);
 }
 
 //Asynchronous time slots:

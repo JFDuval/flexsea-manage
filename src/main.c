@@ -71,18 +71,6 @@ int main(void)
 	//Infinite loop
 	while(1)
 	{
-		//Communication with our Master & Slave(s):
-		//=========================================
-
-		//SPI or USB reception from a Plan board:
-		flexsea_receive_from_master();
-
-		//RS-485 reception from an Execute board:
-		flexsea_receive_from_slave();
-
-		//Did we receive new commands? Can we parse them?
-		parse_master_slave_commands(&new_cmd_led);
-
 		//Time bases:
 		//===========
 

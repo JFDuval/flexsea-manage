@@ -62,8 +62,8 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //</FlexSEA User>
 
 uint8_t bytes_ready_spi = 0;
-uint8_t cmd_ready_spi = 0;
-uint8_t cmd_ready_usb = 0;
+int8_t cmd_ready_spi = 0;
+int8_t cmd_ready_usb = 0;
 
 //****************************************************************************
 // Function(s)
@@ -107,7 +107,7 @@ void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
 
 void flexsea_receive_from_master(void)
 {
-	if(bytes_ready_spi != 0)
+	if(bytes_ready_spi > 0)
 	{
 		bytes_ready_spi = 0;
 		cmd_ready_spi = unpack_payload_spi();
@@ -118,7 +118,7 @@ void flexsea_receive_from_master(void)
 
 	//(Bytes received by ISR)
 
-	if(data_ready_usb != 0)
+	if(data_ready_usb > 0)
 	{
 		data_ready_usb = 0;
 		//Got new data in, try to decode
