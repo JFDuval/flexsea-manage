@@ -141,8 +141,6 @@ void main_fsm_case_9(void)
 
 void main_fsm_10kHz(void)
 {
-	DEBUG_OUT_DIO4(1);
-
 	#ifdef USE_COMM_TEST
 
 		comm_test();
@@ -168,8 +166,6 @@ void main_fsm_10kHz(void)
 
 	//Did we receive new commands? Can we parse them?
 	parse_master_slave_commands(&new_cmd_led);
-
-	DEBUG_OUT_DIO4(0);
 }
 
 //Asynchronous time slots:

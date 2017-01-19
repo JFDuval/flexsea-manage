@@ -110,6 +110,18 @@ void DMA2_Stream6_IRQHandler(void)
 	HAL_DMA_IRQHandler(husart6.hdmatx);
 }
 
+//DMA1 Stream 0: I2C1 RX
+void DMA1_Stream0_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(hi2c1.hdmarx);
+}
+
+//DMA1 Stream 6: I2C1 TX
+void DMA1_Stream6_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(hi2c1.hdmatx);
+}
+
 //USB:
 void OTG_FS_IRQHandler(void)
 {

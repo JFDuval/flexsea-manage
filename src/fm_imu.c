@@ -189,6 +189,8 @@ static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 		uint16_t Size)
 {
+	DEBUG_OUT_DIO4(1);
+
 	uint8_t i = 0;
 	HAL_StatusTypeDef retVal;
 
@@ -204,8 +206,14 @@ static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 	assign_i2c1_data(&i2c_1_r_buf);
 	//<<<<
 
-	retVal = HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
+	/*retVal = HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
 	I2C_MEMADD_SIZE_8BIT, i2c_1_r_buf, Size, IMU_BLOCK_TIMEOUT);
+	*/
+	retVal = HAL_I2C_Mem_Read_DMA(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
+		I2C_MEMADD_SIZE_8BIT, i2c_1_r_buf, Size);
+
+
+	DEBUG_OUT_DIO4(0);
 
 	return retVal;
 }
