@@ -46,7 +46,6 @@ extern USART_HandleTypeDef husart1;			//RS-485 #1
 extern USART_HandleTypeDef husart6;			//RS-485 #2
 extern USART_HandleTypeDef husart3;			//Expansion port
 extern DMA_HandleTypeDef hdma2_str2_ch4;	//DMA for RS-485 #1 RX
-extern DMA_HandleTypeDef hdma2_str7_ch4;	//DMA for RS-485 #1 TX
 extern DMA_HandleTypeDef hdma2_str1_ch5;	//DMA for RS-485 #2 RX
 extern DMA_HandleTypeDef hdma2_str6_ch5;	//DMA for RS-485 #2 TX
 

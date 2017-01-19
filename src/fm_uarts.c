@@ -186,6 +186,7 @@ void init_usart3(uint32_t baudrate)
 	USART6->CR3 &= 0b11111111111111111111011111111111;
 }
 
+
 //Initialize GPIOs for RS-485: RE, DE
 //(doesn't do the UART pins)
 void init_rs485_outputs(void)
@@ -609,10 +610,8 @@ static void init_dma2_stream7_ch4(void)
 	//Enable clock
 	__DMA2_CLK_ENABLE();
 
-	//Instance:
-	hdma2_str7_ch4.Instance = DMA2_Stream7;
-
 	//Initialization:
+	hdma2_str7_ch4.Instance = DMA2_Stream7;
 	hdma2_str7_ch4.Init.Channel = DMA_CHANNEL_4;
 	hdma2_str7_ch4.Init.Direction = DMA_MEMORY_TO_PERIPH; 	//Transmit, so Mem to Periph
 	hdma2_str7_ch4.Init.PeriphInc = DMA_PINC_DISABLE;		//No Periph increment
@@ -634,7 +633,6 @@ static void init_dma2_stream7_ch4(void)
 	HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, DMA_STR7_IRQ_CHANNEL,
 			DMA_STR7_IRQ_SUBCHANNEL);
 	HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
-	__HAL_DMA_ENABLE_IT(&hdma2_str7_ch4, DMA_IT_TC);
 	__HAL_DMA_ENABLE_IT(husart1.hdmatx, DMA_IT_TC);
 }
 
@@ -665,7 +663,7 @@ static void init_dma2_stream6_ch5(void)
 	hdma2_str6_ch5.Init.MemBurst = DMA_MBURST_SINGLE;
 	hdma2_str6_ch5.Init.PeriphBurst = DMA_PBURST_SINGLE;
 
-	//hdma2_str6_ch5.XferCpltCallback = DMA2_Str6_CompleteTransfer_Callback;
+//	hdma2_str6_ch5.XferCpltCallback = DMA2_Str6_CompleteTransfer_Callback;
 
 	HAL_DMA_Init(&hdma2_str6_ch5);
 
