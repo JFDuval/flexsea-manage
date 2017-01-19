@@ -107,7 +107,7 @@ void DMA2_Stream6_IRQHandler(void)
 {
 	HAL_NVIC_ClearPendingIRQ(DMA2_Stream6_IRQn);
 
-	HAL_DMA_IRQHandler(&hdma2_str6_ch5);
+	HAL_DMA_IRQHandler(husart6.hdmatx);
 }
 
 //USB:
