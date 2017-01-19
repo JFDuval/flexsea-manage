@@ -60,20 +60,16 @@ void rs485_set_mode(uint32_t port, uint8_t rx_tx);
 
 //RS-485 #1:
 void init_usart1(uint32_t baudrate);
-void putc_usart1(char c);
 void puts_rs485_1(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_1_blocking(void);
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
 void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
 
 //RS-485 #2:
 void init_usart6(uint32_t baudrate);
-void putc_usart6(char c);
 void puts_rs485_2(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_2_blocking(void);
 void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void DMA2_Str6_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
 
 //Other USART:
 void init_usart3(uint32_t baudrate);

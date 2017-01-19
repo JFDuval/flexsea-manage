@@ -186,19 +186,6 @@ void init_usart3(uint32_t baudrate)
 	USART6->CR3 &= 0b11111111111111111111011111111111;
 }
 
-uint8_t putc_data[1];
-void putc_usart1(char c)
-{
-	putc_data[1] = c;
-	HAL_USART_Transmit(&husart1, (uint8_t*) putc_data, 1, UART_TIMEOUT);
-}
-
-void putc_usart6(char c)
-{
-	putc_data[1] = c;
-	HAL_USART_Transmit(&husart6, (uint8_t*) putc_data, 3, UART_TIMEOUT);	//ToDo why 3?
-}
-
 //Initialize GPIOs for RS-485: RE, DE
 //(doesn't do the UART pins)
 void init_rs485_outputs(void)
@@ -678,7 +665,7 @@ static void init_dma2_stream6_ch5(void)
 	hdma2_str6_ch5.Init.MemBurst = DMA_MBURST_SINGLE;
 	hdma2_str6_ch5.Init.PeriphBurst = DMA_PBURST_SINGLE;
 
-	hdma2_str6_ch5.XferCpltCallback = DMA2_Str6_CompleteTransfer_Callback;
+	//hdma2_str6_ch5.XferCpltCallback = DMA2_Str6_CompleteTransfer_Callback;
 
 	HAL_DMA_Init(&hdma2_str6_ch5);
 
