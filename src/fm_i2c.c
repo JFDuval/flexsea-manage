@@ -44,12 +44,14 @@ DMA_HandleTypeDef hdma_i2c1_tx;
 DMA_HandleTypeDef hdma_i2c1_rx;
 uint8_t i2c1_last_request = 0;
 
-volatile uint8_t i2c_1_r_buf[24];
+uint8_t i2c_1_r_buf[24];
 volatile uint8_t i2c_2_r_buf[24];
 
+/*
 //DMA buffers:
 __attribute__ ((aligned (4))) uint8_t i2c1_dma_tx_buf[24];
 __attribute__ ((aligned (4))) uint8_t i2c1_dma_rx_buf[24];
+*/
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -231,6 +233,18 @@ void assign_i2c2_data(uint8_t *newdata)
 	(void)newdata;
 }
 
+//Detect the end of a Mem Read:
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	if(hi2c->Instance == I2C1)
+	{
+		//Test code: pulse DIO4
+		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
+		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
+		assign_i2c1_data(&i2c_1_r_buf);
+	}
+}
+
 //****************************************************************************
 // Private Function(s)
 //****************************************************************************
@@ -372,8 +386,6 @@ static void init_dma1_stream0_ch1(void)
 	//Interrupts:
 	HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
-
-	//__HAL_DMA_ENABLE_IT(hi2c1.hdmatx, DMA_IT_TC);	//ToDo do we need that?
 }
 
 //Using DMA1 Ch 1 Stream 6 for I2C1 TX
@@ -404,6 +416,4 @@ static void init_dma1_stream6_ch1(void)
 	//Interrupts:
 	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
-
-	//__HAL_DMA_ENABLE_IT(hi2c1.hdmatx, DMA_IT_TC);	//ToDo do we need that?
 }
