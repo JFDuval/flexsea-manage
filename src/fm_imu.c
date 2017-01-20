@@ -84,7 +84,7 @@ void IMUPrepareRead(void)
 //Read all of the relevant IMU data (accel, gyro, temp)
 void IMUReadAll(void)
 {
-	HAL_I2C_Master_Receive_DMA(&hi2c1, IMU_ADDR, i2c_1_r_buf, 14);
+	HAL_I2C_Master_Receive_DMA(&hi2c1, IMU_ADDR, i2c1_dma_rx_buf, 14);
 }
 
 void IMUParseData(void)
@@ -95,8 +95,8 @@ void IMUParseData(void)
 	//Rebuilt 7x 16bits words:
 	for(i = 0; i < 7; i++)
 	{
-		tmp[i] = ((uint16_t)i2c_1_r_buf[index++] << 8) | \
-				((uint16_t) i2c_1_r_buf[index++]);
+		tmp[i] = ((uint16_t)i2c1_dma_rx_buf[index++] << 8) | \
+				((uint16_t) i2c1_dma_rx_buf[index++]);
 	}
 
 	//Assign:

@@ -43,16 +43,9 @@ I2C_HandleTypeDef hi2c1, hi2c2;
 DMA_HandleTypeDef hdma_i2c1_tx;
 DMA_HandleTypeDef hdma_i2c1_rx;
 
-uint8_t i2c_1_r_buf[24];
-volatile uint8_t i2c_2_r_buf[24];
-
+uint8_t i2c_2_r_buf[24];
 int8_t i2c1FsmState = I2C1_FSM_DEFAULT;
-
-/*
-//DMA buffers:
-__attribute__ ((aligned (4))) uint8_t i2c1_dma_tx_buf[24];
 __attribute__ ((aligned (4))) uint8_t i2c1_dma_rx_buf[24];
-*/
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -108,7 +101,6 @@ void i2c1_fsm(void)
 			{
 				//Decode received data
 				IMUParseData();
-				//assign_i2c1_data(i2c_1_r_buf);
 			}
 
 			break;
@@ -204,14 +196,6 @@ void init_i2c2(void)
 void disable_i2c2(void)
 {
 	HAL_I2C_DeInit(&hi2c2);
-}
-
-//Associate data with the right structure. We need that because of the way the ISR-based
-//I2C works (we always get data from the last request)
-void assign_i2c2_data(uint8_t *newdata)
-{
-	//(Function isn't used at this point)
-	(void)newdata;
 }
 
 //Detects the end of a Master Receive:

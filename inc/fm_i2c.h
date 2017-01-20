@@ -45,10 +45,10 @@
 //****************************************************************************
 
 extern I2C_HandleTypeDef hi2c1, hi2c2;
-extern uint8_t i2c_1_r_buf[24];
-extern volatile uint8_t i2c_2_r_buf[24];
+extern uint8_t i2c_2_r_buf[24];
 
 extern int8_t i2c1FsmState;
+extern uint8_t i2c1_dma_rx_buf[24];
 
 //****************************************************************************
 // Public Function Prototype(s):
@@ -59,7 +59,6 @@ void init_i2c1(void);
 void disable_i2c1(void);
 void init_i2c2(void);
 void i2c2_fsm(void);
-void assign_i2c2_data(uint8_t *newdata);
 void disable_i2c2(void);
 void initOptionalPullUps(void);
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
