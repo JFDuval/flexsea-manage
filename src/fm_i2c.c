@@ -47,6 +47,8 @@ uint8_t i2c1_last_request = 0;
 uint8_t i2c_1_r_buf[24];
 volatile uint8_t i2c_2_r_buf[24];
 
+int8_t i2c1FsmState = I2C1_FSM_DEFAULT;
+
 /*
 //DMA buffers:
 __attribute__ ((aligned (4))) uint8_t i2c1_dma_tx_buf[24];
@@ -112,6 +114,67 @@ void i2c1_fsm(void)
 			break;
 	}
 
+	#endif //USE_I2C_1
+}
+
+//I2C1 State machine. Reads IMU via IT + DMA.
+void i2c1_fsm2(void)
+{
+	static uint8_t i2c_time_share = 0;
+
+	i2c_time_share++;
+	i2c_time_share %= 4;
+
+	//i2c1_last_request = I2C1_RQ_ACCEL;	//ToDo test only, remove
+
+	#ifdef USE_I2C_1
+	#ifdef USE_IMU
+
+	//Subdivided in 4 slots (250Hz)
+	switch(i2c_time_share)
+	{
+		//Case 0.0: Write register
+		case 0:
+
+			i2c1FsmState = I2C1_FSM_TX_ADDR;
+			IMUPrepareRead();
+
+			break;
+
+		//Case 0.1: Read data via DMA
+		case 1:
+
+			if(i2c1FsmState == I2C1_FSM_TX_ADDR_DONE)
+			{
+				//Start reading:
+				i2c1FsmState = I2C1_FSM_RX_DATA;
+				IMUReadAll();
+			}
+
+			break;
+
+		//Case 0.2: Parse data
+		case 2:
+
+			if(i2c1FsmState == I2C1_FSM_RX_DATA_DONE)
+			{
+				//Decode received data
+				IMUParseData();
+				//assign_i2c1_data(i2c_1_r_buf);
+			}
+
+			break;
+
+		//Case 0.3:
+		case 3:
+
+			break;
+
+		default:
+			break;
+	}
+
+	#endif //USE_IMU
 	#endif //USE_I2C_1
 }
 
@@ -233,6 +296,8 @@ void assign_i2c2_data(uint8_t *newdata)
 	(void)newdata;
 }
 
+/*
+
 //Detect the end of a Mem Read:
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
@@ -242,6 +307,47 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
 		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
 		assign_i2c1_data(&i2c_1_r_buf);
+	}
+}
+*/
+
+//Detect the end of a Master Receive:
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	if(hi2c->Instance == I2C1)
+	{
+		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
+		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
+
+		if(i2c1FsmState == I2C1_FSM_RX_DATA)
+		{
+			//Indicate that it's done receiving:
+			i2c1FsmState = I2C1_FSM_RX_DATA_DONE;
+		}
+		else
+		{
+			i2c1FsmState = I2C1_FSM_PROBLEM;
+		}
+	}
+}
+
+//Detect the end of a Master Transmit:
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	if(hi2c->Instance == I2C1)
+	{
+		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
+		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
+
+		if(i2c1FsmState == I2C1_FSM_TX_ADDR)
+		{
+			//Indicate that it's done transmitting:
+			i2c1FsmState = I2C1_FSM_TX_ADDR_DONE;
+		}
+		else
+		{
+			i2c1FsmState = I2C1_FSM_PROBLEM;
+		}
 	}
 }
 

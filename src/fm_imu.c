@@ -141,6 +141,41 @@ void get_gyro_xyz(void)
 	imu_read(IMU_GYRO_XOUT_H, tmp_data, 6);
 }
 
+//Sends the register address. Needed before a Read
+void IMUPrepareRead(void)
+{
+	uint8_t i2c_1_t_buf[4] = {IMU_ACCEL_XOUT_H, 0, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, IMU_ADDR, i2c_1_t_buf, 1);
+}
+
+//Read all of the relevant IMU data (accel, gyro, temp)
+void IMUReadAll(void)
+{
+	HAL_I2C_Master_Receive_DMA(&hi2c1, IMU_ADDR, i2c_1_r_buf, 14);
+}
+
+void IMUParseData(void)
+{
+	uint16_t tmp[7] = {0,0,0,0,0,0,0};
+	uint8_t i = 0, index = 0;
+
+	//Rebuilt 7x 16bits words:
+	for(i = 0; i < 7; i++)
+	{
+		tmp[i] = ((uint16_t)i2c_1_r_buf[index++] << 8) | \
+				((uint16_t) i2c_1_r_buf[index++]);
+	}
+
+	//Assign:
+	imu.accel.x = (int16_t)tmp[0];
+	imu.accel.y = (int16_t)tmp[1];
+	imu.accel.z = (int16_t)tmp[2];
+	//imu.temp = (int16_t)tmp[3];
+	imu.gyro.x = (int16_t)tmp[4];
+	imu.gyro.y = (int16_t)tmp[5];
+	imu.gyro.z = (int16_t)tmp[6];
+}
+
 //****************************************************************************
 // Private Function(s)
 //****************************************************************************
@@ -193,8 +228,18 @@ static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
 	HAL_StatusTypeDef retVal;
 
 	//Reads from memory. TX part is blocking, RX is DMA:
-	retVal = HAL_I2C_Mem_Read_DMA(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
+	/*retVal = HAL_I2C_Mem_Read_DMA(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
 		I2C_MEMADD_SIZE_8BIT, i2c_1_r_buf, Size);
+	*/
+
+	//Test: READ, not Mem_Read:
+	uint8_t i2c_1_t_buf[4] = {IMU_ACCEL_XOUT_H, 0, 0, 0};
+	retVal = HAL_I2C_Master_Transmit_DMA(&hi2c1, IMU_ADDR, i2c_1_t_buf, 1);
+
+	int i = 0;
+	for(i = 0; i < 5000; i++);	//Delay
+
+	retVal = HAL_I2C_Master_Receive_DMA(&hi2c1, IMU_ADDR, i2c_1_r_buf, Size);
 
 	DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
 

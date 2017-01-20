@@ -58,7 +58,8 @@ void main_fsm_case_0(void)
 {
 	slave_comm_trig = 1;
 
-	i2c1_fsm();
+	//i2c1_fsm();
+	i2c1_fsm2();
 }
 
 //Case 1: I2C2
