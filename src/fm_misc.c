@@ -10,11 +10,11 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
 	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
@@ -131,6 +131,56 @@ void init_peripherals(void)
 	set_default_analog();
 }
 
+//Computes a bunch of stuff to maximize calculations:
+#define MAX_I	25
+#define MAX_J	25
+long long bunchOfUselessMath(void)
+{
+	float resArray[MAX_I*MAX_J];
+	float		 tmp1, tmp2;
+	long long sum = 0;
+
+	int i = 0, j = 0, k = 0;
+	for(i = 0; i < MAX_I; i++)
+	{
+		for(j = 0; j < MAX_J; j++)
+		{
+			tmp1 = 1.37*(float)i;
+			tmp2 = -0.1234*(float)j;
+			resArray[MAX_I*i+j] = abs(tmp1+tmp2);
+		}
+	}
+
+	sum = 0;
+	for(k = 0; k < MAX_I*MAX_J; k++)
+	{
+		resArray[k] = resArray[k] * resArray[k];
+		sum += (long long)resArray[k];
+	}
+
+	return sum;
+}
+
+void fpu_testcode_blocking(void)
+{
+	long long myRes = 0;
+	while(1)
+	{
+		DEBUG_OUT_DIO4(1);
+		myRes = bunchOfUselessMath();
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(10);
+		if(myRes != 0)
+		{
+			delayUsBlocking(1);
+		}
+		else
+		{
+			delayUsBlocking(10);
+		}
+	}
+}
+
 void test_code_blocking(void)
 {
 	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -140,7 +190,8 @@ void test_code_blocking(void)
 	//rgb_led_test_code_blocking();
 	//user_button_test_blocking();
 	//imu_test_code_blocking();
-	test_delayUsBlocking_blocking();
+	//test_delayUsBlocking_blocking();
+	//fpu_testcode_blocking();
 	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 }
 
