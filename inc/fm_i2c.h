@@ -55,7 +55,6 @@ extern int8_t i2c1FsmState;
 //****************************************************************************
 
 void i2c1_fsm(void);
-void assign_i2c1_data(uint8_t *newdata);
 void init_i2c1(void);
 void disable_i2c1(void);
 void init_i2c2(void);
@@ -65,8 +64,6 @@ void disable_i2c2(void);
 void initOptionalPullUps(void);
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
-
-void i2c1_fsm2_trigger(void);
 
 //****************************************************************************
 // Definition(s):

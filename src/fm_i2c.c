@@ -42,7 +42,6 @@
 I2C_HandleTypeDef hi2c1, hi2c2;
 DMA_HandleTypeDef hdma_i2c1_tx;
 DMA_HandleTypeDef hdma_i2c1_rx;
-uint8_t i2c1_last_request = 0;
 
 uint8_t i2c_1_r_buf[24];
 volatile uint8_t i2c_2_r_buf[24];
@@ -68,64 +67,13 @@ static void init_dma1_stream6_ch1(void);	//I2C1 TX
 // Public Function(s)
 //****************************************************************************
 
+//I2C1 State machine. Reads IMU via IT + DMA.
 void i2c1_fsm(void)
 {
 	static uint8_t i2c_time_share = 0;
 
 	i2c_time_share++;
 	i2c_time_share %= 4;
-
-	#ifdef USE_I2C_1
-
-	//Subdivided in 4 slots (250Hz)
-	switch(i2c_time_share)
-	{
-		//Case 0.0: Accelerometer
-		case 0:
-
-			#ifdef USE_IMU
-			get_accel_xyz();
-			i2c1_last_request = I2C1_RQ_ACCEL;
-			#endif 	//USE_IMU
-
-			break;
-
-		//Case 0.1: Gyroscope
-		case 1:
-
-			#ifdef USE_IMU
-			get_gyro_xyz();
-			i2c1_last_request = I2C1_RQ_GYRO;
-			#endif 	//USE_IMU
-
-			break;
-
-		//Case 0.2:
-		case 2:
-
-			break;
-
-		//Case 0.3:
-		case 3:
-
-			break;
-
-		default:
-			break;
-	}
-
-	#endif //USE_I2C_1
-}
-
-//I2C1 State machine. Reads IMU via IT + DMA.
-void i2c1_fsm2(void)
-{
-	static uint8_t i2c_time_share = 0;
-
-	i2c_time_share++;
-	i2c_time_share %= 4;
-
-	//i2c1_last_request = I2C1_RQ_ACCEL;	//ToDo test only, remove
 
 	#ifdef USE_I2C_1
 	#ifdef USE_IMU
@@ -174,6 +122,12 @@ void i2c1_fsm2(void)
 			break;
 	}
 
+	//ToDo: recover from errors:
+	if(i2c1FsmState == I2C1_FSM_PROBLEM)
+	{
+		//Deal with it
+	}
+
 	#endif //USE_IMU
 	#endif //USE_I2C_1
 }
@@ -200,42 +154,6 @@ void i2c2_fsm(void)
 		#endif	//USE_BATTBOARD
 
 	#endif //USE_I2C_2
-}
-
-//Associate data with the right structure. We need that because of the way the ISR-based
-//I2C works (we always get data from the last request)
-void assign_i2c1_data(uint8_t *newdata)
-{
-	uint16_t tmp = 0;
-
-	if(i2c1_last_request == I2C1_RQ_GYRO)
-	{
-		//Gyro X:
-		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
-		imu.gyro.x = (int16_t)tmp;
-
-		//Gyro Y:
-		tmp = ((uint16_t)newdata[2] << 8) | ((uint16_t) newdata[3]);
-		imu.gyro.y = (int16_t)tmp;
-
-		//Gyro Z:
-		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
-		imu.gyro.z = (int16_t)tmp;
-	}
-	else if(i2c1_last_request == I2C1_RQ_ACCEL)
-	{
-		//Accel X:
-		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
-		imu.accel.x = (int16_t)tmp;
-
-		//Accel Y:
-		tmp = ((uint16_t)newdata[2] << 8) | ((uint16_t) newdata[3]);
-		imu.accel.y = (int16_t)tmp;
-
-		//Accel Z:
-		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
-		imu.accel.z = (int16_t)tmp;
-	}
 }
 
 // Initialize i2c1. Currently connected to the IMU and the digital pot
@@ -296,29 +214,11 @@ void assign_i2c2_data(uint8_t *newdata)
 	(void)newdata;
 }
 
-/*
-
-//Detect the end of a Mem Read:
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-	if(hi2c->Instance == I2C1)
-	{
-		//Test code: pulse DIO4
-		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
-		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
-		assign_i2c1_data(&i2c_1_r_buf);
-	}
-}
-*/
-
-//Detect the end of a Master Receive:
+//Detects the end of a Master Receive:
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	if(hi2c->Instance == I2C1)
 	{
-		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
-		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
-
 		if(i2c1FsmState == I2C1_FSM_RX_DATA)
 		{
 			//Indicate that it's done receiving:
@@ -331,14 +231,11 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	}
 }
 
-//Detect the end of a Master Transmit:
+//Detects the end of a Master Transmit:
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	if(hi2c->Instance == I2C1)
 	{
-		DEBUG_OUT_DIO4(1);		//ToDo Remove, debug only
-		DEBUG_OUT_DIO4(0);		//ToDo Remove, debug only
-
 		if(i2c1FsmState == I2C1_FSM_TX_ADDR)
 		{
 			//Indicate that it's done transmitting:
