@@ -70,6 +70,7 @@ void main_fsm_case_1(void)
 //Case 2:
 void main_fsm_case_2(void)
 {
+
 }
 
 //Case 3:
