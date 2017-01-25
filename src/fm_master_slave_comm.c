@@ -165,6 +165,22 @@ void slaveTransmit(uint8_t port)
 		/*Note: this is only a demonstration. In the final application, we want
 		 * to send the commands accumulated on a ring buffer here.*/
 
+		//Packet injection:
+		if(slaveComm[0].tx.inject == 1)
+		{
+			slaveComm[0].tx.inject = 0;
+			if(IS_CMD_RW(slaveComm[0].tx.cmd) == READ)
+			{
+				slaveComm[0].transceiverState = TRANS_STATE_TX_THEN_RX;
+			}
+			else
+			{
+				slaveComm[0].transceiverState = TRANS_STATE_TX;
+			}
+
+			flexsea_send_serial_slave(port, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
+		}
+
 		//Debugging test: ***ToDo Remove***
 		static uint8_t toggle1 = 0;
 		toggle1 ^= 1;
