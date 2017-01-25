@@ -42,8 +42,6 @@
 // Variable(s)
 //****************************************************************************
 
-uint8_t autosampling = 0;
-
 //****************************************************************************
 // Function(s)
 //****************************************************************************
@@ -55,6 +53,8 @@ int main(void)
 
 	//Prepare FlexSEA stack:
 	init_flexsea_payload_ptr();
+
+	initSlaveComm();
 
 	//Initialize all the peripherals
 	init_peripherals();

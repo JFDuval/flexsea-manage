@@ -39,7 +39,6 @@
 // Variable(s)
 //****************************************************************************
 
-uint8_t slave_comm_trig = 0;
 uint8_t new_cmd_led = 0;
 
 //****************************************************************************
@@ -56,26 +55,25 @@ uint8_t new_cmd_led = 0;
 //Case 0: I2C1 + slaveComm
 void main_fsm_case_0(void)
 {
-	slave_comm_trig = 1;
-
-	i2c1_fsm();
+	slaveTransmit(PORT_485_1);
 }
 
 //Case 1: I2C2
 void main_fsm_case_1(void)
 {
-	i2c2_fsm();
+	i2c1_fsm();
 }
 
 //Case 2:
 void main_fsm_case_2(void)
 {
+	i2c2_fsm();
 }
 
 //Case 3:
 void main_fsm_case_3(void)
 {
-
+	slaveTransmit(PORT_485_2);
 }
 
 //Case 4: User Functions
@@ -89,7 +87,7 @@ void main_fsm_case_4(void)
 //Case 5:
 void main_fsm_case_5(void)
 {
-	slave_comm_trig = 2;
+
 }
 
 //Case 6:
@@ -141,16 +139,11 @@ void main_fsm_case_9(void)
 
 void main_fsm_10kHz(void)
 {
-	DEBUG_OUT_DIO4(1);
-
 	#ifdef USE_COMM_TEST
 
 		comm_test();
 
 	#endif	//USE_COMM_TEST
-
-	//Master-Slave communications
-	slave_comm(&slave_comm_trig);
 
 	//RGB:
 	rgbLedRefresh();
@@ -159,17 +152,14 @@ void main_fsm_10kHz(void)
 	//=========================================
 
 	//SPI or USB reception from a Plan board:
-	DEBUG_OUT_DIO5(1);
 	flexsea_receive_from_master();
-	DEBUG_OUT_DIO5(0);
 
 	//RS-485 reception from an Execute board:
 	flexsea_receive_from_slave();
 
 	//Did we receive new commands? Can we parse them?
-	parse_master_slave_commands(&new_cmd_led);
-
-	DEBUG_OUT_DIO4(0);
+	parseMasterCommands(&new_cmd_led);
+	parseSlaveCommands(&new_cmd_led);
 }
 
 //Asynchronous time slots:

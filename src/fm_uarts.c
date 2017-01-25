@@ -392,41 +392,33 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
-	slaves_485_1.bytes_ready++;
+	//slaves_485_1.bytes_ready++;
+	slaveComm[0].rx.bytesReady++;
 }
 
 //Code branches here once a TX transfer is complete (either: ISR or DMA)
 void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
+	uint8_t transceiver = 0;
 	//Reset state to Ready:
 	husart->State = HAL_USART_STATE_READY;
 
 	//Ready to start receiving? RS-485 #1
 	if(husart->Instance == USART1)
 	{
-		if(slaves_485_1.xmit.willListenSoon == 1)
-		{
-			slaves_485_1.xmit.listen = 1;
-		}
-
-		if(slaves_485_1.autosample.willListenSoon == 1)
-		{
-			slaves_485_1.autosample.listen = 1;
-		}
+		transceiver = 0;
 	}
 
 	//Ready to start receiving? RS-485 #2
 	if(husart->Instance == USART6)
 	{
-		if(slaves_485_2.xmit.willListenSoon == 1)
-		{
-			slaves_485_2.xmit.listen = 1;
-		}
+		transceiver = 1;
+	}
 
-		if(slaves_485_2.autosample.willListenSoon == 1)
-		{
-			slaves_485_2.autosample.listen = 1;
-		}
+	//Change state:
+	if(slaveComm[transceiver].transceiverState == TRANS_STATE_TX_THEN_RX)
+	{
+		slaveComm[transceiver].transceiverState = TRANS_STATE_PREP_RX;
 	}
 }
 
@@ -443,7 +435,8 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
-	slaves_485_2.bytes_ready++;
+	//slaves_485_2.bytes_ready++;
+	slaveComm[1].rx.bytesReady++;
 }
 
 //****************************************************************************

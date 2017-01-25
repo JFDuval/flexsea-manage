@@ -68,7 +68,10 @@ void comm_str_to_txbuffer(void);
 #define BOARD_TYPE_FLEXSEA_MANAGE
 //#define BOARD_TYPE_FLEXSEA_EXECUTE
 
-//How many slaves on this bus?
+//How many slave busses?
+#define COMM_SLAVE_BUS				2
+
+//How many slaves per bus?
 #define SLAVE_BUS_1_CNT				2
 #define SLAVE_BUS_2_CNT				2
 //Note: only Manage can have a value different than 0 or 1

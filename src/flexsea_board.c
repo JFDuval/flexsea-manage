@@ -145,38 +145,37 @@ void flexsea_start_receiving_from_master(void)
 void flexsea_receive_from_slave(void)
 {
 	//We only listen if we requested a reply:
-	if((slaves_485_1.xmit.listen == 1) || (slaves_485_1.autosample.listen == 1))
+	if(slaveComm[0].transceiverState == TRANS_STATE_PREP_RX)
 	{
-		slaves_485_1.xmit.listen = 0;
-		slaves_485_1.autosample.listen = 0;
+		slaveComm[0].transceiverState = TRANS_STATE_RX;
 
 		reception_rs485_1_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
 
-	if((slaves_485_2.xmit.listen == 1) || (slaves_485_2.autosample.listen == 1))
+	//We only listen if we requested a reply:
+	if(slaveComm[1].transceiverState == TRANS_STATE_PREP_RX)
 	{
-		slaves_485_2.xmit.listen = 0;
-		slaves_485_2.autosample.listen = 0;
+		slaveComm[1].transceiverState = TRANS_STATE_RX;
 
 		reception_rs485_2_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
 
 	//Did we receive new bytes?
-	if(slaves_485_1.bytes_ready != 0)
+	if(slaveComm[0].rx.bytesReady != 0)
 	{
-		slaves_485_1.bytes_ready = 0;
+		slaveComm[0].rx.bytesReady = 0;
 		//Got new data in, try to decode
-		slaves_485_1.cmd_ready = unpack_payload_485_1();
+		slaveComm[0].rx.cmdReady = unpack_payload_485_1();
 	}
 
 	//Did we receive new bytes?
-	if(slaves_485_2.bytes_ready != 0)
+	if(slaveComm[1].rx.bytesReady != 0)
 	{
-		slaves_485_2.bytes_ready = 0;
-        //Got new data in, try to decode
-		slaves_485_2.cmd_ready = unpack_payload_485_2();
+		slaveComm[1].rx.bytesReady = 0;
+		//Got new data in, try to decode
+		slaveComm[1].rx.cmdReady = unpack_payload_485_2();
 	}
 }
 
