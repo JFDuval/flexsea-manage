@@ -41,6 +41,7 @@
 
 uint8_t tmp_rx_command_spi[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_usb[PAYLOAD_BUF_LEN];
+uint8_t tmp_rx_command_wireless[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_1[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_2[PAYLOAD_BUF_LEN];
 
@@ -60,7 +61,7 @@ void initSlaveComm(void)
 //Prepares the structures:
 void init_master_slave_comm(void)
 {
-	//Port #1:
+	//Slave Port #1:
 	slaveComm[0].port = PORT_RS485_1;
 	slaveComm[0].rx.bytesReady = 0;
 	slaveComm[0].rx.cmdReady = 0;
@@ -68,13 +69,23 @@ void init_master_slave_comm(void)
 	//slaveComm[0].rx.rxBuf = rx_buf_1;
 	slaveComm[0].rx.rxCmd = rx_command_485_1;
 
-	//Port #2:
+	//Slave Port #2:
 	slaveComm[1].port = PORT_RS485_2;
 	slaveComm[1].rx.bytesReady = 0;
 	slaveComm[1].rx.cmdReady = 0;
 	slaveComm[1].rx.commStr = comm_str_485_1;
 	//slaveComm[0].rx.rxBuf = rx_buf_1;
 	slaveComm[1].rx.rxCmd = rx_command_485_1;
+
+	//Master Port #3:
+	masterComm[2].port = PORT_WIRELESS;
+	masterComm[2].rx.bytesReady = 0;
+	masterComm[2].rx.cmdReady = 0;
+	masterComm[2].rx.commStr = comm_str_wireless;
+	//slaveComm[2].rx.rxBuf = rx_buf_1;
+	masterComm[2].rx.rxCmd = rx_command_wireless;
+
+	//ToDo: use this approach for USB & SPI
 }
 
 //Did we receive new commands? Can we parse them?
@@ -114,6 +125,24 @@ void parseMasterCommands(uint8_t *new_cmd)
 		// parse the command and execute it
 		info[0] = PORT_USB;
 		payload_parse_str(tmp_rx_command_usb, info);
+
+		//LED:
+		*new_cmd = 1;
+	}
+
+	//Valid communication from Wireless?
+	if(masterComm[2].rx.cmdReady > 0)
+	{
+		masterComm[2].rx.cmdReady = 0;
+
+		//Cheap trick to get first line	//ToDo: support more than 1
+		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
+		{
+			tmp_rx_command_wireless[i] = rx_command_wireless[0][i];
+		}
+		// parse the command and execute it
+		info[0] = PORT_WIRELESS;
+		payload_parse_str(tmp_rx_command_wireless, info);
 
 		//LED:
 		*new_cmd = 1;

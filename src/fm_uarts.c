@@ -478,14 +478,11 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 		//empty_dr = USART1->DR;
 	}
 
-	/* ToDo Master version, with new buffers ***
 	//Deal with FlexSEA buffers here:
-	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
+	update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
-	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
-	//slaves_485_1.bytes_ready++;
-	slaveComm[0].rx.bytesReady++;
-	*/
+	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
+	masterComm[2].rx.bytesReady++;
 }
 
 //****************************************************************************

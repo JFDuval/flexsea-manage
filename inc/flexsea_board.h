@@ -76,6 +76,9 @@ void comm_str_to_txbuffer(void);
 #define SLAVE_BUS_2_CNT				2
 //Note: only Manage can have a value different than 0 or 1
 
+//How many possible masters?
+#define COMM_MASTERS				3
+
 //Slave Read Buffer Size:
 //#define SLAVE_READ_BUFFER_LEN		32		//ToDo TBD
 
@@ -84,38 +87,46 @@ void comm_str_to_txbuffer(void);
 #define ENABLE_FLEXSEA_BUF_2		//RS-485 #2
 #define ENABLE_FLEXSEA_BUF_3		//SPI
 #define ENABLE_FLEXSEA_BUF_4		//USB
+#define ENABLE_FLEXSEA_BUF_5		//Wireless
 
 //Overload buffer & function names (for user convenience):
 
-#define comm_str_485_1				comm_str_1
-#define unpack_payload_485_1		unpack_payload_1
-#define rx_command_485_1			rx_command_1
-#define update_rx_buf_byte_485_1	update_rx_buf_byte_1
-#define update_rx_buf_array_485_1	update_rx_buf_array_1
+#define comm_str_485_1					comm_str_1
+#define unpack_payload_485_1			unpack_payload_1
+#define rx_command_485_1				rx_command_1
+#define update_rx_buf_byte_485_1		update_rx_buf_byte_1
+#define update_rx_buf_array_485_1		update_rx_buf_array_1
 
-#define comm_str_485_2				comm_str_2
-#define unpack_payload_485_2		unpack_payload_2
-#define rx_command_485_2			rx_command_2
-#define update_rx_buf_byte_485_2	update_rx_buf_byte_2
-#define update_rx_buf_array_485_2	update_rx_buf_array_2
+#define comm_str_485_2					comm_str_2
+#define unpack_payload_485_2			unpack_payload_2
+#define rx_command_485_2				rx_command_2
+#define update_rx_buf_byte_485_2		update_rx_buf_byte_2
+#define update_rx_buf_array_485_2		update_rx_buf_array_2
 
-#define comm_str_spi				comm_str_3
-#define unpack_payload_spi			unpack_payload_3
-#define rx_command_spi				rx_command_3
-#define update_rx_buf_byte_spi		update_rx_buf_byte_3
-#define update_rx_buf_array_spi		update_rx_buf_array_3
+#define comm_str_spi					comm_str_3
+#define unpack_payload_spi				unpack_payload_3
+#define rx_command_spi					rx_command_3
+#define update_rx_buf_byte_spi			update_rx_buf_byte_3
+#define update_rx_buf_array_spi			update_rx_buf_array_3
 
- #define comm_str_usb				comm_str_4
- #define unpack_payload_usb			unpack_payload_4
- #define rx_command_usb				rx_command_4
- #define update_rx_buf_byte_usb		update_rx_buf_byte_4
- #define update_rx_buf_array_usb	update_rx_buf_array_4
+ #define comm_str_usb					comm_str_4
+ #define unpack_payload_usb				unpack_payload_4
+ #define rx_command_usb					rx_command_4
+ #define update_rx_buf_byte_usb			update_rx_buf_byte_4
+ #define update_rx_buf_array_usb		update_rx_buf_array_4
+
+#define comm_str_wireless				comm_str_5
+#define unpack_payload_wireless			unpack_payload_5
+#define rx_command_wireless				rx_command_5
+#define update_rx_buf_byte_wireless		update_rx_buf_byte_5
+#define update_rx_buf_array_wireless	update_rx_buf_array_5
 
 //Communication ports:
 #define PORT_RS485_1				0
 #define PORT_RS485_2				1
 #define PORT_SPI					2
 #define PORT_USB					3
+#define PORT_WIRELESS				4
 
 //===============
 //</FlexSEA User>

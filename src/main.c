@@ -155,9 +155,6 @@ int main(void)
 		if(tb_1000ms_flag)
 		{
 			tb_1000ms_flag = 0;
-
-			//ToDo Remove - test only
-			puts_expUart(testBuf, 48);
 		}
 	}
 }

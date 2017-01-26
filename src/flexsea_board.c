@@ -103,6 +103,10 @@ void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
 	{
 		CDC_Transmit_FS(str, length);
 	}
+	else if(port == PORT_WIRELESS)
+	{
+		puts_expUart(str, length);
+	}
 }
 
 void flexsea_receive_from_master(void)
@@ -126,6 +130,14 @@ void flexsea_receive_from_master(void)
 	}
 
 	#endif	//USE_USB
+
+	//Did we receive new bytes?
+	if(masterComm[2].rx.bytesReady > 0)
+	{
+		masterComm[2].rx.bytesReady = 0;
+		//Got new data in, try to decode
+		masterComm[2].rx.cmdReady = unpack_payload_wireless();
+	}
 }
 
 void flexsea_start_receiving_from_master(void)
