@@ -70,6 +70,12 @@ void init_peripherals(void)
 	init_adc1();
 	init_spi4();				//Plan
 
+	#ifdef USE_UART3
+
+		init_usart3(115200);		//Expansion port
+
+	#endif
+
 	#ifdef USE_FLASH_MEM
 
 		init_spi5();			//SPI connected to FLASH

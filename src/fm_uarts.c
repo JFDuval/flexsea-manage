@@ -50,6 +50,8 @@ DMA_HandleTypeDef hdma2_str2_ch4;	//DMA for RS-485 #1 RX
 DMA_HandleTypeDef hdma2_str7_ch4;	//DMA for RS-485 #1 TX
 DMA_HandleTypeDef hdma2_str1_ch5;	//DMA for RS-485 #2 RX
 DMA_HandleTypeDef hdma2_str6_ch5;	//DMA for RS-485 #2 TX
+DMA_HandleTypeDef hdma1_str1_ch4;	//DMA for USART3 RX
+DMA_HandleTypeDef hdma1_str3_ch4;	//DMA for USART3 TX
 
 //DMA buffers and config:
 __attribute__ ((aligned (4))) uint8_t uart1_dma_rx_buf[RX_BUF_LEN];
@@ -58,6 +60,9 @@ uint32_t rs485_1_dma_xfer_len = COMM_STR_BUF_LEN;
 __attribute__ ((aligned (4))) uint8_t uart6_dma_rx_buf[RX_BUF_LEN];
 __attribute__ ((aligned (4))) uint8_t uart6_dma_tx_buf[RX_BUF_LEN];
 uint32_t rs485_2_dma_xfer_len = COMM_STR_BUF_LEN;
+__attribute__ ((aligned (4))) uint8_t uart3_dma_rx_buf[RX_BUF_LEN];
+__attribute__ ((aligned (4))) uint8_t uart3_dma_tx_buf[RX_BUF_LEN];
+uint32_t uart3_dma_xfer_len = COMM_STR_BUF_LEN;
 //Note: Not sure if they have to be aligned, but can't hurt too much.
 
 //****************************************************************************
@@ -68,6 +73,8 @@ static void init_dma2_stream2_ch4(void);
 static void init_dma2_stream1_ch5(void);
 static void init_dma2_stream7_ch4(void);
 static void init_dma2_stream6_ch5(void);
+static void init_dma1_stream1_ch4(void);
+static void init_dma1_stream3_ch4(void);
 
 //****************************************************************************
 // Public Function(s)
@@ -181,13 +188,16 @@ void init_usart3(uint32_t baudrate)
 
 	//With only HAL_USART_Init() I never get an interrupt. Manually setting 5 bits:
 	//16x oversampling, Receive enable, enable RXNE interrupts:
-	USART6->CR1 |= 0b00000000000000010000000000100100;
-	//Disable synchronous clock:
-	USART6->CR2 &= 0b11111111111111111111011111111111;
-	//3 bits method:
-	USART6->CR3 &= 0b11111111111111111111011111111111;
-}
+	//USART3->CR1 |= USART_CR1_OVER8;		//8x oversampling (for higher baudrates)
+	USART3->CR1 |= USART_CR1_RE;		//Enable receiver
+	USART3->CR2 &= ~USART_CR2_CLKEN;	//Disable synchronous clock
+	USART3->CR3 |= USART_CR3_ONEBIT;	//1 sample per bit
+	USART3->CR3 |= USART_CR3_DMAR;		//Enable DMA Reception
+	USART3->CR3 |= USART_CR3_DMAT;		//Enable DMA Transmission
 
+	init_dma1_stream1_ch4();
+	init_dma1_stream3_ch4();
+}
 
 //Initialize GPIOs for RS-485: RE, DE
 //(doesn't do the UART pins)
@@ -379,6 +389,24 @@ uint8_t reception_rs485_2_blocking(void)
 	return 0;
 }
 
+//Sends a string via the expansion's port UART (USART3)
+//Note: this is sending via interrupt, but not using the DMA
+void puts_expUart(uint8_t *str, uint16_t length)
+{
+	unsigned int i = 0;
+	uint8_t *uart3_dma_buf_ptr;
+	uart3_dma_buf_ptr = (uint8_t*) &uart3_dma_tx_buf;
+
+	//Copy str to tx buffer:
+	memcpy(uart3_dma_tx_buf, str, length);
+
+	//ToDo replace by valid delay function!
+	for(i = 0; i < 1000; i++);
+
+	//Send data via DMA:
+	HAL_USART_Transmit_DMA(&husart3, uart3_dma_buf_ptr, length);
+}
+
 //Function called after a completed DMA transfer, UART1 RX
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 {
@@ -403,16 +431,18 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	//Reset state to Ready:
 	husart->State = HAL_USART_STATE_READY;
 
-	//Ready to start receiving? RS-485 #1
+	//Ready to start receiving?
 	if(husart->Instance == USART1)
 	{
 		transceiver = 0;
 	}
-
-	//Ready to start receiving? RS-485 #2
-	if(husart->Instance == USART6)
+	else if(husart->Instance == USART6)
 	{
 		transceiver = 1;
+	}
+	else
+	{
+		return;
 	}
 
 	//Change state:
@@ -437,6 +467,25 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
 	//slaves_485_2.bytes_ready++;
 	slaveComm[1].rx.bytesReady++;
+}
+
+//Function called after a completed DMA transfer, UART3 RX
+void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
+{
+	if(hdma->Instance == DMA1_Stream1)
+	{
+		//Clear the UART receiver. Might not be needed, but harmless
+		//empty_dr = USART1->DR;
+	}
+
+	/* ToDo Master version, with new buffers ***
+	//Deal with FlexSEA buffers here:
+	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
+	//Empty DMA buffer once it's copied:
+	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
+	//slaves_485_1.bytes_ready++;
+	slaveComm[0].rx.bytesReady++;
+	*/
 }
 
 //****************************************************************************
@@ -588,6 +637,45 @@ static void init_dma2_stream1_ch5(void)
 			(uint32_t) uart6_dma_buf_ptr, rs485_2_dma_xfer_len);
 }
 
+//Using DMA1 Ch 4 Stream 1 for USART3 RX
+static void init_dma1_stream1_ch4(void)
+{
+	//Pointer to our storage buffer:
+	uint32_t *uart3_dma_buf_ptr;
+	uart3_dma_buf_ptr = (uint32_t*) &uart3_dma_rx_buf;
+
+	//Enable clock
+	__DMA1_CLK_ENABLE();
+
+	//Initialization:
+	hdma1_str1_ch4.Instance = DMA1_Stream1;
+	hdma1_str1_ch4.Init.Channel = DMA_CHANNEL_4;
+	hdma1_str1_ch4.Init.Direction = DMA_PERIPH_TO_MEMORY; 	//Receive, so Periph to Mem
+	hdma1_str1_ch4.Init.PeriphInc = DMA_PINC_DISABLE;		//No Periph increment
+	hdma1_str1_ch4.Init.MemInc = DMA_MINC_ENABLE;			//Memory increment
+	hdma1_str1_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
+	hdma1_str1_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;		//Align: bytes
+	hdma1_str1_ch4.Init.Mode = DMA_CIRCULAR;
+	hdma1_str1_ch4.Init.Priority = DMA_PRIORITY_MEDIUM;
+	hdma1_str1_ch4.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma1_str1_ch4.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+	hdma1_str1_ch4.Init.MemBurst = DMA_MBURST_SINGLE;
+	hdma1_str1_ch4.Init.PeriphBurst = DMA_PBURST_SINGLE;
+
+	hdma1_str1_ch4.XferCpltCallback = DMA1_Str1_CompleteTransfer_Callback;
+
+	HAL_DMA_Init(&hdma1_str1_ch4);
+
+	//Interrupts:
+	HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);	//ToDo adjust
+	HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+	__HAL_DMA_ENABLE_IT(&hdma1_str1_ch4, DMA_IT_TC);
+
+	//Start the DMA peripheral
+	HAL_DMA_Start_IT(&hdma1_str1_ch4, (uint32_t) &USART3->DR,
+			(uint32_t) uart3_dma_buf_ptr, uart3_dma_xfer_len);
+}
+
 //Using DMA2 Ch 4 Stream 7 for USART1 TX
 static void init_dma2_stream7_ch4(void)
 {
@@ -656,4 +744,38 @@ static void init_dma2_stream6_ch5(void)
 			DMA_STR6_IRQ_SUBCHANNEL);
 	HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 	__HAL_DMA_ENABLE_IT(husart6.hdmatx, DMA_IT_TC);
+}
+
+//Using DMA1 Ch 4 Stream 1 for USART3 TX
+static void init_dma1_stream3_ch4(void)
+{
+	//Pointer to our storage buffer:
+	uint32_t *uart3_dma_buf_ptr;
+	uart3_dma_buf_ptr = (uint32_t*) &uart3_dma_tx_buf;
+
+	//Enable clock
+	__DMA1_CLK_ENABLE();
+
+	//Initialization:
+	hdma1_str3_ch4.Instance = DMA1_Stream3;
+	hdma1_str3_ch4.Init.Channel = DMA_CHANNEL_4;
+	hdma1_str3_ch4.Init.Direction = DMA_MEMORY_TO_PERIPH; 	//Transmit, so Mem to Periph
+	hdma1_str3_ch4.Init.PeriphInc = DMA_PINC_DISABLE;		//No Periph increment
+	hdma1_str3_ch4.Init.MemInc = DMA_MINC_ENABLE;			//Memory increment
+	hdma1_str3_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
+	hdma1_str3_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;		//Align: bytes
+	hdma1_str3_ch4.Init.Mode = DMA_NORMAL;
+	hdma1_str3_ch4.Init.Priority = DMA_PRIORITY_MEDIUM;
+
+	//Link DMA handle and UART TX:
+	husart3.hdmatx = &hdma1_str3_ch4;
+	//husart1 is the parent:
+	husart3.hdmatx->Parent = &husart3;
+
+	HAL_DMA_Init(husart3.hdmatx);
+
+	//Interrupts:
+	HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);	//ToDo adjust priority
+	HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+	__HAL_DMA_ENABLE_IT(husart3.hdmatx, DMA_IT_TC);
 }

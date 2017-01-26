@@ -47,6 +47,8 @@ extern USART_HandleTypeDef husart6;			//RS-485 #2
 extern USART_HandleTypeDef husart3;			//Expansion port
 extern DMA_HandleTypeDef hdma2_str2_ch4;	//DMA for RS-485 #1 RX
 extern DMA_HandleTypeDef hdma2_str1_ch5;	//DMA for RS-485 #2 RX
+extern DMA_HandleTypeDef hdma1_str1_ch4;	//DMA for USART3 RX
+extern DMA_HandleTypeDef hdma1_str3_ch4;	//DMA for USART3 TX
 
 //****************************************************************************
 // Public Function Prototype(s):
@@ -71,6 +73,7 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
 
 //Other USART:
 void init_usart3(uint32_t baudrate);
+void puts_expUart(uint8_t *str, uint16_t length);
 
 //****************************************************************************
 // Definition(s):
@@ -103,6 +106,7 @@ void init_usart3(uint32_t baudrate);
 #define RS485_RX_TX					0x03
 
 //Interrupt priorities (lower number = higher priority)
+//ToDo: review this whole section
 #define UART1_IRQ_CHANNEL			6
 #define UART1_IRQ_SUBCHANNEL		0
 

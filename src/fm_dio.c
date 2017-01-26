@@ -68,12 +68,16 @@ void init_dio(void)
 	__GPIOF_CLK_ENABLE();
 	__GPIOG_CLK_ENABLE();
 
-	// Configure pins as inputs
-	GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_9;
-	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
-	GPIO_InitStructure.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+	#ifndef USE_UART3
+
+		// Configure pins as inputs
+		GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+		GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+	#endif
 
 	// Configure pins as inputs
 	GPIO_InitStructure.Pin = GPIO_PIN_0 | GPIO_PIN_1;

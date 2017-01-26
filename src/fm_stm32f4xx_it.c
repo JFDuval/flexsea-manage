@@ -73,6 +73,12 @@ void USART1_IRQHandler(void)
 }
 
 //Should not be used, everything is done via DMA
+void USART3_IRQHandler(void)
+{
+	HAL_USART_IRQHandler(&husart3);
+}
+
+//Should not be used, everything is done via DMA
 void USART6_IRQHandler(void)
 {
 	HAL_USART_IRQHandler(&husart6);
@@ -92,6 +98,22 @@ void DMA2_Stream7_IRQHandler(void)
 	HAL_NVIC_ClearPendingIRQ(DMA2_Stream7_IRQn);
 
 	HAL_DMA_IRQHandler(husart1.hdmatx);
+}
+
+//DMA1 Stream1 - USART3 RX
+void DMA1_Stream1_IRQHandler(void)
+{
+	HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
+
+	HAL_DMA_IRQHandler(&hdma1_str1_ch4);
+}
+
+//DMA1 Stream3 - USART3 TX
+void DMA1_Stream3_IRQHandler(void)
+{
+	HAL_NVIC_ClearPendingIRQ(DMA1_Stream3_IRQn);
+
+	HAL_DMA_IRQHandler(husart3.hdmatx);
 }
 
 //DMA2 Stream1 - USART6 RX
