@@ -48,8 +48,6 @@ volatile uint8_t i2c_tmp_buf[IMU_MAX_BUF_SIZE];
 
 static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 		uint16_t Size);
-static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
-		uint16_t Size);
 
 //****************************************************************************
 // Public Function(s)
@@ -76,69 +74,39 @@ void reset_imu(void)
 	imu_write(IMU_PWR_MGMT_1, &config, 1);
 }
 
-// Get accel X
-int16_t get_accel_x(void)
+//Sends the register address. Needed before a Read
+void IMUPrepareRead(void)
 {
-	uint8_t data[2] = { 0, 0 };
-	imu_read(IMU_ACCEL_XOUT_H, data, 2);
-	return ((uint16_t) data[0] << 8) | (data[1]);
-}
-// Get accel Y
-int16_t get_accel_y(void)
-{
-	uint8_t data[2];
-	imu_read(IMU_ACCEL_YOUT_H, data, 2);
-	return ((uint16_t) data[0] << 8) | (data[1]);
+	uint8_t i2c_1_t_buf[4] = {IMU_ACCEL_XOUT_H, 0, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, IMU_ADDR, i2c_1_t_buf, 1);
 }
 
-// Get accel Z
-int16_t get_accel_z(void)
+//Read all of the relevant IMU data (accel, gyro, temp)
+void IMUReadAll(void)
 {
-	uint8_t data[2];
-	imu_read(IMU_ACCEL_ZOUT_H, data, 2);
-	return ((uint16_t) data[0] << 8) | (data[1]);
+	HAL_I2C_Master_Receive_DMA(&hi2c1, IMU_ADDR, i2c1_dma_rx_buf, 14);
 }
 
-//Puts all the accelerometer values in the structure:
-void get_accel_xyz(void)
+void IMUParseData(void)
 {
-	uint8_t tmp_data[7] = {0,0,0,0,0,0};
+	uint16_t tmp[7] = {0,0,0,0,0,0,0};
+	uint8_t i = 0, index = 0;
 
-	//According to the documentation it's X_H, X_L, Y_H, ...
-	imu_read(IMU_ACCEL_XOUT_H, tmp_data, 6);
-}
+	//Rebuilt 7x 16bits words:
+	for(i = 0; i < 7; i++)
+	{
+		tmp[i] = ((uint16_t)i2c1_dma_rx_buf[index++] << 8) | \
+				((uint16_t) i2c1_dma_rx_buf[index++]);
+	}
 
-// Get gyro X
-int16_t get_gyro_x(void)
-{
-	uint8_t data[2];
-	imu_read(IMU_GYRO_XOUT_H, data, 2);
-	return ((uint16_t) data[0] << 8) | (data[1]);
-}
-
-// Get gyro Y
-int16_t get_gyro_y(void)
-{
-	uint8_t data[2];
-	imu_read(IMU_GYRO_YOUT_H, data, 2);
-	return ((uint16_t) data[0] << 8) | (data[1]);
-}
-
-// Get gyro Z
-int16_t get_gyro_z(void)
-{
-	uint8_t data[2];
-	imu_read(IMU_GYRO_ZOUT_H, data, 2);
-	return ((uint16_t) data[0] << 8) | (data[1]);
-}
-
-//Puts all the gyroscope values in the structure:
-void get_gyro_xyz(void)
-{
-	uint8_t tmp_data[7] = {0,0,0,0,0,0,0};
-
-	//According to the documentation it's X_H, X_L, Y_H, ...
-	imu_read(IMU_GYRO_XOUT_H, tmp_data, 6);
+	//Assign:
+	imu.accel.x = (int16_t)tmp[0];
+	imu.accel.y = (int16_t)tmp[1];
+	imu.accel.z = (int16_t)tmp[2];
+	//imu.temp = (int16_t)tmp[3];
+	imu.gyro.x = (int16_t)tmp[4];
+	imu.gyro.y = (int16_t)tmp[5];
+	imu.gyro.z = (int16_t)tmp[6];
 }
 
 //****************************************************************************
@@ -151,6 +119,7 @@ void get_gyro_xyz(void)
 // uint8_t internal_reg_addr: internal register address of the IMU
 // uint8_t* pData: pointer to the data we want to send to that address
 // uint16_t Size: amount of bytes of data pointed to by pData
+
 
 static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 		uint16_t Size)
@@ -179,70 +148,4 @@ static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 	}
 
 	return retVal;
-}
-
-//read data from an internal register of the IMU.
-// you would use this function if you wanted to read data from the IMU.
-// uint8_t internal_reg_addr: internal register address of the IMU
-// uint8_t* pData: pointer to where we want to save the data from the IMU
-// uint16_t Size: amount of bytes we want to read
-static HAL_StatusTypeDef imu_read(uint8_t internal_reg_addr, uint8_t *pData,
-		uint16_t Size)
-{
-	uint8_t i = 0;
-	HAL_StatusTypeDef retVal;
-
-	//>>> Copy of Execute's code - todo improve
-	//Currently having trouble detecting the flags to know when data is ready.
-	//For now I'll transfer the previous buffer.
-	for(i = 0; i < Size; i++)
-	{
-		pData[i] = i2c_1_r_buf[i];
-	}
-
-	//Store data:
-	assign_i2c1_data(&i2c_1_r_buf);
-	//<<<<
-
-	retVal = HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
-	I2C_MEMADD_SIZE_8BIT, i2c_1_r_buf, Size, IMU_BLOCK_TIMEOUT);
-
-	return retVal;
-}
-
-//****************************************************************************
-// Test Function(s) - Use with care!
-//****************************************************************************
-
-void imu_test_code_blocking(void)
-{
-	//IMU test code
-
-	uint8_t led_state = 0;
-	//int16_t imu_accel_x = 0;
-
-	/*
-	//Single channel test:
-	while(1)
-	{
-		imu_accel_x = get_accel_x();
-
-		led_state ^= 1;
-		LED1(led_state);
-
-		HAL_Delay(75);
-	}
-	*/
-
-	// 3 channels test (only one displayed)
-	while(1)
-	{
-		get_accel_xyz();
-		//get_gyro_xyz();
-
-		led_state ^= 1;
-		LED1(led_state);
-
-		HAL_Delay(75);
-	}
 }

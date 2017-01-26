@@ -134,5 +134,9 @@ void reset_imu(void);			//reset IMU registers to default
 void disable_imu(void);			//disable the IMU by shutting down clocks, etc.
 void imu_test_code_blocking(void);
 
+void IMUPrepareRead(void);
+void IMUReadAll(void);
+void IMUParseData(void);
+
 #endif //INC_FM_IMU_H
 

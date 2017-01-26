@@ -40,9 +40,12 @@
 //****************************************************************************
 
 I2C_HandleTypeDef hi2c1, hi2c2;
-uint8_t i2c1_last_request = 0;
-volatile uint8_t i2c_1_r_buf[24];
-volatile uint8_t i2c_2_r_buf[24];
+DMA_HandleTypeDef hdma_i2c1_tx;
+DMA_HandleTypeDef hdma_i2c1_rx;
+
+uint8_t i2c_2_r_buf[24];
+int8_t i2c1FsmState = I2C1_FSM_DEFAULT;
+__attribute__ ((aligned (4))) uint8_t i2c1_dma_rx_buf[24];
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -50,11 +53,14 @@ volatile uint8_t i2c_2_r_buf[24];
 
 void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c);
+static void init_dma1_stream0_ch1(void);	//I2C1 RX
+static void init_dma1_stream6_ch1(void);	//I2C1 TX
 
 //****************************************************************************
 // Public Function(s)
 //****************************************************************************
 
+//I2C1 State machine. Reads IMU via IT + DMA.
 void i2c1_fsm(void)
 {
 	static uint8_t i2c_time_share = 0;
@@ -63,32 +69,39 @@ void i2c1_fsm(void)
 	i2c_time_share %= 4;
 
 	#ifdef USE_I2C_1
+	#ifdef USE_IMU
 
 	//Subdivided in 4 slots (250Hz)
 	switch(i2c_time_share)
 	{
-		//Case 0.0: Accelerometer
+		//Case 0.0: Write register
 		case 0:
 
-			#ifdef USE_IMU
-			get_accel_xyz();
-			i2c1_last_request = I2C1_RQ_ACCEL;
-			#endif 	//USE_IMU
+			i2c1FsmState = I2C1_FSM_TX_ADDR;
+			IMUPrepareRead();
 
 			break;
 
-		//Case 0.1: Gyroscope
+		//Case 0.1: Read data via DMA
 		case 1:
 
-			#ifdef USE_IMU
-			get_gyro_xyz();
-			i2c1_last_request = I2C1_RQ_GYRO;
-			#endif 	//USE_IMU
+			if(i2c1FsmState == I2C1_FSM_TX_ADDR_DONE)
+			{
+				//Start reading:
+				i2c1FsmState = I2C1_FSM_RX_DATA;
+				IMUReadAll();
+			}
 
 			break;
 
-		//Case 0.2:
+		//Case 0.2: Parse data
 		case 2:
+
+			if(i2c1FsmState == I2C1_FSM_RX_DATA_DONE)
+			{
+				//Decode received data
+				IMUParseData();
+			}
 
 			break;
 
@@ -101,6 +114,13 @@ void i2c1_fsm(void)
 			break;
 	}
 
+	//ToDo: recover from errors:
+	if(i2c1FsmState == I2C1_FSM_PROBLEM)
+	{
+		//Deal with it
+	}
+
+	#endif //USE_IMU
 	#endif //USE_I2C_1
 }
 
@@ -128,47 +148,9 @@ void i2c2_fsm(void)
 	#endif //USE_I2C_2
 }
 
-//Associate data with the right structure. We need that because of the way the ISR-based
-//I2C works (we always get data from the last request)
-void assign_i2c1_data(uint8_t *newdata)
-{
-	uint16_t tmp = 0;
-
-	if(i2c1_last_request == I2C1_RQ_GYRO)
-	{
-		//Gyro X:
-		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
-		imu.gyro.x = (int16_t)tmp;
-
-		//Gyro Y:
-		tmp = ((uint16_t)newdata[2] << 8) | ((uint16_t) newdata[3]);
-		imu.gyro.y = (int16_t)tmp;
-
-		//Gyro Z:
-		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
-		imu.gyro.z = (int16_t)tmp;
-	}
-	else if(i2c1_last_request == I2C1_RQ_ACCEL)
-	{
-		//Accel X:
-		tmp = ((uint16_t)newdata[0] << 8) | ((uint16_t) newdata[1]);
-		imu.accel.x = (int16_t)tmp;
-
-		//Accel Y:
-		tmp = ((uint16_t)newdata[2] << 8) | ((uint16_t) newdata[3]);
-		imu.accel.y = (int16_t)tmp;
-
-		//Accel Z:
-		tmp = ((uint16_t)newdata[4] << 8) | ((uint16_t) newdata[5]);
-		imu.accel.z = (int16_t)tmp;
-	}
-}
-
 // Initialize i2c1. Currently connected to the IMU and the digital pot
 void init_i2c1(void)
 {
-	//I2C_HandleTypeDef *hi2c1 contains our handle information
-	//set config for the initial state of the i2c.
 	hi2c1.Instance = I2C1;
 	hi2c1.Init.ClockSpeed = I2C1_CLOCK_RATE;  				//clock frequency; less than 400kHz
 	hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2; 				//for fast mode (doesn't matter now)
@@ -180,6 +162,10 @@ void init_i2c1(void)
 	hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLED; 		//allow slave to stretch SCL
 	hi2c1.State = HAL_I2C_STATE_RESET;
 	HAL_I2C_Init(&hi2c1);
+
+	//DMA:
+	init_dma1_stream0_ch1();	//RX
+	init_dma1_stream6_ch1();	//TX
 }
 
 // Disable I2C and free the I2C handle.
@@ -212,12 +198,38 @@ void disable_i2c2(void)
 	HAL_I2C_DeInit(&hi2c2);
 }
 
-//Associate data with the right structure. We need that because of the way the ISR-based
-//I2C works (we always get data from the last request)
-void assign_i2c2_data(uint8_t *newdata)
+//Detects the end of a Master Receive:
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-	//(Function isn't used at this point)
-	(void)newdata;
+	if(hi2c->Instance == I2C1)
+	{
+		if(i2c1FsmState == I2C1_FSM_RX_DATA)
+		{
+			//Indicate that it's done receiving:
+			i2c1FsmState = I2C1_FSM_RX_DATA_DONE;
+		}
+		else
+		{
+			i2c1FsmState = I2C1_FSM_PROBLEM;
+		}
+	}
+}
+
+//Detects the end of a Master Transmit:
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	if(hi2c->Instance == I2C1)
+	{
+		if(i2c1FsmState == I2C1_FSM_TX_ADDR)
+		{
+			//Indicate that it's done transmitting:
+			i2c1FsmState = I2C1_FSM_TX_ADDR_DONE;
+		}
+		else
+		{
+			i2c1FsmState = I2C1_FSM_PROBLEM;
+		}
+	}
 }
 
 //****************************************************************************
@@ -331,4 +343,64 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 	{
 		__I2C2_CLK_DISABLE();
 	}
+}
+
+//Using DMA1 Ch 1 Stream 0 for I2C1 TX
+static void init_dma1_stream0_ch1(void)
+{
+	//Enable clock
+	__DMA1_CLK_ENABLE();
+
+	//Initialization:
+	hdma_i2c1_rx.Instance = DMA1_Stream0;
+	hdma_i2c1_rx.Init.Channel = DMA_CHANNEL_1;
+	hdma_i2c1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+	hdma_i2c1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma_i2c1_rx.Init.MemInc = DMA_MINC_ENABLE;
+	hdma_i2c1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma_i2c1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma_i2c1_rx.Init.Mode = DMA_NORMAL;
+	hdma_i2c1_rx.Init.Priority = DMA_PRIORITY_LOW;
+	hdma_i2c1_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+
+	//Link DMA handle and I2C1 RX:
+	hi2c1.hdmarx = &hdma_i2c1_rx;
+	//hi2c1 is the parent:
+	hi2c1.hdmarx->Parent = &hi2c1;
+
+	HAL_DMA_Init(hi2c1.hdmarx);
+
+	//Interrupts:
+	HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+}
+
+//Using DMA1 Ch 1 Stream 6 for I2C1 TX
+static void init_dma1_stream6_ch1(void)
+{
+	//Enable clock
+	__DMA1_CLK_ENABLE();
+
+	//Initialization:
+	hdma_i2c1_tx.Instance = DMA1_Stream6;
+	hdma_i2c1_tx.Init.Channel = DMA_CHANNEL_1;
+	hdma_i2c1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+	hdma_i2c1_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma_i2c1_tx.Init.MemInc = DMA_MINC_ENABLE;
+	hdma_i2c1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma_i2c1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma_i2c1_tx.Init.Mode = DMA_NORMAL;
+	hdma_i2c1_tx.Init.Priority = DMA_PRIORITY_LOW;
+	hdma_i2c1_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+
+	//Link DMA handle and I2C1 TX:
+	hi2c1.hdmatx = &hdma_i2c1_tx;
+	//hi2c1 is the parent:
+	hi2c1.hdmatx->Parent = &hi2c1;
+
+	HAL_DMA_Init(hi2c1.hdmatx);
+
+	//Interrupts:
+	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 }

@@ -45,22 +45,24 @@
 //****************************************************************************
 
 extern I2C_HandleTypeDef hi2c1, hi2c2;
-extern volatile uint8_t i2c_1_r_buf[24];
-extern volatile uint8_t i2c_2_r_buf[24];
+extern uint8_t i2c_2_r_buf[24];
+
+extern int8_t i2c1FsmState;
+extern uint8_t i2c1_dma_rx_buf[24];
 
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
 
 void i2c1_fsm(void);
-void assign_i2c1_data(uint8_t *newdata);
 void init_i2c1(void);
 void disable_i2c1(void);
 void init_i2c2(void);
 void i2c2_fsm(void);
-void assign_i2c2_data(uint8_t *newdata);
 void disable_i2c2(void);
 void initOptionalPullUps(void);
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
 
 //****************************************************************************
 // Definition(s):
@@ -75,6 +77,14 @@ void initOptionalPullUps(void);
 //ISR reading of I2C1 sensors (IMU, Battery, etc):
 #define I2C1_RQ_GYRO			1
 #define I2C1_RQ_ACCEL			2
-#define I2C1_RQ_BATTBOARD		3
+#define I2C1_RQ_BATTBOARD		3	//ToDo: batt is on I2C2, not 1!
+
+//I2C1 State Machine:
+#define I2C1_FSM_PROBLEM		-1
+#define I2C1_FSM_DEFAULT		0
+#define I2C1_FSM_TX_ADDR		1
+#define I2C1_FSM_TX_ADDR_DONE	2
+#define I2C1_FSM_RX_DATA		3
+#define I2C1_FSM_RX_DATA_DONE	4
 
 #endif //INC_FM_I2C_H
