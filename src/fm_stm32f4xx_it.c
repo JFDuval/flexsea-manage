@@ -25,6 +25,8 @@ volatile unsigned int spi_bytes_ready = 0;
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern TIM_HandleTypeDef htim7;
 
+extern DMA_HandleTypeDef hdma_adc1;
+
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -82,6 +84,20 @@ void USART3_IRQHandler(void)
 void USART6_IRQHandler(void)
 {
 	HAL_USART_IRQHandler(&husart6);
+}
+
+/**
+* @brief This function handles DMA2 stream0 global interrupt.
+*/
+void DMA2_Stream0_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream0_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
 //DMA2 Stream2 - USART1 RX

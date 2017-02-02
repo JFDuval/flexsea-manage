@@ -51,6 +51,12 @@
 void init_adc1(void);
 unsigned int adc_conv(void);
 void adc_set_channel(uint8_t ch);
+unsigned int get_adc1(uint16_t idx);	// get value at analog input channel idx
+
+static void MX_GPIO_Init(void);		// init GPIO for ADC
+static void MX_DMA_Init(void);		// init DMA for ADC
+void MX_ADC1_Init(void);		// init ADC
+static void Error_Handler(void);	// Error handler in case you want that.
 
 //****************************************************************************
 // Definition(s):

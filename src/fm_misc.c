@@ -67,8 +67,14 @@ void init_peripherals(void)
 	init_leds();
 	init_switches();
 	init_dio();					//All inputs by default
-	init_adc1();
+//	init_adc1();
 	init_spi4();				//Plan
+
+	#ifdef USE_ADC1
+
+		MX_ADC1_Init();				//Mostly generated from STM32Cube with some mods for ADC1/DMA
+
+	#endif
 
 	#ifdef USE_UART3
 

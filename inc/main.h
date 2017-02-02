@@ -47,7 +47,6 @@
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_adc.h"
 #include "stm32f4xx_hal_dma.h"
-#include "stm32f4xx_hal_spi.h"
 #include "stm32f4xx_hal_tim.h"
 #include "cortexm/ExceptionHandlers.h"
 #include "main_fsm.h"
@@ -76,6 +75,7 @@
 #include "../flexsea-comm/inc/flexsea.h"
 #include "../flexsea-system/test/flexsea-system_test-all.h"
 #include "../flexsea-comm/test/flexsea-comm_test-all.h"
+#include "../system/Inc/stm32f4-hal/stm32f4xx_hal_spi.h.bak"
 
 //****************************************************************************
 // Prototype(s):
