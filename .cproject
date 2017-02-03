@@ -210,7 +210,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="common|common/src|system/Src/stm32f4-hal/stm32f4xx_hal_spi.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="test/test_main.c|common|common/src|system/Src/stm32f4-hal/stm32f4xx_hal_spi.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

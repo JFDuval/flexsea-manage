@@ -55,7 +55,7 @@ uint8_t new_cmd_led = 0;
 //Case 0: I2C1 + slaveComm
 void main_fsm_case_0(void)
 {
-	slaveTransmit(PORT_485_1);
+	slaveTransmit(PORT_RS485_1);
 }
 
 //Case 1: I2C2
@@ -73,7 +73,7 @@ void main_fsm_case_2(void)
 //Case 3:
 void main_fsm_case_3(void)
 {
-	slaveTransmit(PORT_485_2);
+	slaveTransmit(PORT_RS485_2);
 }
 
 //Case 4: User Functions

@@ -32,8 +32,8 @@
 #define FM_BLOCK_ALLOCATOR_H
 #include <stdlib.h>
 
-static const int FM_BLOCK_SIZE  = 100;
-static const int FM_NUM_BLOCKS  = 10;
+#define FM_BLOCK_SIZE 256
+#define FM_NUM_BLOCKS 10
 
 
 /**

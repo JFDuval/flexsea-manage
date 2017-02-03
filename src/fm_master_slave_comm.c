@@ -113,18 +113,13 @@ void parseMasterCommands(uint8_t *new_cmd)
 	}
 
 	//Valid communication from USB?
-	if(cmd_ready_usb != 0)
+	PacketWrapper* p = fm_queue_get(&unpacked_packet_queue);
+	if(p != NULL)
 	{
-		cmd_ready_usb = 0;
 
-		//Cheap trick to get first line	//ToDo: support more than 1
-		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
-		{
-			tmp_rx_command_usb[i] = rx_command_usb[0][i];
-		}
-		// parse the command and execute it
-		info[0] = PORT_USB;
-		payload_parse_str(tmp_rx_command_usb, info);
+		info[0] = p->port;
+		payload_parse_str(p->unpaked, info);
+		fm_pool_free_block(p);
 
 		//LED:
 		*new_cmd = 1;
@@ -166,7 +161,7 @@ void parseSlaveCommands(uint8_t *new_cmd)
 			tmp_rx_command_485_1[i] = rx_command_485_1[0][i];
 		}
 		// parse the command and execute it
-		info[0] = PORT_485_1;
+		info[0] = PORT_RS485_1;
 		payload_parse_str(tmp_rx_command_485_1, info);
 	}
 
@@ -181,7 +176,7 @@ void parseSlaveCommands(uint8_t *new_cmd)
 			tmp_rx_command_485_2[i] = rx_command_485_2[0][i];
 		}
 		// parse the command and execute it
-		info[0] = PORT_485_2;
+		info[0] = PORT_RS485_2;
 		payload_parse_str(tmp_rx_command_485_2, info);
 	}
 }
@@ -189,7 +184,7 @@ void parseSlaveCommands(uint8_t *new_cmd)
 //Slave Communication function. Call at 1kHz.
 void slaveTransmit(uint8_t port)
 {
-	if(port == PORT_485_1)
+	if(port == PORT_RS485_1)
 	{
 		/*Note: this is only a demonstration. In the final application, we want
 		 * to send the commands accumulated on a ring buffer here.*/
@@ -215,7 +210,7 @@ void slaveTransmit(uint8_t port)
 		toggle1 ^= 1;
 		DEBUG_OUT_DIO4(toggle1);
 	}
-	else if(port == PORT_485_2)
+	else if(port == PORT_RS485_2)
 	{
 		/*Note: this is only a demonstration. In the final application, we want
 		 * to send the commands accumulated on a ring buffer here.*/

@@ -36,6 +36,8 @@
 #include "main.h"
 #include "flexsea_board.h"
 #include "../../flexsea-system/inc/flexsea_system.h"
+#include <fm_block_allocator.h>
+#include <flexsea_comm.h>
 
 //****************************************************************************
 // Variable(s)
@@ -60,6 +62,10 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 
 //===============
 //</FlexSEA User>
+
+extern uint8_t rx_command_4[PAYLOAD_BUFFERS][PACKAGED_PAYLOAD_LEN];
+int8_t unpack_payload(uint8_t *buf, uint8_t rx_cmd[][PACKAGED_PAYLOAD_LEN]);
+
 
 uint8_t bytes_ready_spi = 0;
 int8_t cmd_ready_spi = 0;
@@ -122,12 +128,27 @@ void flexsea_receive_from_master(void)
 
 	//(Bytes received by ISR)
 
+	PacketWrapper* p = fm_queue_get(&packet_queue);
+	if (p)
+	{
+		cmd_ready_usb = unpack_payload(p->packed, p->unpaked); //TODO ig fix signature
+		p->port = PORT_USB;
+
+		int err = fm_queue_put(&unpacked_packet_queue, p);
+		if (err)
+			fm_pool_free_block(p);
+
+	}
+
+	/*
 	if(data_ready_usb > 0)
 	{
 		data_ready_usb = 0;
 		//Got new data in, try to decode
-		cmd_ready_usb = unpack_payload_usb();
-	}
+		unpack_payload(data, rx_command_4);
+		unpack_payload_usb();
+	}*/
+
 
 	#endif	//USE_USB
 

@@ -56,7 +56,8 @@ static Block* get_block(void * raw_block) {
 
 static Block* first;
 
-void fm_pool_init() {
+void fm_pool_init() 
+{
 	// all prev pointers are set to NULL because we
 	// dont need them for allocations
 	size_t i;
