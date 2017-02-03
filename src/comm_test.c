@@ -34,6 +34,7 @@
 
 #include "main.h"
 #include "comm_test.h"
+#include <flexsea_comm.h>
 
 //****************************************************************************
 // Variable(s)

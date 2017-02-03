@@ -270,7 +270,7 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 		return -1; // No more blocks available. Consider reporting up the stack
 	USBD_CDC_SetRxBuffer(hUsbDevice_0, p->packed);
 	USBD_CDC_ReceivePacket(hUsbDevice_0);
-
+	p->port = PORT_USB;
 	int err = fm_queue_put(&packet_queue, p);
 	if (err) {
 		fm_pool_free_block(p);

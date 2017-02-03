@@ -53,7 +53,6 @@
 #include "main_fsm.h"
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
-#include "fm_master_slave_comm.h"
 #include "fm_timer.h"
 #include "fm_misc.h"
 #include "fm_ui.h"

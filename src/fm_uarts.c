@@ -37,6 +37,7 @@
 
 #include "main.h"
 #include "fm_uarts.h"
+#include <flexsea_comm.h>
 
 //****************************************************************************
 // Variable(s)

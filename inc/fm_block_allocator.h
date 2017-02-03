@@ -115,6 +115,7 @@ int fm_queue_put(MsgQueue* q, void* item);
  */
 void* fm_queue_get(MsgQueue* q );
 
+int fm_queue_put_tail(MsgQueue* q, void * item);
 
 /**
  * Helper struct to use with the MsgQueue and pool allocator

@@ -72,7 +72,16 @@ void fm_pool_init()
 
 	first = &memory_pool[0];
 }
-
+/**
+ * Allocate and return void* to a block of
+ * memory of size FM_BLOCK_SIZE, if there are
+ * remaining blocks in the pool.
+ *
+ * You must call fm_pool_init() before using this.
+ *
+ * @return void* to block of memory, or NULL
+ * if no space is left.
+ */
 void* fm_pool_allocate_block(void)
 {
 	Block* new_block = first;
@@ -139,6 +148,31 @@ int fm_queue_put(MsgQueue* q, void* item) {
 
 	if (q->size == 1)
 		*tail = block;
+	return 0;
+}
+
+int fm_queue_put_tail(MsgQueue* q, void * item) {
+	if (q == NULL || item == NULL)
+		return -1;
+
+	if (q->size >= q->max_size)
+		return -1;
+
+	Block** head = (Block**)&q->head;
+	Block** tail = (Block**)&q->tail;
+
+	Block* block =  get_block(item);
+	block->prev = *tail;
+	block->next = NULL;
+
+	if (*tail != NULL) {
+		(*tail)->next = block;
+	}
+	*tail = block;
+	q->size++;
+
+	if (q->size == 1)
+		*head = block;
 	return 0;
 }
 
