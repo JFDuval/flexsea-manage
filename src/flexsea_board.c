@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] flexsea_board: configuration and functions for this 
+	[This file] flexsea_board: configuration and functions for this
 	particular board
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
@@ -62,8 +62,8 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //</FlexSEA User>
 
 uint8_t bytes_ready_spi = 0;
-uint8_t cmd_ready_spi = 0;
-uint8_t cmd_ready_usb = 0;
+int8_t cmd_ready_spi = 0;
+int8_t cmd_ready_usb = 0;
 
 //****************************************************************************
 // Function(s)
@@ -103,11 +103,15 @@ void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
 	{
 		CDC_Transmit_FS(str, length);
 	}
+	else if(port == PORT_WIRELESS)
+	{
+		puts_expUart(str, length);
+	}
 }
 
 void flexsea_receive_from_master(void)
 {
-	if(bytes_ready_spi != 0)
+	if(bytes_ready_spi > 0)
 	{
 		bytes_ready_spi = 0;
 		cmd_ready_spi = unpack_payload_spi();
@@ -118,7 +122,7 @@ void flexsea_receive_from_master(void)
 
 	//(Bytes received by ISR)
 
-	if(data_ready_usb != 0)
+	if(data_ready_usb > 0)
 	{
 		data_ready_usb = 0;
 		//Got new data in, try to decode
@@ -126,6 +130,14 @@ void flexsea_receive_from_master(void)
 	}
 
 	#endif	//USE_USB
+
+	//Did we receive new bytes?
+	if(masterComm[2].rx.bytesReady > 0)
+	{
+		masterComm[2].rx.bytesReady = 0;
+		//Got new data in, try to decode
+		masterComm[2].rx.cmdReady = unpack_payload_wireless();
+	}
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -145,38 +157,37 @@ void flexsea_start_receiving_from_master(void)
 void flexsea_receive_from_slave(void)
 {
 	//We only listen if we requested a reply:
-	if((slaves_485_1.xmit.listen == 1) || (slaves_485_1.autosample.listen == 1))
+	if(slaveComm[0].transceiverState == TRANS_STATE_PREP_RX)
 	{
-		slaves_485_1.xmit.listen = 0;
-		slaves_485_1.autosample.listen = 0;
+		slaveComm[0].transceiverState = TRANS_STATE_RX;
 
 		reception_rs485_1_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
 
-	if((slaves_485_2.xmit.listen == 1) || (slaves_485_2.autosample.listen == 1))
+	//We only listen if we requested a reply:
+	if(slaveComm[1].transceiverState == TRANS_STATE_PREP_RX)
 	{
-		slaves_485_2.xmit.listen = 0;
-		slaves_485_2.autosample.listen = 0;
+		slaveComm[1].transceiverState = TRANS_STATE_RX;
 
 		reception_rs485_2_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
 
 	//Did we receive new bytes?
-	if(slaves_485_1.bytes_ready != 0)
+	if(slaveComm[0].rx.bytesReady != 0)
 	{
-		slaves_485_1.bytes_ready = 0;
-        //Got new data in, try to decode
-		slaves_485_1.cmd_ready = unpack_payload_485_1();
+		slaveComm[0].rx.bytesReady = 0;
+		//Got new data in, try to decode
+		slaveComm[0].rx.cmdReady = unpack_payload_485_1();
 	}
 
 	//Did we receive new bytes?
-	if(slaves_485_2.bytes_ready != 0)
+	if(slaveComm[1].rx.bytesReady != 0)
 	{
-		slaves_485_2.bytes_ready = 0;
-        //Got new data in, try to decode
-		slaves_485_2.cmd_ready = unpack_payload_485_2();
+		slaveComm[1].rx.bytesReady = 0;
+		//Got new data in, try to decode
+		slaveComm[1].rx.cmdReady = unpack_payload_485_2();
 	}
 }
 

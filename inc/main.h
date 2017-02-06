@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] main: FlexSEA-Manage
 *****************************************************************************
@@ -47,7 +47,6 @@
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_adc.h"
 #include "stm32f4xx_hal_dma.h"
-#include "stm32f4xx_hal_spi.h"
 #include "stm32f4xx_hal_tim.h"
 #include "cortexm/ExceptionHandlers.h"
 #include "main_fsm.h"
@@ -66,12 +65,17 @@
 #include "fm_i2c.h"
 #include "fm_imu.h"
 #include "fm_pwr_out.h"
+#include "fm_batt.h"
+#include "flash_driver.h"
+#include "flash_logger.h"
+#include "comm_test.h"
 #include "flexsea_board.h"
 #include "../flexsea-user/inc/user-mn.h"
 #include "../flexsea-system/inc/flexsea_system.h"
 #include "../flexsea-comm/inc/flexsea.h"
 #include "../flexsea-system/test/flexsea-system_test-all.h"
 #include "../flexsea-comm/test/flexsea-comm_test-all.h"
+#include "../system/Inc/stm32f4-hal/stm32f4xx_hal_spi.h.bak"
 
 //****************************************************************************
 // Prototype(s):

@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_dio: Deals with the 9 digital IOs
 *****************************************************************************
@@ -68,28 +68,34 @@ void init_dio(void)
 	__GPIOF_CLK_ENABLE();
 	__GPIOG_CLK_ENABLE();
 
-	// Configure pins as inputs
-	GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_9;
-	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
-	GPIO_InitStructure.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+	#ifndef USE_UART3
 
+		// Configure pins as inputs
+		GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+		GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+	#endif
+
+	// Configure pins as inputs
 	GPIO_InitStructure.Pin = GPIO_PIN_0 | GPIO_PIN_1;
 	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
 	GPIO_InitStructure.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOF, &GPIO_InitStructure);
 
+	// Configure pins as outputs
 	GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_12 | GPIO_PIN_13
 			| GPIO_PIN_14;
-	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
 	GPIO_InitStructure.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOG, &GPIO_InitStructure);
 
 	//All inputs:
-	dio_direction = 0b111111111;
+	dio_direction = 0b00001111;
 }
 
 //Reads all the digital inputs. If a pin isn't an input it will return 0.

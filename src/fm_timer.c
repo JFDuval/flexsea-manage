@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_timer: SysTick & Timer functions
 *****************************************************************************
@@ -47,7 +47,7 @@ volatile uint8_t tb_10ms_flag = 0;
 volatile uint8_t tb_100ms_flag = 0;
 volatile uint8_t tb_1000ms_flag = 0;
 
-TIM_HandleTypeDef htim7;
+TIM_HandleTypeDef htim6, htim7;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -85,8 +85,6 @@ void timebases(void)
 
 	//100us flag:
 	tb_100us_flag = 1;
-	tb_100us_timeshare++;
-	tb_100us_timeshare %= 10;
 
 	//1ms flag:
 	cnt_1ms++;
@@ -122,9 +120,26 @@ void timebases(void)
 
 }
 
-
-
 // ----------------------------------------------------------------------------
+
+//Timer 6: free running timer used by the µs delay functions
+void init_timer_6(void)
+{
+	TIM_MasterConfigTypeDef sMasterConfig;
+
+	htim6.Instance = TIM6;
+	htim6.Init.Prescaler = 0;
+	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim6.Init.Period = 65535;
+	HAL_TIM_Base_Init(&htim6);
+
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
+
+	//Start timer, no interrupts
+	HAL_TIM_Base_Start(&htim6);
+}
 
 //Timer 7: 10kHz timebase
 void init_timer_7(void)
@@ -144,8 +159,77 @@ void init_timer_7(void)
 	HAL_TIM_Base_Start_IT(&htim7);
 }
 
+uint16_t readTimer6(void)
+{
+	return (uint16_t)htim6.Instance->CNT;
+}
+
+//Blocking function based on Timer 6. Max delay = 500us (0.5ms).
+//Please be aware that the delay passed as a parameter is the minimum: it can
+//get longer due to interrupts.
+void delayUsBlocking(uint16_t us)
+{
+	uint16_t timerLimit = 0;
+
+	if(us > 500)
+	{
+		//Cap below the true max (65536) to simplify code
+		us = 500;
+	}
+	//From us to ticks:
+	timerLimit = (84 * us) - 42;	//(42 compensates for the overhead)
+
+	//Reset the counter
+	htim6.Instance->CNT = 0;
+
+	//Waste time:
+	while(htim6.Instance->CNT < timerLimit);
+}
+
+//Blocking delay us test code:
+void test_delayUsBlocking_blocking(void)
+{
+	while(1)
+	{
+		//1us:
+		DEBUG_OUT_DIO4(1);
+		delayUsBlocking(1);
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(1);
+
+		//2us
+		DEBUG_OUT_DIO4(1);
+		delayUsBlocking(2);
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(2);
+
+		//5us:
+		DEBUG_OUT_DIO4(1);
+		delayUsBlocking(5);
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(5);
+
+		//10us:
+		DEBUG_OUT_DIO4(1);
+		delayUsBlocking(10);
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(10);
+
+		//100us:
+		DEBUG_OUT_DIO4(1);
+		delayUsBlocking(100);
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(100);
+	}
+}
+
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 {
+	if (htim_base->Instance == TIM6)
+	{
+		__TIM6_CLK_ENABLE();
+	}
+
 	if (htim_base->Instance == TIM7)
 	{
 		/* USER CODE BEGIN TIM7_MspInit 0 */
@@ -165,6 +249,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 {
+	if (htim_base->Instance == TIM6)
+	{
+		__TIM6_CLK_DISABLE();
+	}
 
 	if (htim_base->Instance == TIM7)
 	{
@@ -180,3 +268,4 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 	}
 
 }
+

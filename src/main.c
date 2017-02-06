@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] main: FlexSEA-Manage
 *****************************************************************************
@@ -42,7 +42,8 @@
 // Variable(s)
 //****************************************************************************
 
-uint8_t autosampling = 0;
+//ToDo delete, test only:
+uint8_t testBuf[48] = "abcdefghijklmnop";
 
 //****************************************************************************
 // Function(s)
@@ -56,37 +57,23 @@ int main(void)
 	//Prepare FlexSEA stack:
 	init_flexsea_payload_ptr();
 
+	initSlaveComm();
+
 	//Initialize all the peripherals
 	init_peripherals();
 
 	//Start receiving from master via interrupts
 	flexsea_start_receiving_from_master();
 
-	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	//Test code - enable one and only one for special debugging
-	//Normal code WILL NOT EXECUTE when this is enabled!
-	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	//rgb_led_test_code_blocking();
-	//user_button_test_blocking();
-	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	//Test code, use with care. Normal code might NOT run when enabled!
+	//test_code_blocking();
+	//test_code_non_blocking();
 
 	init_user();
 
 	//Infinite loop
 	while(1)
 	{
-		//Communication with our Master & Slave(s):
-		//=========================================
-
-		//SPI or USB reception from a Plan board:
-		flexsea_receive_from_master();
-
-		//RS-485 reception from an Execute board:
-		flexsea_receive_from_slave();
-
-		//Did we receive new commands? Can we parse them?
-		parse_master_slave_commands(&new_cmd_led);
-
 		//Time bases:
 		//===========
 
@@ -130,6 +117,10 @@ int main(void)
 					break;
 			}
 
+			//Increment value, limits to 0-9
+			tb_100us_timeshare++;
+			tb_100us_timeshare %= 10;
+
 			//The code below is executed every 100us, after the previous slot.
 			//Keep it short!
 			main_fsm_10kHz();
@@ -158,16 +149,12 @@ int main(void)
 			//Constant LED0 flashing while the code runs
 			toggle_led0 ^= 1;
 			LED0(toggle_led0);
-
-			//LED1 tracks the user switch:
-			LED1(!manag1.sw1);
 		}
 
 		//1000ms
 		if(tb_1000ms_flag)
 		{
 			tb_1000ms_flag = 0;
-
 		}
 	}
 }

@@ -293,6 +293,8 @@ typedef struct
 #define ADC_EXTERNALTRIGCONV_T8_CC1    ((uint32_t)(ADC_CR2_EXTSEL_3 | ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_0))
 #define ADC_EXTERNALTRIGCONV_T8_TRGO   ((uint32_t)(ADC_CR2_EXTSEL_3 | ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_1))
 #define ADC_EXTERNALTRIGCONV_Ext_IT11  ((uint32_t)ADC_CR2_EXTSEL)
+#define ADC_SOFTWARE_START			   ((uint32_t)ADC_CR2_SWSTART)			//included based on Datasheet pg 397 and line 1341 from stm32f427xx.h
+//#define ADC_SOFTWARE_START             ((uint32_t)ADC_CR2_EXTSEL + 1U)		//Included from FW1.14 to turnoff external triggers and allow Software Trigger
 
 #define IS_ADC_EXT_TRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)  || \
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)  || \
@@ -309,7 +311,8 @@ typedef struct
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T5_CC3)  || \
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_CC1)  || \
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO) || \
-                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_Ext_IT11))
+                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_Ext_IT11) || \
+								  ((REGTRIG) == ADC_SOFTWARE_START) )
 /**
   * @}
   */ 

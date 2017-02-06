@@ -19,125 +19,86 @@
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
 	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] Erin Main (ermain@mit.edu)
+	[Contributors]
 *****************************************************************************
-	[This file] fm_i2c: IMU configuration
+	[This file] fm_batt: Battery board driver
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-23 | jfduval | Initial GPL-3.0 release
+	* 2016-12-27 | jfduval | Initial release
 	*
 ****************************************************************************/
+
+//The Battery Board uses EZI2C (EEPROM emulation)
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
 #include "main.h"
-#include "fm_imu.h"
+#include "fm_batt.h"
 
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
 
-struct imu_s imu;
-volatile uint8_t i2c_tmp_buf[IMU_MAX_BUF_SIZE];
+volatile uint8_t i2c2_tmp_buf[BATT_MAX_BUF_SIZE];
 
 //****************************************************************************
 // Private Function Prototype(s)
 //****************************************************************************
 
-static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
+static HAL_StatusTypeDef battery_write(uint8_t internal_reg_addr, uint8_t* pData,
+		uint16_t Size);
+static HAL_StatusTypeDef battery_read(uint8_t internal_reg_addr, uint8_t *pData,
 		uint16_t Size);
 
 //****************************************************************************
 // Public Function(s)
 //****************************************************************************
 
-//Initialize the IMU w/ default values in config registers
-void init_imu(void)
+//Init
+void init_battery(void)
 {
-	//Reset the IMU.
-	reset_imu();
-	HAL_Delay(25);
-
-	// Initialize the config registers.
-	uint8_t config[4] = { D_IMU_CONFIG, D_IMU_GYRO_CONFIG, D_IMU_ACCEL_CONFIG, \
-							D_IMU_ACCEL_CONFIG2 };
-	uint8_t imu_addr = IMU_CONFIG;
-	imu_write(imu_addr, config, 4);
+	//Nothing for now
 }
 
-// Reset the IMU to default settings
-void reset_imu(void)
+//Read from Battery Board:
+void readBattery(void)
 {
-	uint8_t config = D_DEVICE_RESET;
-	imu_write(IMU_PWR_MGMT_1, &config, 1);
-}
+	battery_read(MEM_R_STATUS1, batt1.rawBytes, 7);
 
-//Sends the register address. Needed before a Read
-void IMUPrepareRead(void)
-{
-	uint8_t i2c_1_t_buf[4] = {IMU_ACCEL_XOUT_H, 0, 0, 0};
-	HAL_I2C_Master_Transmit_DMA(&hi2c1, IMU_ADDR, i2c_1_t_buf, 1);
-}
-
-//Read all of the relevant IMU data (accel, gyro, temp)
-void IMUReadAll(void)
-{
-	HAL_I2C_Master_Receive_DMA(&hi2c1, IMU_ADDR, i2c1_dma_rx_buf, 14);
-}
-
-void IMUParseData(void)
-{
-	uint16_t tmp[7] = {0,0,0,0,0,0,0};
-	uint8_t i = 0, index = 0;
-
-	//Rebuilt 7x 16bits words:
-	for(i = 0; i < 7; i++)
-	{
-		tmp[i] = ((uint16_t)i2c1_dma_rx_buf[index++] << 8) | \
-				((uint16_t) i2c1_dma_rx_buf[index++]);
-	}
-
-	//Assign:
-	imu.accel.x = (int16_t)tmp[0];
-	imu.accel.y = (int16_t)tmp[1];
-	imu.accel.z = (int16_t)tmp[2];
-	//imu.temp = (int16_t)tmp[3];
-	imu.gyro.x = (int16_t)tmp[4];
-	imu.gyro.y = (int16_t)tmp[5];
-	imu.gyro.z = (int16_t)tmp[6];
+	batt1.status = batt1.rawBytes[0];
+	batt1.voltage = (batt1.rawBytes[2] << 8) + batt1.rawBytes[3];
+	batt1.current = (int16_t)(batt1.rawBytes[4] << 8) + batt1.rawBytes[5];
+	batt1.temp = batt1.rawBytes[6];
 }
 
 //****************************************************************************
 // Private Function(s)
 //****************************************************************************
 
-//write data to an internal register of the IMU.
-// you would use this function if you wanted to set configuration values
-// for a particular feature of the IMU.
+//Write data to the shared memory
 // uint8_t internal_reg_addr: internal register address of the IMU
 // uint8_t* pData: pointer to the data we want to send to that address
 // uint16_t Size: amount of bytes of data pointed to by pData
 
-
-static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
+static HAL_StatusTypeDef battery_write(uint8_t internal_reg_addr, uint8_t* pData,
 		uint16_t Size)
 {
 	uint8_t i = 0;
 	HAL_StatusTypeDef retVal;
 
-	i2c_tmp_buf[0] = internal_reg_addr;
+	i2c2_tmp_buf[0] = internal_reg_addr;
 	for(i = 1; i < Size + 1; i++)
 	{
-		i2c_tmp_buf[i] = pData[i-1];
+		i2c2_tmp_buf[i] = pData[i-1];
 	}
 
 	//Try to write it up to 5 times
 	for(i = 0; i < 5; i++)
 	{
-		retVal = HAL_I2C_Mem_Write(&hi2c1, IMU_ADDR, (uint16_t) internal_reg_addr,
-					I2C_MEMADD_SIZE_8BIT, pData, Size, IMU_BLOCK_TIMEOUT);
+		retVal = HAL_I2C_Mem_Write(&hi2c2, BATT_ADDR, (uint16_t) internal_reg_addr,
+					I2C_MEMADD_SIZE_8BIT, pData, Size, BATT_BLOCK_TIMEOUT);
 
 		if(retVal == HAL_OK)
 		{
@@ -149,3 +110,36 @@ static HAL_StatusTypeDef imu_write(uint8_t internal_reg_addr, uint8_t* pData,
 
 	return retVal;
 }
+
+//Read data from the shared memory
+// uint8_t internal_reg_addr: internal register address of the IMU
+// uint8_t* pData: pointer to where we want to save the data from the IMU
+// uint16_t Size: amount of bytes we want to read
+static HAL_StatusTypeDef battery_read(uint8_t internal_reg_addr, uint8_t *pData,
+		uint16_t Size)
+{
+	uint8_t i = 0;
+	HAL_StatusTypeDef retVal;
+
+	//>>> Copy of Execute's code - todo improve
+	//Currently having trouble detecting the flags to know when data is ready.
+	//For now I'll transfer the previous buffer.
+	for(i = 0; i < Size; i++)
+	{
+		pData[i] = i2c_2_r_buf[i];
+	}
+
+	//Store data:
+	//assign_i2c2_data(&i2c_2_r_buf);
+	//<<<<
+
+	retVal = HAL_I2C_Mem_Read(&hi2c2, BATT_ADDR, (uint16_t) internal_reg_addr,
+	I2C_MEMADD_SIZE_8BIT, i2c_2_r_buf, Size, BATT_BLOCK_TIMEOUT);
+
+	return retVal;
+}
+
+//****************************************************************************
+// Test Function(s) - Use with care!
+//****************************************************************************
+

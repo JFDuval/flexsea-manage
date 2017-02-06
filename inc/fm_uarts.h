@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_uarts: Deals with the 3 USARTs
 *****************************************************************************
@@ -42,13 +42,13 @@
 // Shared Variable(s)
 //****************************************************************************
 
-extern USART_HandleTypeDef husart1;		//RS-485 #1
-extern USART_HandleTypeDef husart6;		//RS-485 #2
-extern USART_HandleTypeDef husart3;		//Expansion port
+extern USART_HandleTypeDef husart1;			//RS-485 #1
+extern USART_HandleTypeDef husart6;			//RS-485 #2
+extern USART_HandleTypeDef husart3;			//Expansion port
 extern DMA_HandleTypeDef hdma2_str2_ch4;	//DMA for RS-485 #1 RX
-extern DMA_HandleTypeDef hdma2_str7_ch4;	//DMA for RS-485 #1 TX
 extern DMA_HandleTypeDef hdma2_str1_ch5;	//DMA for RS-485 #2 RX
-extern DMA_HandleTypeDef hdma2_str6_ch5;	//DMA for RS-485 #2 TX
+extern DMA_HandleTypeDef hdma1_str1_ch4;	//DMA for USART3 RX
+extern DMA_HandleTypeDef hdma1_str3_ch4;	//DMA for USART3 TX
 
 //****************************************************************************
 // Public Function Prototype(s):
@@ -60,24 +60,20 @@ void rs485_set_mode(uint32_t port, uint8_t rx_tx);
 
 //RS-485 #1:
 void init_usart1(uint32_t baudrate);
-void putc_usart1(char c);
 void puts_rs485_1(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_1_blocking(void);
 void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void DMA2_Str7_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void rs485_1_xmit_dma_rx_test(void);
+void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
 
 //RS-485 #2:
 void init_usart6(uint32_t baudrate);
-void putc_usart6(char c);
 void puts_rs485_2(uint8_t *str, uint16_t length);
 uint8_t reception_rs485_2_blocking(void);
 void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void DMA2_Str6_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma);
-void rs485_2_xmit_dma_rx_test(void);
 
 //Other USART:
 void init_usart3(uint32_t baudrate);
+void puts_expUart(uint8_t *str, uint16_t length);
 
 //****************************************************************************
 // Definition(s):
@@ -104,19 +100,20 @@ void init_usart3(uint32_t baudrate);
 //DE4:		PE10
 
 //Common define
-#define RS485_STANDBY			0x00
-#define RS485_RX			0x01
-#define RS485_TX			0x02
-#define RS485_RX_TX			0x03
+#define RS485_STANDBY				0x00
+#define RS485_RX					0x01
+#define RS485_TX					0x02
+#define RS485_RX_TX					0x03
 
 //Interrupt priorities (lower number = higher priority)
-#define UART1_IRQ_CHANNEL		6
+//ToDo: review this whole section
+#define UART1_IRQ_CHANNEL			6
 #define UART1_IRQ_SUBCHANNEL		0
 
-#define UART6_IRQ_CHANNEL		UART1_IRQ_CHANNEL
+#define UART6_IRQ_CHANNEL			UART1_IRQ_CHANNEL
 #define UART6_IRQ_SUBCHANNEL		1
 
-#define UART3_IRQ_CHANNEL		8
+#define UART3_IRQ_CHANNEL			8
 #define UART3_IRQ_SUBCHANNEL		0
 
 #define DMA_STR2_IRQ_CHANNEL		5	//UART1 RX

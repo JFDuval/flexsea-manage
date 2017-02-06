@@ -10,18 +10,18 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with this program.	If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
-	[This file] fm_misc: when it doesn't belong in any another file, it 
+	[This file] fm_misc: when it doesn't belong in any another file, it
 	ends up here...
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
@@ -59,6 +59,7 @@ void init_peripherals(void)
 
 	//Hardware modules:
 	init_systick_timer();		//SysTick timer (1kHz)
+	init_timer_6();				//For us delay function
 	init_timer_7();				//10kHz timebase
 	init_usart1(2000000);		//USART1 (RS-485 #1)
 	init_usart6(2000000);		//USART6 (RS-485 #2)
@@ -66,19 +67,69 @@ void init_peripherals(void)
 	init_leds();
 	init_switches();
 	init_dio();					//All inputs by default
-	init_adc1();
+//	init_adc1();
 	init_spi4();				//Plan
-	//init_spi5();				//FLASH
+
+	#ifdef USE_ADC1
+
+		MX_ADC1_Init();				//Mostly generated from STM32Cube with some mods for ADC1/DMA
+
+	#endif
+
+	#ifdef USE_UART3
+
+		init_usart3(115200);		//Expansion port
+
+	#endif
+
+	#ifdef USE_FLASH_MEM
+
+		init_spi5();			//SPI connected to FLASH
+		flashLogInit();			//Start the logger
+
+	#endif
+
 	//init_spi6();				//Expansion
-	init_i2c1();
-	init_imu();
+
+	#ifdef USE_I2C_1
+
+		init_i2c1();
+
+		#ifdef USE_IMU
+
+			init_imu();
+
+		#endif	//USE_IMU
+
+	#endif	//USE_I2C_1
+
+	#ifdef USE_I2C_2
+
+		init_i2c2();
+
+		#ifdef USE_BATTBOARD
+
+			init_battery();
+
+		#endif	//USE_IMU
+
+	#endif	//USE_I2C_2
+
 	init_adva_fc_pins();
 	init_pwr_out();
 
 	//USB
 	#ifdef USE_USB
-	MX_USB_DEVICE_Init();
+
+		MX_USB_DEVICE_Init();
+
 	#endif	//USE_USB
+
+	#ifdef USE_COMM_TEST
+
+		init_comm_test();
+
+	#endif	//USE_COMM_TEST
 
 	//Software:
 	init_master_slave_comm();
@@ -90,6 +141,79 @@ void init_peripherals(void)
 
 	//Default analog input states:
 	set_default_analog();
+}
+
+//Computes a bunch of stuff to maximize calculations:
+#define MAX_I	25
+#define MAX_J	25
+long long bunchOfUselessMath(void)
+{
+	float resArray[MAX_I*MAX_J];
+	float		 tmp1, tmp2;
+	long long sum = 0;
+
+	int i = 0, j = 0, k = 0;
+	for(i = 0; i < MAX_I; i++)
+	{
+		for(j = 0; j < MAX_J; j++)
+		{
+			tmp1 = 1.37*(float)i;
+			tmp2 = -0.1234*(float)j;
+			resArray[MAX_I*i+j] = abs(tmp1+tmp2);
+		}
+	}
+
+	sum = 0;
+	for(k = 0; k < MAX_I*MAX_J; k++)
+	{
+		resArray[k] = resArray[k] * resArray[k];
+		sum += (long long)resArray[k];
+	}
+
+	return sum;
+}
+
+void fpu_testcode_blocking(void)
+{
+	long long myRes = 0;
+	while(1)
+	{
+		DEBUG_OUT_DIO4(1);
+		myRes = bunchOfUselessMath();
+		DEBUG_OUT_DIO4(0);
+		delayUsBlocking(10);
+		if(myRes != 0)
+		{
+			delayUsBlocking(1);
+		}
+		else
+		{
+			delayUsBlocking(10);
+		}
+	}
+}
+
+void test_code_blocking(void)
+{
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+	//Blocking Test code - enable one and only one for special
+	//debugging. Normal code WILL NOT EXECUTE when this is enabled!
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	//rgb_led_test_code_blocking();
+	//user_button_test_blocking();
+	//imu_test_code_blocking();
+	//test_delayUsBlocking_blocking();
+	//fpu_testcode_blocking();
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+}
+
+void test_code_non_blocking(void)
+{
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	//Non-Blocking Test code
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 }
 
 //****************************************************************************

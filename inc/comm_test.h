@@ -1,7 +1,7 @@
 /****************************************************************************
 	[Project] FlexSEA: Flexible & Scalable Electronics Architecture
-	[Sub-project] 'flexsea-manage' Mid-level computing, and networking
-	Copyright (C) 2016 Dephy, Inc. <http://dephy.com/>
+	[Sub-project] 'flexsea-execute' Advanced Motion Controller
+	Copyright (C) 2017 Dephy, Inc. <http://dephy.com/>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,21 +16,20 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
-	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
+	[Lead developper] Jean-Francois Duval, jfduval at dephy dot com.
 	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] fm_misc: when it doesn't belong in any another file, it
-	ends up here...
+	[This file] Comm Test: Communication quality testing tool
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-23 | jfduval | Initial GPL-3.0 release
+	* 2017-01-11 | jfduval | New file
 	*
 ****************************************************************************/
 
-#ifndef INC_MISC_H
-#define INC_MISC_H
+#ifndef INC_COMMTEST_H
+#define INC_COMMTEST_H
 
 //****************************************************************************
 // Include(s)
@@ -42,19 +41,18 @@
 // Shared variable(s)
 //****************************************************************************
 
-//...
 
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
 
-void init_peripherals(void);
-void test_code_blocking(void);
-void test_code_non_blocking(void);
+void init_comm_test(void);
+void comm_test(void);
+void reset_comm_test_stats(void);
 
 //****************************************************************************
 // Definition(s):
 //****************************************************************************
 
-#endif // INC_MISC_H
 
+#endif	//INC_COMMTEST_H

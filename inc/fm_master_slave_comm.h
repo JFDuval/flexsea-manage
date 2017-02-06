@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_slave_comm: Slave R/W
 *****************************************************************************
@@ -36,21 +36,25 @@
 //****************************************************************************
 
 #include "main.h"
+#include "flexsea_comm.h"
 
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
 
-void slave_comm(uint8_t *autosample_trig);
+void initSlaveComm(void);
 void init_master_slave_comm(void);
-void parse_master_slave_commands(uint8_t *new_cmd);
-void write_test_cmd_execute(uint8_t port, uint8_t slave, uint8_t value);
-void write_test_cmd_execute2(uint8_t port, uint8_t slave, uint8_t value);
+void parseMasterCommands(uint8_t *new_cmd);
+void parseSlaveCommands(uint8_t *new_cmd);
+void slaveTransmit(uint8_t port);
 
 //****************************************************************************
 // Definition(s):
 //****************************************************************************
 
+//****************************************************************************
+// Shared Variable(s):
+//****************************************************************************
 
 #endif // INC_MAST_SLAVE_COMM_H
 

@@ -17,11 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors] Erin Main (ermain@mit.edu)
 *****************************************************************************
-	[This file] fm_i2c: IMU configuration
+	[This file] fm_imu: IMU configuration
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2016-09-23 | jfduval | Initial GPL-3.0 release
@@ -61,10 +61,9 @@ typedef enum {
 } imu_data_set;
 
 // I2C Comms Constants
-#define IMU_BLOCK_TIMEOUT 10000 //may want to reduce this?
-//#define IMU_ADDR 0x68 //0b1101000
-#define IMU_ADDR 0xD0 //device address of the IMU.
-#define IMU_MAX_BUF_SIZE 100 //(in bytes) (somewhat arbitrary)
+#define IMU_BLOCK_TIMEOUT 	10 		//may want to reduce this?
+#define IMU_ADDR 			0xD0 	//device address of the IMU (8bits)
+#define IMU_MAX_BUF_SIZE 	16 		//
 
 // IMU Register Addresses (names correspond to those in the datasheet)
 // These are internal to the imu.
@@ -101,14 +100,10 @@ typedef enum {
 /// CONFIG = 0x0 results in:
 ///  Gyro: 250Hz bandwidth, 8kHz Fs
 #define D_IMU_CONFIG			0x0 	//0b00000000
-/// GYRO_CONFIG = 0x0 results in:
-///  Gyro: +/-250dps max range
-/// GYRO_CONFIG = 0x08 results in:
-///  Gyro: +/-500dps max range
-/// GYRO_CONFIG = 0x10 results in:
-///  Gyro: +/-1000dps max range
-/// GYRO_CONFIG = 0x18 results in:
-///  Gyro: +/-2000dps max range
+/// GYRO_CONFIG = 0x0 results in: +/-250dps max range
+/// GYRO_CONFIG = 0x08 results in: +/-500dps max range
+/// GYRO_CONFIG = 0x10 results in: +/-1000dps max range
+/// GYRO_CONFIG = 0x18 results in: +/-2000dps max range
 #define D_IMU_GYRO_CONFIG		0x10		//0b00010000
 /// ACCEL_CONFIG = 0x8 results in:
 ///  Accel: +/- 4g max range
@@ -137,6 +132,11 @@ int16_t get_gyro_z(void);		//Zgyro data
 void get_gyro_xyz(void);
 void reset_imu(void);			//reset IMU registers to default
 void disable_imu(void);			//disable the IMU by shutting down clocks, etc.
+void imu_test_code_blocking(void);
+
+void IMUPrepareRead(void);
+void IMUReadAll(void);
+void IMUParseData(void);
 
 #endif //INC_FM_IMU_H
 

@@ -25,6 +25,8 @@ volatile unsigned int spi_bytes_ready = 0;
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern TIM_HandleTypeDef htim7;
 
+extern DMA_HandleTypeDef hdma_adc1;
+
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -73,9 +75,29 @@ void USART1_IRQHandler(void)
 }
 
 //Should not be used, everything is done via DMA
+void USART3_IRQHandler(void)
+{
+	HAL_USART_IRQHandler(&husart3);
+}
+
+//Should not be used, everything is done via DMA
 void USART6_IRQHandler(void)
 {
 	HAL_USART_IRQHandler(&husart6);
+}
+
+/**
+* @brief This function handles DMA2 stream0 global interrupt.
+*/
+void DMA2_Stream0_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream0_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
 //DMA2 Stream2 - USART1 RX
@@ -91,7 +113,23 @@ void DMA2_Stream7_IRQHandler(void)
 {
 	HAL_NVIC_ClearPendingIRQ(DMA2_Stream7_IRQn);
 
-	HAL_DMA_IRQHandler(&hdma2_str7_ch4);
+	HAL_DMA_IRQHandler(husart1.hdmatx);
+}
+
+//DMA1 Stream1 - USART3 RX
+void DMA1_Stream1_IRQHandler(void)
+{
+	HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
+
+	HAL_DMA_IRQHandler(&hdma1_str1_ch4);
+}
+
+//DMA1 Stream3 - USART3 TX
+void DMA1_Stream3_IRQHandler(void)
+{
+	HAL_NVIC_ClearPendingIRQ(DMA1_Stream3_IRQn);
+
+	HAL_DMA_IRQHandler(husart3.hdmatx);
 }
 
 //DMA2 Stream1 - USART6 RX
@@ -107,7 +145,19 @@ void DMA2_Stream6_IRQHandler(void)
 {
 	HAL_NVIC_ClearPendingIRQ(DMA2_Stream6_IRQn);
 
-	HAL_DMA_IRQHandler(&hdma2_str6_ch5);
+	HAL_DMA_IRQHandler(husart6.hdmatx);
+}
+
+//DMA1 Stream 0: I2C1 RX
+void DMA1_Stream0_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(hi2c1.hdmarx);
+}
+
+//DMA1 Stream 6: I2C1 TX
+void DMA1_Stream6_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(hi2c1.hdmatx);
 }
 
 //USB:

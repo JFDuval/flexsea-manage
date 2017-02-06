@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_timer: SysTick & Timer functions
 *****************************************************************************
@@ -60,8 +60,12 @@ extern volatile timer_ticks_t timer_delayCount;
 extern void init_systick_timer(void);
 extern void timer_sleep (timer_ticks_t ticks);
 
+void init_timer_6(void);
+uint16_t readTimer6(void);
 void init_timer_7(void);
 void timebases(void);
+void delayUsBlocking(uint16_t us);
+void test_delayUsBlocking_blocking(void);
 
 //****************************************************************************
 // Definition(s):
