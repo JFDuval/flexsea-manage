@@ -72,7 +72,7 @@ void init_peripherals(void)
 
 	#ifdef USE_UART3
 
-		init_usart3(115200);		//Expansion port
+		init_usart3(230400);	//Expansion port
 
 	#endif
 
