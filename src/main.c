@@ -59,6 +59,8 @@ int main(void)
 	//Initialize all the peripherals
 	init_peripherals();
 
+	initializeGlobalStructs();
+
 	//Start receiving from master via interrupts
 	flexsea_start_receiving_from_master();
 
