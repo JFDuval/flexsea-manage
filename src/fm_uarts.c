@@ -195,6 +195,8 @@ void init_usart3(uint32_t baudrate)
 	USART3->CR3 |= USART_CR3_ONEBIT;	//1 sample per bit
 	USART3->CR3 |= USART_CR3_DMAR;		//Enable DMA Reception
 	USART3->CR3 |= USART_CR3_DMAT;		//Enable DMA Transmission
+	USART3->CR3 |= USART_CR3_CTSE;		//Enable CTS
+	USART3->CR3 |= USART_CR3_RTSE;		//Enable RTS
 
 	init_dma1_stream1_ch4();
 	init_dma1_stream3_ch4();
@@ -536,6 +538,8 @@ void HAL_USART_MspInit(USART_HandleTypeDef* husart)
 		//GPIOs:
 		//PD8   ------> USART3_TX
 		//PD9   ------> USART3_RX
+		//PB13  ------> USART3_CTS
+		//PB14  ------> USART3_RTS
 
 		GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
 		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -543,6 +547,13 @@ void HAL_USART_MspInit(USART_HandleTypeDef* husart)
 		GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
 		GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
 		HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+		GPIO_InitStruct.Pin = GPIO_PIN_13 | GPIO_PIN_14;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+		GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 	}
 	else
 	{

@@ -41,6 +41,13 @@
 
 uint8_t new_cmd_led = 0;
 
+//Test code only - ToDo integrate or remove:
+//#define BT_SLAVE_STREAM
+#ifdef BT_SLAVE_STREAM
+uint8_t info[2] = {PORT_WIRELESS, PORT_WIRELESS};
+uint16_t delay = 0;
+#endif
+
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -87,7 +94,25 @@ void main_fsm_case_4(void)
 //Case 5:
 void main_fsm_case_5(void)
 {
+	#ifdef BT_SLAVE_STREAM
 
+		//No transmission for the first 5s:
+		delay++;
+		if(delay < 5000)
+			return;
+
+		//Send data at 100Hz:
+		static uint8_t cnt = 0;
+		cnt++;
+		cnt %= 10;
+		if(!cnt)
+		{
+			tx_cmd_data_read_all_w(TX_N_DEFAULT);
+			//delayUsBlocking(500);	//ToDo remove, test only! ************
+			packAndSend(P_AND_S_DEFAULT, FLEXSEA_PLAN_1, info, SEND_TO_MASTER);
+		}
+
+	#endif	//BT_SLAVE_STREAM
 }
 
 //Case 6:
@@ -100,18 +125,7 @@ void main_fsm_case_6(void)
 //Case 7:
 void main_fsm_case_7(void)
 {
-	/*
-	//Test code: reset USB reception every second:
-	//ToDo ***Remove***
-	static int cnt = 0;
-	cnt++;
-	cnt %= 1000;
-	if(!cnt)
-	{
-		USBD_CDC_SetRxBuffer(hUsbDevice_0, UserRxBufferFS);
-		USBD_CDC_ReceivePacket(hUsbDevice_0);
-	}
-	*/
+
 }
 
 //Case 8: User functions
