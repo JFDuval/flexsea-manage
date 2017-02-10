@@ -34,6 +34,7 @@
 
 #include "main.h"
 #include "comm_test.h"
+#include <flexsea_comm.h>
 
 //****************************************************************************
 // Variable(s)
@@ -64,7 +65,7 @@ void init_comm_test(void)
 void comm_test(void)
 {
 	static uint16_t cnt = 0;
-	uint8_t info[2] = {PORT_485_1, PORT_485_1};
+	uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
 	static uint8_t packetIndex = 0;
 
 	//Protects from invalid dividers:

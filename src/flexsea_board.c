@@ -36,6 +36,8 @@
 #include "main.h"
 #include "flexsea_board.h"
 #include "../../flexsea-system/inc/flexsea_system.h"
+#include <fm_block_allocator.h>
+#include <flexsea_comm.h>
 
 //****************************************************************************
 // Variable(s)
@@ -61,6 +63,10 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //===============
 //</FlexSEA User>
 
+extern uint8_t rx_command_4[PAYLOAD_BUFFERS][PACKAGED_PAYLOAD_LEN];
+int8_t unpack_payload(uint8_t *buf, uint8_t rx_cmd[][PACKAGED_PAYLOAD_LEN]);
+
+
 uint8_t bytes_ready_spi = 0;
 int8_t cmd_ready_spi = 0;
 int8_t cmd_ready_usb = 0;
@@ -70,8 +76,12 @@ int8_t cmd_ready_usb = 0;
 //****************************************************************************
 //Wrapper for the specific serial functions. Useful to keep flexsea_network
 //platform independent (for example, we don't need need puts_rs485() for Plan)
-void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
+void flexsea_send_serial_slave(PacketWrapper* p)
 {
+	uint8_t port = p->port;
+	uint8_t* str = p->packed;
+	size_t length = COMM_STR_BUF_LEN;
+
 	if(port == PORT_RS485_1)
 	{
 		puts_rs485_1(str, length);
@@ -85,10 +95,14 @@ void flexsea_send_serial_slave(uint8_t port, uint8_t *str, uint8_t length)
 		//Unknown port, call flexsea_error()
 		flexsea_error(SE_INVALID_SLAVE);
 	}
+	fm_pool_free_block(p);
 }
 
-void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
+void flexsea_send_serial_master(PacketWrapper* p)
 {
+	uint8_t port = p->port;
+	uint8_t *str = p->packed;
+	uint8_t length = COMM_STR_BUF_LEN;
 	int i = 0;
 
 	if(port == PORT_SPI)
@@ -107,37 +121,23 @@ void flexsea_send_serial_master(uint8_t port, uint8_t *str, uint8_t length)
 	{
 		puts_expUart(str, length);
 	}
+	fm_pool_free_block(p);
 }
 
 void flexsea_receive_from_master(void)
 {
-	if(bytes_ready_spi > 0)
-	{
-		bytes_ready_spi = 0;
-		cmd_ready_spi = unpack_payload_spi();
-	}
+	// We received raw packed packets from all subsystems
+	// here. p->port contains the source
+	PacketWrapper* p = fm_queue_get(&packet_queue);
+	if (p == NULL)
+		return;
 
-	//USB byte input
-	#ifdef USE_USB
+	cmd_ready_usb = unpack_payload(p->packed, p->unpaked);
 
-	//(Bytes received by ISR)
+	int err = fm_queue_put(&unpacked_packet_queue, p);
+	if (err)
+		fm_pool_free_block(p);
 
-	if(data_ready_usb > 0)
-	{
-		data_ready_usb = 0;
-		//Got new data in, try to decode
-		cmd_ready_usb = unpack_payload_usb();
-	}
-
-	#endif	//USE_USB
-
-	//Did we receive new bytes?
-	if(masterComm[2].rx.bytesReady > 0)
-	{
-		masterComm[2].rx.bytesReady = 0;
-		//Got new data in, try to decode
-		masterComm[2].rx.cmdReady = unpack_payload_wireless();
-	}
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -145,7 +145,10 @@ void flexsea_start_receiving_from_master(void)
 	// start receive over SPI
 	if (HAL_SPI_GetState(&spi4_handle) == HAL_SPI_STATE_READY)
 	{
-		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, (uint8_t *)aRxBuffer, COMM_STR_BUF_LEN) != HAL_OK)
+		PacketWrapper* p = fm_pool_allocate_block();
+		if (p == NULL)
+			return;
+		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, p->packed, COMM_STR_BUF_LEN) != HAL_OK)
 		{
 			// Transfer error in transmission process
 			flexsea_error(SE_RECEIVE_FROM_MASTER);

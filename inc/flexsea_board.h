@@ -37,15 +37,14 @@
 //****************************************************************************
 
 #include <stdint.h>
+#include <flexsea.h>
 
 //****************************************************************************
 // Prototype(s):
 //****************************************************************************
 
-void flexsea_send_serial_slave(uint8_t port, uint8_t *str,
-		uint8_t length);
-void flexsea_send_serial_master(uint8_t port, uint8_t *str,
-		uint8_t length);
+void flexsea_send_serial_slave(PacketWrapper* p);
+void flexsea_send_serial_master(PacketWrapper* p);
 void flexsea_receive_from_master(void);
 void flexsea_start_receiving_from_master(void);
 void flexsea_receive_from_slave(void);
@@ -122,11 +121,8 @@ void comm_str_to_txbuffer(void);
 #define update_rx_buf_array_wireless	update_rx_buf_array_5
 
 //Communication ports:
-#define PORT_RS485_1				0
-#define PORT_RS485_2				1
-#define PORT_SPI					2
-#define PORT_USB					3
-#define PORT_WIRELESS				4
+
+
 
 //===============
 //</FlexSEA User>
