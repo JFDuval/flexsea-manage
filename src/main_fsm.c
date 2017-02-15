@@ -34,6 +34,7 @@
 
 #include "main.h"
 #include "main_fsm.h"
+#include "fm_master_slave_comm.h"
 
 //****************************************************************************
 // Variable(s)

@@ -35,6 +35,7 @@
 #include "main.h"
 #include "fm_master_slave_comm.h"
 #include <fm_block_allocator.h>
+#include <flexsea_payload.h>
 #include <stdbool.h>
 //****************************************************************************
 // Variable(s)

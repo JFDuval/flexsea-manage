@@ -90,6 +90,8 @@ void comm_str_to_txbuffer(void);
 
 //Overload buffer & function names (for user convenience):
 
+#include <flexsea_buffers.h>
+
 #define comm_str_485_1					comm_str_1
 #define unpack_payload_485_1			unpack_payload_1
 #define rx_command_485_1				rx_command_1
