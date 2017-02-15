@@ -155,6 +155,7 @@ void parseSlaveCommands(uint8_t *new_cmd)
 }
 
 //Slave Communication function. Call at 1kHz.
+//ToDo: this ignores the parameter 'port'. It was there to offset the comm between the 2 buses.
 void slaveTransmit(uint8_t port)
 {
 	PacketWrapper* p = fm_queue_get(&slave_queue);
