@@ -61,16 +61,6 @@ static void initAdcDma(void);
 // Public Function(s)
 //****************************************************************************
 
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler */
-  /* User can add his own implementation to report the HAL error return state */
-  while(1)
-  {
-  }
-  /* USER CODE END Error_Handler */
-}
-
 void init_adc1(void)
 {
 	//Enable peripheral clock and GPIOs:
@@ -78,10 +68,11 @@ void init_adc1(void)
 	initAdcGpio();
 	initAdcDma();
 
-	//ADC1 config: (ToDo: test & optimize, use DMA and multiple conversions)
+	//ADC1 config:
 	//===========
 
-	//Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+	//Configure the global features of the ADC
+	//(Clock, Resolution, Data Alignment and number of conversion)
 	hadc1.Instance = ADC1;
 	hadc1.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
 	hadc1.Init.Resolution = ADC_RESOLUTION12b;
@@ -89,15 +80,15 @@ void init_adc1(void)
 	hadc1.Init.ContinuousConvMode = DISABLE;
 	hadc1.Init.DiscontinuousConvMode = DISABLE;
 	hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	//hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_CC1; //ADC_SOFTWARE_START;
-	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START; //ADC_SOFTWARE_START;
+	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
 	hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	hadc1.Init.NbrOfConversion = ADC_CHANNELS;				// Number of channels
+	hadc1.Init.NbrOfConversion = ADC_CHANNELS;
 	hadc1.Init.DMAContinuousRequests = ENABLE;
 	hadc1.Init.EOCSelection = EOC_SEQ_CONV;
 	HAL_ADC_Init(&hadc1);
 
-	//Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+	//Configure for the selected ADC regular channel its corresponding rank in
+	//the sequencer and its sample time.
 	sConfig.Channel = ADC_CHANNEL_0;
 	sConfig.Rank = 1;
 	sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
@@ -138,17 +129,7 @@ void init_adc1(void)
 	sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 	HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 
-	if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS) != HAL_OK)
-	{
-		Error_Handler();
-	}
-
-	/*
-	//Configure the ADC multi-mode
-	multimode.Mode = ADC_MODE_INDEPENDENT;
-	multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_5CYCLES;
-	HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode);
-	*/
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS);
 }
 
 void startAdcConversion(void)
@@ -171,33 +152,13 @@ unsigned int get_adc1(uint16_t idx)
 	return adc_results[idx];
 }
 
-unsigned int adc_conv(void)
-{
-	unsigned int result = 0;
-
-	HAL_ADC_Start(&hadc1);
-	while(HAL_ADC_PollForConversion(&hadc1, 5000) != HAL_OK)
-		;
-	result = HAL_ADC_GetValue(&hadc1);
-
-	return result;
-}
-
-void adc_set_channel(uint8_t ch)
-{
-	sConfig.Channel = ch;
-	sConfig.Rank = 1;
-	sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-	HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-}
-
+//Code branches here after conversion is done:
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	if(hadc->Instance == ADC1)	//ADC
 	{
 		//Start a new conversion:
 		readyForNextAdcConversion = 1;
-		//HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS);
 	}
 }
 
@@ -244,20 +205,13 @@ static void initAdcDma(void)
 
 	hdma_adc1.Init.Priority = DMA_PRIORITY_LOW;
 	hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-	if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
-	{
-		Error_Handler();
-	}
+	HAL_DMA_Init(&hdma_adc1);
 
 	//Link handles:
 	hdma_adc1.Parent = &hadc1;
 	hadc1.DMA_Handle = &hdma_adc1;
 
-	//Callback:
-	//hdma_adc1.XferCpltCallback = adcDmaTransferCompleteCallback;
-
 	// DMA2_Stream0_IRQn interrupt configuration
 	HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-
 }

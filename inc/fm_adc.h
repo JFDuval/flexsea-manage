@@ -50,10 +50,7 @@ extern __IO volatile uint16_t adc_results[];
 //****************************************************************************
 
 void init_adc1(void);
-unsigned int adc_conv(void);
-void adc_set_channel(uint8_t ch);
 unsigned int get_adc1(uint16_t idx);	// get value at analog input channel idx
-void Error_Handler(void);				// Error handler in case you want that.
 void startAdcConversion(void);
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
 

@@ -245,6 +245,13 @@ unsigned int set_resistor_ain7(uint8_t res)
 	return 0;
 }
 
+//Disconnect the resistors:
+void disableResistorDividers(void)
+{
+	uint8_t i2c_1_t_buf[4] = {MCP4661_REG_TCON, 0, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, MCP4661_I2C_ADDR2, i2c_1_t_buf, 2);
+}
+
 //Default configuration: high Fc, minimum gains, maximum voltage dividers
 void set_default_analog(void)
 {
@@ -262,10 +269,14 @@ void set_default_analog(void)
 		set_gain_ain3(0);
 		delayUsBlocking(10000);
 
-		//Maximum resistance:
+		//Voltage divider:
+		/*
 		set_resistor_ain6(0);
 		delayUsBlocking(10000);
 		set_resistor_ain7(0);
+		delayUsBlocking(10000);
+		*/
+		disableResistorDividers();
 		delayUsBlocking(10000);
 
 	#endif	//USE_I2C0
