@@ -85,10 +85,14 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	if(port == PORT_RS485_1)
 	{
 		puts_rs485_1(str, length);
+		slaveComm[0].transceiverState = TRANS_STATE_PREP_RX;
+		slaveComm[0].reply_port = p->reply_port;
 	}
 	else if(port == PORT_RS485_2)
 	{
 		puts_rs485_2(str, length);
+		slaveComm[1].transceiverState = TRANS_STATE_PREP_RX;
+		slaveComm[1].reply_port = p->reply_port;
 	}
 	else
 	{
@@ -100,7 +104,7 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 
 void flexsea_send_serial_master(PacketWrapper* p)
 {
-	uint8_t port = p->port;
+	Port port = p->port;
 	uint8_t *str = p->packed;
 	uint8_t length = COMM_STR_BUF_LEN;
 	int i = 0;

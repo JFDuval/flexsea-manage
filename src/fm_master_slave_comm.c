@@ -31,7 +31,7 @@
 //****************************************************************************
 // Include(s)
 //****************************************************************************
-
+#include "flexsea_buffers.h"
 #include "main.h"
 #include "fm_master_slave_comm.h"
 #include <fm_block_allocator.h>
@@ -125,8 +125,8 @@ void parseSlaveCommands(uint8_t *new_cmd)
 		if (p == NULL)
 			return;
 
-		memcpy(p->unpaked, &rx_command_485_1[0], PAYLOAD_BUF_LEN);
-
+		memcpy(p->unpaked, &rx_command_485_1[0], COMM_STR_BUF_LEN);
+		memcpy(p->packed, rx_buf_1, COMM_STR_BUF_LEN);
 		/*
 		//Cheap trick to get first line	//ToDo: support more than 1
 		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
@@ -134,7 +134,7 @@ void parseSlaveCommands(uint8_t *new_cmd)
 			tmp_rx_command_485_1[i] = rx_command_485_1[0][i];
 		}*/
 
-		p->port = PORT_RS485_1;
+		p->port = slaveComm[0].reply_port;
 		payload_parse_str(p);
 	}
 
@@ -146,10 +146,10 @@ void parseSlaveCommands(uint8_t *new_cmd)
 		if (p == NULL)
 			return;
 
-		memcpy(p->unpaked, &rx_command_485_2[0], PAYLOAD_BUF_LEN);
-
+		memcpy(p->unpaked, &rx_command_485_2[0], COMM_STR_BUF_LEN);
+		memcpy(p->packed, rx_buf_2, COMM_STR_BUF_LEN);
 		// parse the command and execute it
-		p->port = PORT_RS485_2;
+		p->port = p->port = slaveComm[0].reply_port;
 		payload_parse_str(p);
 	}
 }
