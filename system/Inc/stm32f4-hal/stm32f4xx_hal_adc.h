@@ -52,18 +52,18 @@
 
 /** @addtogroup ADC
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
-   
-/** 
-  * @brief  HAL State structures definition  
-  */ 
+
+/**
+  * @brief  HAL State structures definition
+  */
 typedef enum
 {
   HAL_ADC_STATE_RESET                   = 0x00,    /*!< ADC not yet initialized or disabled */
   HAL_ADC_STATE_READY                   = 0x01,    /*!< ADC peripheral ready for use */
-  HAL_ADC_STATE_BUSY                    = 0x02,    /*!< An internal process is ongoing */ 
+  HAL_ADC_STATE_BUSY                    = 0x02,    /*!< An internal process is ongoing */
   HAL_ADC_STATE_BUSY_REG                = 0x12,    /*!< Regular conversion is ongoing */
   HAL_ADC_STATE_BUSY_INJ                = 0x22,    /*!< Injected conversion is ongoing */
   HAL_ADC_STATE_BUSY_INJ_REG            = 0x32,    /*!< Injected and regular conversion are ongoing */
@@ -77,46 +77,46 @@ typedef enum
 
 }HAL_ADC_StateTypeDef;
 
-/** 
-  * @brief   ADC Init structure definition  
-  */ 
+/**
+  * @brief   ADC Init structure definition
+  */
 typedef struct
 {
-  uint32_t ClockPrescaler;        /*!< Select the frequency of the clock to the ADC. The clock is common for 
+  uint32_t ClockPrescaler;        /*!< Select the frequency of the clock to the ADC. The clock is common for
                                        all the ADCs.
                                        This parameter can be a value of @ref ADC_ClockPrescaler */
-  uint32_t Resolution;            /*!< Configures the ADC resolution dual mode. 
+  uint32_t Resolution;            /*!< Configures the ADC resolution dual mode.
                                        This parameter can be a value of @ref ADC_Resolution */
-  uint32_t DataAlign;             /*!< Specifies whether the ADC data  alignment is left or right.  
+  uint32_t DataAlign;             /*!< Specifies whether the ADC data  alignment is left or right.
                                        This parameter can be a value of @ref ADC_data_align */
-  uint32_t ScanConvMode;          /*!< Specifies whether the conversion is performed in Scan (multi channels) or 
+  uint32_t ScanConvMode;          /*!< Specifies whether the conversion is performed in Scan (multi channels) or
                                        Single (one channel) mode.
-                                       This parameter can be set to ENABLE or DISABLE */ 
-  uint32_t EOCSelection;          /*!< Specifies whether the EOC flag is set 
+                                       This parameter can be set to ENABLE or DISABLE */
+  uint32_t EOCSelection;          /*!< Specifies whether the EOC flag is set
                                        at the end of single channel conversion or at the end of all conversions.
                                        This parameter can be a value of @ref ADC_EOCSelection */
   uint32_t ContinuousConvMode;    /*!< Specifies whether the conversion is performed in Continuous or Single mode.
                                        This parameter can be set to ENABLE or DISABLE. */
   uint32_t DMAContinuousRequests; /*!< Specifies whether the DMA requests is performed in Continuous or in Single mode.
-                                       This parameter can be set to ENABLE or DISABLE. */ 
+                                       This parameter can be set to ENABLE or DISABLE. */
   uint32_t NbrOfConversion;       /*!< Specifies the number of ADC conversions that will be done using the sequencer for
                                        regular channel group.
                                        This parameter must be a number between Min_Data = 1 and Max_Data = 16. */
-  uint32_t DiscontinuousConvMode; /*!< Specifies whether the conversion is performed in Discontinuous or not 
+  uint32_t DiscontinuousConvMode; /*!< Specifies whether the conversion is performed in Discontinuous or not
                                        for regular channels.
                                        This parameter can be set to ENABLE or DISABLE. */
-  uint32_t NbrOfDiscConversion;   /*!< Specifies the number of ADC discontinuous conversions that will be done 
+  uint32_t NbrOfDiscConversion;   /*!< Specifies the number of ADC discontinuous conversions that will be done
                                        using the sequencer for regular channel group.
                                        This parameter must be a number between Min_Data = 1 and Max_Data = 8. */
-  uint32_t ExternalTrigConvEdge;  /*!< Select the external trigger edge and enable the trigger of a regular group. 
+  uint32_t ExternalTrigConvEdge;  /*!< Select the external trigger edge and enable the trigger of a regular group.
                                        This parameter can be a value of @ref ADC_External_trigger_edge_Regular */
   uint32_t ExternalTrigConv;      /*!< Select the external event used to trigger the start of conversion of a regular group.
-                                       This parameter can be a value of @ref ADC_External_trigger_Source_Regular */ 
+                                       This parameter can be a value of @ref ADC_External_trigger_Source_Regular */
 }ADC_InitTypeDef;
 
-/** 
+/**
   * @brief  ADC handle Structure definition
-  */ 
+  */
 typedef struct
 {
   ADC_TypeDef                   *Instance;                   /*!< Register base address */
@@ -134,34 +134,34 @@ typedef struct
   __IO uint32_t                 ErrorCode;                   /*!< ADC Error code */
 }ADC_HandleTypeDef;
 
-/** 
+/**
   * @brief   ADC Configuration regular Channel structure definition
-  */ 
-typedef struct 
+  */
+typedef struct
 {
-  uint32_t Channel;        /*!< The ADC channel to configure 
+  uint32_t Channel;        /*!< The ADC channel to configure
                                 This parameter can be a value of @ref ADC_channels */
-  uint32_t Rank;           /*!< The rank in the regular group sequencer 
+  uint32_t Rank;           /*!< The rank in the regular group sequencer
                                 This parameter must be a number between Min_Data = 1 and Max_Data = 16 */
   uint32_t SamplingTime;   /*!< The sample time value to be set for the selected channel.
                                 This parameter can be a value of @ref ADC_sampling_times */
   uint32_t Offset;         /*!< Reserved for future use, can be set to 0 */
 }ADC_ChannelConfTypeDef;
 
-/** 
-  * @brief   ADC Configuration multi-mode structure definition  
-  */ 
+/**
+  * @brief   ADC Configuration multi-mode structure definition
+  */
 typedef struct
 {
   uint32_t WatchdogMode;      /*!< Configures the ADC analog watchdog mode.
                                    This parameter can be a value of @ref ADC_analog_watchdog_selection. */
   uint32_t HighThreshold;     /*!< Configures the ADC analog watchdog High threshold value.
-                                   This parameter must be a 12-bit value. */     
+                                   This parameter must be a 12-bit value. */
   uint32_t LowThreshold;      /*!< Configures the ADC analog watchdog High threshold value.
                                    This parameter must be a 12-bit value. */
-  uint32_t Channel;           /*!< Configures ADC channel for the analog watchdog. 
-                                   This parameter has an effect only if watchdog mode is configured on single channel 
-                                   This parameter can be a value of @ref ADC_channels. */      
+  uint32_t Channel;           /*!< Configures ADC channel for the analog watchdog.
+                                   This parameter has an effect only if watchdog mode is configured on single channel
+                                   This parameter can be a value of @ref ADC_channels. */
   uint32_t ITMode;            /*!< Specifies whether the analog watchdog is configured
                                    is interrupt mode or in polling mode.
                                    This parameter can be set to ENABLE or DISABLE */
@@ -175,21 +175,21 @@ typedef struct
   */
 
 
-/** @defgroup ADC_Error_Code 
+/** @defgroup ADC_Error_Code
   * @{
-  */ 
+  */
 
 #define HAL_ADC_ERROR_NONE        ((uint32_t)0x00)   /*!< No error             */
 #define HAL_ADC_ERROR_OVR         ((uint32_t)0x01)   /*!< OVR error            */
 #define HAL_ADC_ERROR_DMA         ((uint32_t)0x02)   /*!< DMA transfer error   */
 /**
   * @}
-  */  
+  */
 
 
-/** @defgroup ADC_ClockPrescaler 
+/** @defgroup ADC_ClockPrescaler
   * @{
-  */ 
+  */
 #define ADC_CLOCKPRESCALER_PCLK_DIV2    ((uint32_t)0x00000000)
 #define ADC_CLOCKPRESCALER_PCLK_DIV4    ((uint32_t)ADC_CCR_ADCPRE_0)
 #define ADC_CLOCKPRESCALER_PCLK_DIV6    ((uint32_t)ADC_CCR_ADCPRE_1)
@@ -200,11 +200,11 @@ typedef struct
                                               ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV8))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_delay_between_2_sampling_phases 
+/** @defgroup ADC_delay_between_2_sampling_phases
   * @{
-  */ 
+  */
 #define ADC_TWOSAMPLINGDELAY_5CYCLES    ((uint32_t)0x00000000)
 #define ADC_TWOSAMPLINGDELAY_6CYCLES    ((uint32_t)ADC_CCR_DELAY_0)
 #define ADC_TWOSAMPLINGDELAY_7CYCLES    ((uint32_t)ADC_CCR_DELAY_1)
@@ -240,11 +240,11 @@ typedef struct
                                       ((DELAY) == ADC_TWOSAMPLINGDELAY_20CYCLES))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_Resolution 
+/** @defgroup ADC_Resolution
   * @{
-  */ 
+  */
 #define ADC_RESOLUTION12b  ((uint32_t)0x00000000)
 #define ADC_RESOLUTION10b  ((uint32_t)ADC_CR1_RES_0)
 #define ADC_RESOLUTION8b   ((uint32_t)ADC_CR1_RES_1)
@@ -256,11 +256,11 @@ typedef struct
                                        ((RESOLUTION) == ADC_RESOLUTION6b))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_External_trigger_edge_Regular 
+/** @defgroup ADC_External_trigger_edge_Regular
   * @{
-  */ 
+  */
 #define ADC_EXTERNALTRIGCONVEDGE_NONE           ((uint32_t)0x00000000)
 #define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CR2_EXTEN_0)
 #define ADC_EXTERNALTRIGCONVEDGE_FALLING        ((uint32_t)ADC_CR2_EXTEN_1)
@@ -272,11 +272,11 @@ typedef struct
                                     ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_External_trigger_Source_Regular 
+/** @defgroup ADC_External_trigger_Source_Regular
   * @{
-  */ 
+  */
 #define ADC_EXTERNALTRIGCONV_T1_CC1    ((uint32_t)0x00000000)
 #define ADC_EXTERNALTRIGCONV_T1_CC2    ((uint32_t)ADC_CR2_EXTSEL_0)
 #define ADC_EXTERNALTRIGCONV_T1_CC3    ((uint32_t)ADC_CR2_EXTSEL_1)
@@ -293,6 +293,7 @@ typedef struct
 #define ADC_EXTERNALTRIGCONV_T8_CC1    ((uint32_t)(ADC_CR2_EXTSEL_3 | ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_0))
 #define ADC_EXTERNALTRIGCONV_T8_TRGO   ((uint32_t)(ADC_CR2_EXTSEL_3 | ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_1))
 #define ADC_EXTERNALTRIGCONV_Ext_IT11  ((uint32_t)ADC_CR2_EXTSEL)
+#define ADC_SOFTWARE_START             ((uint32_t)ADC_CR2_EXTSEL + 1U)
 
 #define IS_ADC_EXT_TRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)  || \
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)  || \
@@ -309,14 +310,15 @@ typedef struct
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T5_CC3)  || \
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_CC1)  || \
                                   ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO) || \
-                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_Ext_IT11))
+                                  ((REGTRIG) == ADC_EXTERNALTRIGCONV_Ext_IT11) || \
+								  ((REGTRIG) == ADC_SOFTWARE_START))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_data_align 
+/** @defgroup ADC_data_align
   * @{
-  */ 
+  */
 #define ADC_DATAALIGN_RIGHT      ((uint32_t)0x00000000)
 #define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CR2_ALIGN)
 
@@ -324,11 +326,11 @@ typedef struct
                                   ((ALIGN) == ADC_DATAALIGN_LEFT))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_channels 
+/** @defgroup ADC_channels
   * @{
-  */ 
+  */
 #define ADC_CHANNEL_0           ((uint32_t)0x00000000)
 #define ADC_CHANNEL_1           ((uint32_t)ADC_CR1_AWDCH_0)
 #define ADC_CHANNEL_2           ((uint32_t)ADC_CR1_AWDCH_1)
@@ -374,11 +376,11 @@ typedef struct
                                  ((CHANNEL) == ADC_CHANNEL_18))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_sampling_times 
+/** @defgroup ADC_sampling_times
   * @{
-  */ 
+  */
 #define ADC_SAMPLETIME_3CYCLES    ((uint32_t)0x00000000)
 #define ADC_SAMPLETIME_15CYCLES   ((uint32_t)ADC_SMPR1_SMP10_0)
 #define ADC_SAMPLETIME_28CYCLES   ((uint32_t)ADC_SMPR1_SMP10_1)
@@ -398,11 +400,11 @@ typedef struct
                                   ((TIME) == ADC_SAMPLETIME_480CYCLES))
 /**
   * @}
-  */ 
+  */
 
-  /** @defgroup ADC_EOCSelection 
+  /** @defgroup ADC_EOCSelection
   * @{
-  */ 
+  */
 #define EOC_SEQ_CONV              ((uint32_t)0x00000000)
 #define EOC_SINGLE_CONV           ((uint32_t)0x00000001)
 #define EOC_SINGLE_SEQ_CONV       ((uint32_t)0x00000002)  /*!< reserved for future use */
@@ -412,11 +414,11 @@ typedef struct
                                            ((EOCSelection) == EOC_SINGLE_SEQ_CONV))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_Event_type 
+/** @defgroup ADC_Event_type
   * @{
-  */ 
+  */
 #define AWD_EVENT             ((uint32_t)ADC_FLAG_AWD)
 #define OVR_EVENT             ((uint32_t)ADC_FLAG_OVR)
 
@@ -426,9 +428,9 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_analog_watchdog_selection 
+/** @defgroup ADC_analog_watchdog_selection
   * @{
-  */ 
+  */
 #define ADC_ANALOGWATCHDOG_SINGLE_REG         ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN))
 #define ADC_ANALOGWATCHDOG_SINGLE_INJEC       ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_JAWDEN))
 #define ADC_ANALOGWATCHDOG_SINGLE_REGINJEC    ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
@@ -446,25 +448,25 @@ typedef struct
                                           ((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE))
 /**
   * @}
-  */ 
-    
-/** @defgroup ADC_interrupts_definition 
+  */
+
+/** @defgroup ADC_interrupts_definition
   * @{
-  */ 
-#define ADC_IT_EOC      ((uint32_t)ADC_CR1_EOCIE)  
-#define ADC_IT_AWD      ((uint32_t)ADC_CR1_AWDIE) 
+  */
+#define ADC_IT_EOC      ((uint32_t)ADC_CR1_EOCIE)
+#define ADC_IT_AWD      ((uint32_t)ADC_CR1_AWDIE)
 #define ADC_IT_JEOC     ((uint32_t)ADC_CR1_JEOCIE)
-#define ADC_IT_OVR      ((uint32_t)ADC_CR1_OVRIE) 
+#define ADC_IT_OVR      ((uint32_t)ADC_CR1_OVRIE)
 
 #define IS_ADC_IT(IT) (((IT) == ADC_IT_EOC) || ((IT) == ADC_IT_AWD) || \
-                       ((IT) == ADC_IT_JEOC)|| ((IT) == ADC_IT_OVR)) 
+                       ((IT) == ADC_IT_JEOC)|| ((IT) == ADC_IT_OVR))
 /**
   * @}
-  */ 
-    
-/** @defgroup ADC_flags_definition 
+  */
+
+/** @defgroup ADC_flags_definition
   * @{
-  */ 
+  */
 #define ADC_FLAG_AWD    ((uint32_t)ADC_SR_AWD)
 #define ADC_FLAG_EOC    ((uint32_t)ADC_SR_EOC)
 #define ADC_FLAG_JEOC   ((uint32_t)ADC_SR_JEOC)
@@ -473,11 +475,11 @@ typedef struct
 #define ADC_FLAG_OVR    ((uint32_t)ADC_SR_OVR)
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_channels_type 
+/** @defgroup ADC_channels_type
   * @{
-  */ 
+  */
 #define ALL_CHANNELS      ((uint32_t)0x00000001)
 #define REGULAR_CHANNELS  ((uint32_t)0x00000002) /*!< reserved for future use */
 #define INJECTED_CHANNELS ((uint32_t)0x00000003) /*!< reserved for future use */
@@ -489,41 +491,41 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_thresholds 
+/** @defgroup ADC_thresholds
   * @{
-  */ 
+  */
 #define IS_ADC_THRESHOLD(THRESHOLD) ((THRESHOLD) <= ((uint32_t)0xFFF))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_regular_length 
+/** @defgroup ADC_regular_length
   * @{
-  */ 
+  */
 #define IS_ADC_REGULAR_LENGTH(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)16)))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_regular_rank 
+/** @defgroup ADC_regular_rank
   * @{
-  */ 
+  */
 #define IS_ADC_REGULAR_RANK(RANK) (((RANK) >= ((uint32_t)1)) && ((RANK) <= ((uint32_t)16)))
 /**
   * @}
-  */ 
+  */
 
-/** @defgroup ADC_regular_discontinuous_mode_number 
+/** @defgroup ADC_regular_discontinuous_mode_number
   * @{
-  */ 
+  */
 #define IS_ADC_REGULAR_DISC_NUMBER(NUMBER) (((NUMBER) >= ((uint32_t)1)) && ((NUMBER) <= ((uint32_t)8)))
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup ADC_range_verification
   * @{
-  */ 
+  */
 #define IS_ADC_RANGE(RESOLUTION, ADC_VALUE)                                     \
    ((((RESOLUTION) == ADC_RESOLUTION12b) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
     (((RESOLUTION) == ADC_RESOLUTION10b) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
@@ -531,11 +533,11 @@ typedef struct
     (((RESOLUTION) == ADC_RESOLUTION6b)  && ((ADC_VALUE) <= ((uint32_t)0x003F))))
 /**
   * @}
-  */   
-  
+  */
+
 /**
   * @}
-  */ 
+  */
 
 /* Exported macro ------------------------------------------------------------*/
 /**
@@ -554,7 +556,7 @@ typedef struct
 
 /**
   * @brief  Set ADC Regular channel sequence length.
-  * @param  _NbrOfConversion_: Regular channel sequence length. 
+  * @param  _NbrOfConversion_: Regular channel sequence length.
   * @retval None
   */
 #define __HAL_ADC_SQR1(_NbrOfConversion_) (((_NbrOfConversion_) - (uint8_t)1) << 20)
@@ -562,7 +564,7 @@ typedef struct
 /**
   * @brief  Set the ADC's sample time for channel numbers between 10 and 18.
   * @param  _SAMPLETIME_: Sample time parameter.
-  * @param  _CHANNELNB_: Channel number.  
+  * @param  _CHANNELNB_: Channel number.
   * @retval None
   */
 #define __HAL_ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 10)))
@@ -570,7 +572,7 @@ typedef struct
 /**
   * @brief  Set the ADC's sample time for channel numbers between 0 and 9.
   * @param  _SAMPLETIME_: Sample time parameter.
-  * @param  _CHANNELNB_: Channel number.  
+  * @param  _CHANNELNB_: Channel number.
   * @retval None
   */
 #define __HAL_ADC_SMPR2(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * (_CHANNELNB_)))
@@ -578,7 +580,7 @@ typedef struct
 /**
   * @brief  Set the selected regular channel rank for rank between 1 and 6.
   * @param  _CHANNELNB_: Channel number.
-  * @param  _RANKNB_: Rank number.    
+  * @param  _RANKNB_: Rank number.
   * @retval None
   */
 #define __HAL_ADC_SQR3_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 1)))
@@ -586,7 +588,7 @@ typedef struct
 /**
   * @brief  Set the selected regular channel rank for rank between 7 and 12.
   * @param  _CHANNELNB_: Channel number.
-  * @param  _RANKNB_: Rank number.    
+  * @param  _RANKNB_: Rank number.
   * @retval None
   */
 #define __HAL_ADC_SQR2_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 7)))
@@ -594,7 +596,7 @@ typedef struct
 /**
   * @brief  Set the selected regular channel rank for rank between 13 and 16.
   * @param  _CHANNELNB_: Channel number.
-  * @param  _RANKNB_: Rank number.    
+  * @param  _RANKNB_: Rank number.
   * @retval None
   */
 #define __HAL_ADC_SQR1_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 13)))
@@ -722,7 +724,7 @@ uint32_t             HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}

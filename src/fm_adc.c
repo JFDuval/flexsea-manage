@@ -48,6 +48,8 @@ __IO volatile uint16_t adc_results[ADC_CHANNELS];
 //unsigned int adc_results[ADC_CHANNELS];
 unsigned int adc_filtered_results[ADC_CHANNELS];
 
+volatile uint8_t readyForNextAdcConversion = 0;
+
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -84,14 +86,15 @@ void init_adc1(void)
 	hadc1.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
 	hadc1.Init.Resolution = ADC_RESOLUTION12b;
 	hadc1.Init.ScanConvMode = ENABLE;
-	hadc1.Init.ContinuousConvMode = ENABLE;
+	hadc1.Init.ContinuousConvMode = DISABLE;
 	hadc1.Init.DiscontinuousConvMode = DISABLE;
 	hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_CC1; //ADC_SOFTWARE_START;	//ADC_EXTERNALTRIGCONV_T1_CC1; //
+	//hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_CC1; //ADC_SOFTWARE_START;
+	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START; //ADC_SOFTWARE_START;
 	hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	hadc1.Init.NbrOfConversion = ADC_CHANNELS;				// Number of channels
 	hadc1.Init.DMAContinuousRequests = ENABLE;
-	hadc1.Init.EOCSelection = EOC_SEQ_CONV;					//try DISABLE
+	hadc1.Init.EOCSelection = EOC_SEQ_CONV;
 	HAL_ADC_Init(&hadc1);
 
 	//Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
@@ -150,7 +153,12 @@ void init_adc1(void)
 
 void startAdcConversion(void)
 {
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS);
+	if(readyForNextAdcConversion)
+	{
+		readyForNextAdcConversion = 0;
+
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS);
+	}
 }
 
 /*
@@ -185,10 +193,11 @@ void adc_set_channel(uint8_t ch)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	//if(hdma->Instance == DMA2_Stream0)	//ADC
+	if(hadc->Instance == ADC1)	//ADC
 	{
 		//Start a new conversion:
-		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS);
+		readyForNextAdcConversion = 1;
+		//HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_results, ADC_CHANNELS);
 	}
 }
 
@@ -227,7 +236,12 @@ static void initAdcDma(void)
 	hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;
 	hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
 	hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-	hdma_adc1.Init.Mode = DMA_NORMAL;
+	//hdma_adc1.Init.Mode = DMA_NORMAL;
+	hdma_adc1.Init.Mode = DMA_CIRCULAR;
+	hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma_adc1.Init.MemBurst = DMA_MBURST_SINGLE;
+	hdma_adc1.Init.PeriphBurst = DMA_PBURST_SINGLE;
+
 	hdma_adc1.Init.Priority = DMA_PRIORITY_LOW;
 	hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
 	if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)

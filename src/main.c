@@ -158,6 +158,8 @@ int main(void)
 		if(tb_1000ms_flag)
 		{
 			tb_1000ms_flag = 0;
+
+			startAdcConversion();
 		}
 	}
 }
