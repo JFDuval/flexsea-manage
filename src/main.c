@@ -37,6 +37,7 @@
 #include "main.h"
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
+#include "fm_master_slave_comm.h"
 
 //****************************************************************************
 // Variable(s)
@@ -55,6 +56,9 @@ int main(void)
 	init_flexsea_payload_ptr();
 
 	initSlaveComm();
+
+	//Initialize queues (comm)
+	fm_pool_init();
 
 	//Initialize all the peripherals
 	init_peripherals();

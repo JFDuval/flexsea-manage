@@ -105,7 +105,6 @@ void parseMasterCommands(uint8_t *new_cmd)
 		info[0] = p->port;
 		payload_parse_str(p);
 
-
 		//LED:
 		*new_cmd = 1;
 	}
@@ -150,7 +149,7 @@ void parseSlaveCommands(uint8_t *new_cmd)
 		memcpy(p->unpaked, &rx_command_485_2[0], COMM_STR_BUF_LEN);
 		memcpy(p->packed, rx_buf_2, COMM_STR_BUF_LEN);
 		// parse the command and execute it
-		p->port = p->port = slaveComm[0].reply_port;
+		p->port = slaveComm[1].reply_port;
 		payload_parse_str(p);
 	}
 }
@@ -163,25 +162,11 @@ void slaveTransmit(uint8_t port)
 	if (p == NULL)
 		return;
 
-	// Debugging LEDs
-
-	static bool toggle1 = 0;
-	static bool toggle2 = 0;
-
-	switch (p->port)
+	//Send to slave port:
+	if((p->port == PORT_RS485_1) || (p->port == PORT_RS485_2))
 	{
-	case PORT_RS485_1:
-		toggle1 ^= 1;
-		DEBUG_OUT_DIO4(toggle1);
-		break;
-
-	case PORT_RS485_2:
-		toggle2 ^= 1;
-		DEBUG_OUT_DIO5(toggle2);
-		break;
+		flexsea_send_serial_slave(p);
 	}
-
-	flexsea_send_serial_slave(p);
 }
 
 //****************************************************************************
