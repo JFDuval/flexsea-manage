@@ -65,7 +65,7 @@ void init_comm_test(void)
 void comm_test(void)
 {
 	static uint16_t cnt = 0;
-	uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
+	uint8_t info[2] = {PORT_RS485_2, PORT_RS485_2};
 	static uint8_t packetIndex = 0;
 
 	//Protects from invalid dividers:
@@ -80,9 +80,9 @@ void comm_test(void)
 		//Prepare and send command:
 		tx_cmd_tools_comm_test_r(TX_N_DEFAULT, 1, 20, packetIndex);
 		//tx_cmd_data_read_all_r(TX_N_DEFAULT);
-		packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
+		packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_4, info, SEND_TO_SLAVE);
 		//slaves_485_1.xmit.willListenSoon = 1;	//New version
-		slaveComm[0].transceiverState = TRANS_STATE_TX_THEN_RX;
+		slaveComm[1].transceiverState = TRANS_STATE_TX_THEN_RX;
 	}
 	else if(cnt == 1)
 	{

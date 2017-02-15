@@ -181,9 +181,6 @@ void slaveTransmit(uint8_t port)
 	}
 
 	flexsea_send_serial_slave(p);
-
-
-
 }
 
 //****************************************************************************
