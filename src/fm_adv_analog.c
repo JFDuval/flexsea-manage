@@ -205,28 +205,12 @@ void set_an3_fc(unsigned int fc)
 	}
 }
 
-//write data to an internal register of the digital potentiometer.
-// you would use this function if you wanted to set configuration values
-// for a particular feature of the digital potentiometer.
-// uint8_t internal_reg_addr: internal register address of the digital potentiometer
-// uint8_t* pData: pointer to the data we want to send to that address
-// uint16_t Size: amount of bytes of data pointed to by pData
-
-HAL_StatusTypeDef mcp4661_write(uint8_t i2c_addr, uint8_t internal_reg_addr,
-		uint8_t* pData, uint16_t Size)
-{
-	return HAL_I2C_Mem_Write(&hi2c1, i2c_addr, (uint16_t) internal_reg_addr,
-	I2C_MEMADD_SIZE_8BIT, pData, Size, MCP_BLOCK_TIMEOUT);
-}
-
 //Volatile write, AIN2 gain
 //Manage 0.1: 0 = x1, 255 = x10.
 unsigned int set_gain_ain2(uint8_t gain)
 {
-	mcp_data[0] = gain;
-	mcp_data[1] = 0;	//Unused
-
-	mcp4661_write(MCP4661_I2C_ADDR1, MCP4661_REG_RAM_W1, mcp_data, 1);
+	uint8_t i2c_1_t_buf[4] = {MCP4661_REG_RAM_W1, gain, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, MCP4661_I2C_ADDR1, i2c_1_t_buf, 2);
 
 	return 0;
 }
@@ -235,10 +219,8 @@ unsigned int set_gain_ain2(uint8_t gain)
 //Manage 0.1: 0 = x1, 255 = x10.
 unsigned int set_gain_ain3(uint8_t gain)
 {
-	mcp_data[0] = gain;
-	mcp_data[1] = 0;	//Unused
-
-	mcp4661_write(MCP4661_I2C_ADDR1, MCP4661_REG_RAM_W0, mcp_data, 1);
+	uint8_t i2c_1_t_buf[4] = {MCP4661_REG_RAM_W0, gain, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, MCP4661_I2C_ADDR1, i2c_1_t_buf, 2);
 
 	return 0;
 }
@@ -247,10 +229,8 @@ unsigned int set_gain_ain3(uint8_t gain)
 //Manage 0.1: 0 = x1, 255 = x10.
 unsigned int set_resistor_ain6(uint8_t res)
 {
-	mcp_data[0] = res;
-	mcp_data[1] = 0;	//Unused
-
-	mcp4661_write(MCP4661_I2C_ADDR2, MCP4661_REG_RAM_W1, mcp_data, 1);
+	uint8_t i2c_1_t_buf[4] = {MCP4661_REG_RAM_W1, res, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, MCP4661_I2C_ADDR2, i2c_1_t_buf, 2);
 
 	return 0;
 }
@@ -259,10 +239,8 @@ unsigned int set_resistor_ain6(uint8_t res)
 //Manage 0.1: 0 = x1, 255 = x10.
 unsigned int set_resistor_ain7(uint8_t res)
 {
-	mcp_data[0] = res;
-	mcp_data[1] = 0;	//Unused
-
-	mcp4661_write(MCP4661_I2C_ADDR2, MCP4661_REG_RAM_W0, mcp_data, 1);
+	uint8_t i2c_1_t_buf[4] = {MCP4661_REG_RAM_W1, res, 0, 0};
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, MCP4661_I2C_ADDR2, i2c_1_t_buf, 2);
 
 	return 0;
 }
@@ -276,13 +254,21 @@ void set_default_analog(void)
 	set_an2_fc(0);
 	set_an3_fc(0);
 
-	//Minimum gains:
-	set_gain_ain2(0);
-	set_gain_ain3(0);
+	#ifdef USE_I2C_1
 
-	//Maximum resistance:
-	set_resistor_ain6(255);
-	set_resistor_ain7(255);
+		//Minimum gains:
+		set_gain_ain2(0);
+		delayUsBlocking(10000);
+		set_gain_ain3(0);
+		delayUsBlocking(10000);
+
+		//Maximum resistance:
+		set_resistor_ain6(0);
+		delayUsBlocking(10000);
+		set_resistor_ain7(0);
+		delayUsBlocking(10000);
+
+	#endif	//USE_I2C0
 }
 
 //****************************************************************************
