@@ -144,6 +144,13 @@ void DMA1_Stream6_IRQHandler(void)
 	HAL_DMA_IRQHandler(hi2c1.hdmatx);
 }
 
+//ADC DMA Interrupt
+void DMA2_Stream0_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(&hdma_adc1);
+}
+
+
 //USB:
 void OTG_FS_IRQHandler(void)
 {

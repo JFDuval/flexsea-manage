@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_adc: Analog to digital converter
 *****************************************************************************
@@ -41,8 +41,8 @@
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
+extern DMA_HandleTypeDef hdma_adc1;
 
-//...
 
 //****************************************************************************
 // Public Function Prototype(s):
@@ -51,6 +51,10 @@
 void init_adc1(void);
 unsigned int adc_conv(void);
 void adc_set_channel(uint8_t ch);
+unsigned int get_adc1(uint16_t idx);	// get value at analog input channel idx
+void Error_Handler(void);				// Error handler in case you want that.
+void startAdcConversion(void);
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
 
 //****************************************************************************
 // Definition(s):
