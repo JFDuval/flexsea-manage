@@ -58,7 +58,7 @@ int main(void)
 	initSlaveComm();
 
 	//Initialize queues (comm)
-	fm_pool_init();
+	fm_pool_init();	//ToDo: this is called init_flexsea_payload_ptr, do I need it here?
 
 	//Initialize all the peripherals
 	init_peripherals();
@@ -158,8 +158,6 @@ int main(void)
 		if(tb_1000ms_flag)
 		{
 			tb_1000ms_flag = 0;
-
-			startAdcConversion();
 		}
 	}
 }

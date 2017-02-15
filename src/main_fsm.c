@@ -121,6 +121,9 @@ void main_fsm_case_6(void)
 {
 	//User switch:
 	manag1.sw1 = read_sw1();
+
+	//ADC:
+	startAdcConversion();
 }
 
 //Case 7:
