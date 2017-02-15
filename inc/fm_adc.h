@@ -41,8 +41,9 @@
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
-extern DMA_HandleTypeDef hdma_adc1;
 
+extern DMA_HandleTypeDef hdma_adc1;
+extern __IO volatile uint16_t adc_results[];
 
 //****************************************************************************
 // Public Function Prototype(s):
