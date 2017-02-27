@@ -167,6 +167,21 @@ void slaveTransmit(uint8_t port)
 	if((p->port == PORT_RS485_1) || (p->port == PORT_RS485_2))
 	{
 		flexsea_send_serial_slave(p);
+		//Packet injection:
+		if(slaveComm[1].tx.inject == 1)
+		{
+			slaveComm[1].tx.inject = 0;
+			if(IS_CMD_RW(slaveComm[1].tx.cmd) == READ)
+			{
+				slaveComm[1].transceiverState = TRANS_STATE_TX_THEN_RX;
+			}
+			else
+			{
+				slaveComm[1].transceiverState = TRANS_STATE_TX;
+			}
+
+			flexsea_send_serial_slave(port, slaveComm[1].tx.txBuf, slaveComm[1].tx.len);
+		}
 	}
 }
 
