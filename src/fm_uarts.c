@@ -66,6 +66,9 @@ __attribute__ ((aligned (4))) uint8_t uart3_dma_tx_buf[RX_BUF_LEN];
 uint32_t uart3_dma_xfer_len = COMM_STR_BUF_LEN;
 //Note: Not sure if they have to be aligned, but can't hurt too much.
 
+volatile uint8_t dmaRx1ConfigFlag = 0;
+volatile uint8_t dmaRx2ConfigFlag = 0;
+
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -307,6 +310,8 @@ void puts_rs485_1(uint8_t *str, uint16_t length)
 	uint8_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint8_t*) &uart1_dma_tx_buf;
 
+	DEBUG_OUT_DIO4(1);	//ToDo remove, debug only
+
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_1, RS485_TX);
 
@@ -326,6 +331,8 @@ uint8_t reception_rs485_1_blocking(void)
 {
 	int delay = 0;
 
+	DEBUG_OUT_DIO6(1);	//ToDo remove, debug only
+
 	//Pointer to our storage buffer:
 	uint32_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint32_t*) &uart1_dma_rx_buf;
@@ -336,12 +343,19 @@ uint8_t reception_rs485_1_blocking(void)
 	for(delay = 0; delay < 600; delay++);		//Short delay
 
 	//Receive enable
+
 	rs485_set_mode(PORT_RS485_1, RS485_RX);
 	tmp = USART1->DR;	//Read buffer to clear
 
 	//Start the DMA peripheral
+	DEBUG_OUT_DIO5(1);	//ToDo remove, debug only
+	dmaRx1ConfigFlag = 1;
 	HAL_DMA_Start_IT(&hdma2_str2_ch4, (uint32_t) &USART1->DR,
 			(uint32_t) uart1_dma_buf_ptr, rs485_1_dma_xfer_len);
+	dmaRx1ConfigFlag = 0;
+	DEBUG_OUT_DIO5(0);	//ToDo remove, debug only
+
+	DEBUG_OUT_DIO6(0);	//ToDo remove, debug only
 
 	return 0;
 }
@@ -386,8 +400,10 @@ uint8_t reception_rs485_2_blocking(void)
 	tmp = USART6->DR;	//Read buffer to clear
 
 	//Start the DMA peripheral
+	dmaRx2ConfigFlag = 1;
 	HAL_DMA_Start_IT(&hdma2_str1_ch5, (uint32_t) &USART6->DR,
 			(uint32_t) uart6_dma_buf_ptr, rs485_2_dma_xfer_len);
+	dmaRx2ConfigFlag = 0;
 
 	return 0;
 }
@@ -417,14 +433,27 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	{
 		//Clear the UART receiver. Might not be needed, but harmless
 		//empty_dr = USART1->DR;
+
+		//A false interrupt is generated when we configure the DMA.
+		//Return when it happens.
+		if(dmaRx1ConfigFlag == 1)
+		{
+			return;
+		}
+
+		DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
+		DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
 	}
+
+	//DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
 
 	//Deal with FlexSEA buffers here:
 	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
-	//slaves_485_1.bytes_ready++;
 	slaveComm[0].rx.bytesReady++;
+
+	//DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
 }
 
 //Code branches here once a TX transfer is complete (either: ISR or DMA)
@@ -437,6 +466,7 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	//Ready to start receiving?
 	if(husart->Instance == USART1)
 	{
+		DEBUG_OUT_DIO4(0);	//ToDo remove, debug only
 		transceiver = 0;
 	}
 	else if(husart->Instance == USART6)
@@ -462,13 +492,20 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	{
 		//Clear the UART receiver. Might not be needed, but harmless
 		//empty_dr = USART6->DR;
+
+		//A false interrupt is generated when we configure the DMA.
+		//Return when it happens.
+		if(dmaRx2ConfigFlag == 1)
+		{
+			return;
+		}
+
 	}
 
 	//Deal with FlexSEA buffers here:
 	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
-	//slaves_485_2.bytes_ready++;
 	slaveComm[1].rx.bytesReady++;
 }
 

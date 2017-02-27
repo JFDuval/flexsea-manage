@@ -67,7 +67,6 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //extern uint8_t rx_command_4[PAYLOAD_BUFFERS][PACKAGED_PAYLOAD_LEN];
 //int8_t unpack_payload(uint8_t *buf, uint8_t rx_cmd[][PACKAGED_PAYLOAD_LEN]);
 
-
 uint8_t bytes_ready_spi = 0;
 int8_t cmd_ready_spi = 0;
 int8_t cmd_ready_usb = 0;
@@ -81,7 +80,9 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 {
 	uint8_t port = p->port;
 	uint8_t* str = p->packed;
-	size_t length = COMM_STR_BUF_LEN;
+	//size_t length = COMM_STR_BUF_LEN;	//ToDo why was this a size_t?
+	//puts_rs485_1 takes a uint16, not a uint32
+	uint16_t length = COMM_STR_BUF_LEN;
 
 	if(port == PORT_RS485_1)
 	{
@@ -100,6 +101,7 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 		//Unknown port, call flexsea_error()
 		flexsea_error(SE_INVALID_SLAVE);
 	}
+
 	fm_pool_free_block(p);
 }
 
@@ -107,7 +109,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 {
 	Port port = p->port;
 	uint8_t *str = p->packed;
-	uint8_t length = COMM_STR_BUF_LEN;
+	uint16_t length = COMM_STR_BUF_LEN;
 	int i = 0;
 
 	if(port == PORT_SPI)
@@ -183,7 +185,7 @@ void flexsea_receive_from_slave(void)
 	}
 
 	//Did we receive new bytes?
-	if(slaveComm[0].rx.bytesReady != 0)
+	if(slaveComm[0].rx.bytesReady > 0)
 	{
 		slaveComm[0].rx.bytesReady = 0;
 		//Got new data in, try to decode
@@ -191,7 +193,7 @@ void flexsea_receive_from_slave(void)
 	}
 
 	//Did we receive new bytes?
-	if(slaveComm[1].rx.bytesReady != 0)
+	if(slaveComm[1].rx.bytesReady > 0)
 	{
 		slaveComm[1].rx.bytesReady = 0;
 		//Got new data in, try to decode

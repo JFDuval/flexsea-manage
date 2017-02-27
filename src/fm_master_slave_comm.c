@@ -37,6 +37,7 @@
 #include <fm_block_allocator.h>
 #include <flexsea_payload.h>
 #include <stdbool.h>
+
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
@@ -46,8 +47,6 @@ uint8_t tmp_rx_command_usb[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_wireless[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_1[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_2[PAYLOAD_BUF_LEN];
-
-MsgQueue slave_queue;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -114,9 +113,6 @@ void parseMasterCommands(uint8_t *new_cmd)
 //Did we receive new commands? Can we parse them?
 void parseSlaveCommands(uint8_t *new_cmd)
 {
-	volatile uint32_t i = 0;
-	uint8_t info[2] = {0,0};
-
 	//Valid communication from RS-485 #1?
 	if(slaveComm[0].rx.cmdReady > 0)
 	{
@@ -167,6 +163,10 @@ void slaveTransmit(uint8_t port)
 	if((p->port == PORT_RS485_1) || (p->port == PORT_RS485_2))
 	{
 		flexsea_send_serial_slave(p);
+
+		/*	TODO Important: what's this code? Seems inappropriate, always
+		 * calling slaveComm[1]... and doesn't compile.
+		 *
 		//Packet injection:
 		if(slaveComm[1].tx.inject == 1)
 		{
@@ -182,6 +182,7 @@ void slaveTransmit(uint8_t port)
 
 			flexsea_send_serial_slave(port, slaveComm[1].tx.txBuf, slaveComm[1].tx.len);
 		}
+		*/
 	}
 }
 
