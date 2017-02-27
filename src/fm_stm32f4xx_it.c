@@ -51,10 +51,6 @@ void SysTick_Handler(void)
 
 void SPI4_IRQHandler(void)
 {
-	//When is it happening?
-	//HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0, 1);
-	//HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0, 0);
-
 	//Increment bytes counter
 	spi_bytes_ready++;
 
@@ -163,7 +159,6 @@ void TIM7_IRQHandler(void)
 
 	//FlexSEA timebase:
 	timebases();
-
 }
 
 void NMI_Handler(void)

@@ -107,7 +107,6 @@ void parseMasterCommands(uint8_t *new_cmd)
 		//LED:
 		*new_cmd = 1;
 	}
-
 }
 
 //Did we receive new commands? Can we parse them?

@@ -310,7 +310,7 @@ void puts_rs485_1(uint8_t *str, uint16_t length)
 	uint8_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint8_t*) &uart1_dma_tx_buf;
 
-	//DEBUG_OUT_DIO4(1);	//ToDo remove, debug only
+	DEBUG_OUT_DIO4(1);	//ToDo remove, debug only
 
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_1, RS485_TX);
@@ -441,8 +441,8 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 			return;
 		}
 
-		//DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
-		//DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
+		DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
+		DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
 	}
 
 	//DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
@@ -466,7 +466,7 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	//Ready to start receiving?
 	if(husart->Instance == USART1)
 	{
-		//DEBUG_OUT_DIO4(0);	//ToDo remove, debug only
+		DEBUG_OUT_DIO4(0);	//ToDo remove, debug only
 		transceiver = 0;
 	}
 	else if(husart->Instance == USART6)

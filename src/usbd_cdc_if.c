@@ -278,14 +278,6 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 		return -1;
 	}
 
-
-	//Copy incoming bytes to FlexSEA reception buffer
-	// The packet has already been sent into the queue
-	/*usb_bytes_received = (*Len); // Where is *Len sent?
-	update_rx_buf_array_usb(UserRxBufferFS, usb_bytes_received);
-	data_ready_usb++;
-	*/
-
   return (USBD_OK);
   /* USER CODE END 6 */
 }
