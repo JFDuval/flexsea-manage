@@ -37,7 +37,7 @@
 #include <fm_uarts.h>
 #include "flexsea_board.h"
 #include "../../flexsea-system/inc/flexsea_system.h"
-#include <fm_block_allocator.h>
+//#include <fm_block_allocator.h>
 #include <flexsea_comm.h>
 #include <stdbool.h>
 
@@ -108,7 +108,7 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 		flexsea_error(SE_INVALID_SLAVE);
 	}
 
-	fm_pool_free_block(p);
+	//fm_pool_free_block(p);
 }
 
 void flexsea_send_serial_master(PacketWrapper* p)
@@ -134,7 +134,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 	{
 		puts_expUart(str, length);
 	}
-	fm_pool_free_block(p);
+	//fm_pool_free_block(p);
 }
 
 void flexsea_receive_from_master(void)
@@ -171,10 +171,13 @@ void flexsea_start_receiving_from_master(void)
 	// start receive over SPI
 	if (HAL_SPI_GetState(&spi4_handle) == HAL_SPI_STATE_READY)
 	{
+		/*
 		PacketWrapper* p = fm_pool_allocate_block();
 		if (p == NULL)
 			return;
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, p->packed, COMM_STR_BUF_LEN) != HAL_OK)
+		*/
+		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, (uint8_t *)aRxBuffer, COMM_STR_BUF_LEN) != HAL_OK)
 		{
 			// Transfer error in transmission process
 			flexsea_error(SE_RECEIVE_FROM_MASTER);

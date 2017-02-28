@@ -40,7 +40,7 @@ volatile uint8_t data_ready_usb = 0;
 volatile uint8_t freshUSBpacketFlag = 0;
 
 /* USER CODE BEGIN INCLUDE */
-#include <fm_block_allocator.h>
+//#include <fm_block_allocator.h>
 #include <stdbool.h>
 /* USER CODE END INCLUDE */
 

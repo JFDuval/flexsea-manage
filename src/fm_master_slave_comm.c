@@ -34,7 +34,7 @@
 #include "flexsea_buffers.h"
 #include "main.h"
 #include "fm_master_slave_comm.h"
-#include <fm_block_allocator.h>
+//#include <fm_block_allocator.h>
 #include <flexsea_payload.h>
 #include <flexsea_board.h>
 #include <stdbool.h>
@@ -50,6 +50,8 @@ uint8_t tmp_rx_command_485_1[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_2[PAYLOAD_BUF_LEN];
 
 MsgQueue slave_queue;
+PacketWrapper PWpsc[2];
+PacketWrapper PWst[2];
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -114,6 +116,9 @@ void parseMasterCommands(uint8_t *new_cmd)
 	}
 	*/
 
+	//ToDo *****IMPORTANT***** This is an old-school implementation,
+	//and it's missing SPI & Bluetooth!
+
 	if(cmd_ready_usb > 0)
 	{
 		//LED:
@@ -130,12 +135,14 @@ void parseSlaveCommands(uint8_t *new_cmd)
 	if(slaveComm[0].rx.cmdReady > 0)
 	{
 		slaveComm[0].rx.cmdReady = 0;
+		/*
 		PacketWrapper* p = fm_pool_allocate_block();
 		if (p == NULL)
 			return;
 
 		memcpy(p->unpaked, &rx_command_485_1[0], COMM_STR_BUF_LEN);
 		memcpy(p->packed, rx_buf_1, COMM_STR_BUF_LEN);
+		*/
 		/*
 		//Cheap trick to get first line	//ToDo: support more than 1
 		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
@@ -143,14 +150,24 @@ void parseSlaveCommands(uint8_t *new_cmd)
 			tmp_rx_command_485_1[i] = rx_command_485_1[0][i];
 		}*/
 
+		/*
 		p->port = slaveComm[0].reply_port;
 		payload_parse_str(p);
+		*/
+
+		PWpsc[0].port = slaveComm[0].port;
+		PWpsc[0].reply_port = slaveComm[0].reply_port;
+		memcpy(PWpsc[0].unpaked, &rx_command_485_1[0], COMM_STR_BUF_LEN);
+		memcpy(PWpsc[0].packed, rx_buf_1, COMM_STR_BUF_LEN);
+
+		payload_parse_str(&PWpsc[0]);
 	}
 
 	//Valid communication from RS-485 #2?
 	if(slaveComm[1].rx.cmdReady > 0)
 	{
 		slaveComm[1].rx.cmdReady = 0;
+		/*
 		PacketWrapper* p = fm_pool_allocate_block();
 		if (p == NULL)
 			return;
@@ -160,11 +177,20 @@ void parseSlaveCommands(uint8_t *new_cmd)
 		// parse the command and execute it
 		p->port = slaveComm[1].reply_port;
 		payload_parse_str(p);
+		*/
+
+		PWpsc[1].port = slaveComm[1].port;
+		PWpsc[1].reply_port = slaveComm[1].reply_port;
+		memcpy(PWpsc[1].unpaked, &rx_command_485_2[0], COMM_STR_BUF_LEN);
+		memcpy(PWpsc[1].packed, rx_buf_2, COMM_STR_BUF_LEN);
+
+		payload_parse_str(&PWpsc[1]);
 	}
 }
 
 //Slave Communication function. Call at 1kHz.
 //ToDo: this ignores the parameter 'port'. It was there to offset the comm between the 2 buses.
+/*
 void slaveTransmit(uint8_t port)
 {
 	PacketWrapper* p = fm_queue_get(&slave_queue);
@@ -176,26 +202,46 @@ void slaveTransmit(uint8_t port)
 	if((p->port == PORT_RS485_1) || (p->port == PORT_RS485_2))
 	{
 		flexsea_send_serial_slave(p);
+	}
+}
+*/
+//Slave Communication function. Call at 1kHz.
+void slaveTransmit(uint8_t port)
+{
+	if(port == PORT_RS485_1)
+	{
+		/*Note: this is only a demonstration. In the final application, we want
+		 * to send the commands accumulated on a ring buffer here.*/
 
-		/*	TODO Important: what's this code? Seems inappropriate, always
-		 * calling slaveComm[1]... and doesn't compile.
-		 *
 		//Packet injection:
-		if(slaveComm[1].tx.inject == 1)
+		if(slaveComm[0].tx.inject == 1)
 		{
-			slaveComm[1].tx.inject = 0;
-			if(IS_CMD_RW(slaveComm[1].tx.cmd) == READ)
+			slaveComm[0].tx.inject = 0;
+			if(IS_CMD_RW(slaveComm[0].tx.cmd) == READ)
 			{
-				slaveComm[1].transceiverState = TRANS_STATE_TX_THEN_RX;
+				slaveComm[0].transceiverState = TRANS_STATE_TX_THEN_RX;
 			}
 			else
 			{
-				slaveComm[1].transceiverState = TRANS_STATE_TX;
+				slaveComm[0].transceiverState = TRANS_STATE_TX;
 			}
 
-			flexsea_send_serial_slave(port, slaveComm[1].tx.txBuf, slaveComm[1].tx.len);
+			PWst[0].port = port;
+			PWst[0].reply_port = slaveComm[0].reply_port;
+
+			memcpy(PWst[0].packed, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
+
+			flexsea_send_serial_slave(&PWst[0]);
+
+//			flexsea_send_serial_slave(port, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
 		}
-		*/
+	}
+	else if(port == PORT_RS485_2)
+	{
+		/*Note: this is only a demonstration. In the final application, we want
+		 * to send the commands accumulated on a ring buffer here.*/
+
+		//ToDo****************
 	}
 }
 

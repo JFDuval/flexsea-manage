@@ -55,10 +55,10 @@ int main(void)
 	//Prepare FlexSEA stack:
 	init_flexsea_payload_ptr();
 
-	initSlaveComm();
+	//initSlaveComm();
 
 	//Initialize queues (comm)
-	fm_pool_init();	//ToDo: this is called init_flexsea_payload_ptr, do I need it here?
+	//fm_pool_init();	//ToDo: this is called init_flexsea_payload_ptr, do I need it here?
 
 	//Initialize all the peripherals
 	init_peripherals();
