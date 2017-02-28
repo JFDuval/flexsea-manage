@@ -48,6 +48,8 @@ uint8_t tmp_rx_command_wireless[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_1[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_2[PAYLOAD_BUF_LEN];
 
+MsgQueue slave_queue;
+
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -99,13 +101,14 @@ void parseMasterCommands(uint8_t *new_cmd)
 
 	//Valid communication from any port?
 	PacketWrapper* p = fm_queue_get(&unpacked_packet_queue);
-	if(p != NULL)
+	while (p != NULL)
 	{
 		info[0] = p->port;
 		payload_parse_str(p);
 
 		//LED:
 		*new_cmd = 1;
+		p = fm_queue_get(&unpacked_packet_queue);
 	}
 }
 

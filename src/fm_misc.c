@@ -35,6 +35,7 @@
 
 #include "main.h"
 #include "fm_misc.h"
+#include <fm_master_slave_comm.h>
 
 //****************************************************************************
 // Variable(s)

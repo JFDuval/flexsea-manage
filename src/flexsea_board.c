@@ -34,10 +34,12 @@
 //****************************************************************************
 
 #include "main.h"
+#include <fm_uarts.h>
 #include "flexsea_board.h"
 #include "../../flexsea-system/inc/flexsea_system.h"
 #include <fm_block_allocator.h>
 #include <flexsea_comm.h>
+#include <stdbool.h>
 
 //****************************************************************************
 // Variable(s)
@@ -71,6 +73,8 @@ uint8_t bytes_ready_spi = 0;
 int8_t cmd_ready_spi = 0;
 int8_t cmd_ready_usb = 0;
 
+extern volatile PacketWrapper* fresh_packet;
+
 //****************************************************************************
 // Function(s)
 //****************************************************************************
@@ -88,6 +92,7 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	{
 		puts_rs485_1(str, length);
 		slaveComm[0].transceiverState = TRANS_STATE_TX_THEN_RX;	//ToDo we do not always want to RX
+		//log_entry(slaveComm[0].transceiverState);	//ToDo remove, debug only
 		slaveComm[0].reply_port = p->reply_port;
 	}
 	else if(port == PORT_RS485_2)
@@ -133,18 +138,25 @@ void flexsea_send_serial_master(PacketWrapper* p)
 
 void flexsea_receive_from_master(void)
 {
-	// We received raw packed packets from all subsystems
-	// here. p->port contains the source
-	PacketWrapper* p = fm_queue_get(&packet_queue);
-	if (p == NULL)
-		return;
+	if (fresh_packet != NULL ) {
+		PacketWrapper* p = fresh_packet;
+		fresh_packet = NULL;
 
-	cmd_ready_usb = unpack_payload(p->packed, p->unpaked);
+		cmd_ready_usb = unpack_payload(p->packed, p->unpaked);
+		int err = fm_queue_put(&unpacked_packet_queue, p);
+		if (err)
+			fm_pool_free_block(p);
 
-	int err = fm_queue_put(&unpacked_packet_queue, p);
-	if (err)
-		fm_pool_free_block(p);
+		PacketWrapper* new_p = fm_pool_allocate_block();
+		new_p->port = PORT_USB;
+		new_p->reply_port = PORT_USB;
 
+		if (new_p == NULL)
+			return; // No more blocks available. Consider reporting up the stack
+
+		USBD_CDC_SetRxBuffer(hUsbDevice_0, new_p->packed);
+		USBD_CDC_ReceivePacket(hUsbDevice_0);
+	}
 }
 
 void flexsea_start_receiving_from_master(void)
