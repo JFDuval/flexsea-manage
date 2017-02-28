@@ -145,10 +145,8 @@ void flexsea_receive_from_master(void)
 	{
 		freshUSBpacketFlag = 0;
 
-		PacketWrapper* p = &freshUSBpacket;
-		//fresh_packet = NULL;
+		cmd_ready_usb = unpack_payload(freshUSBpacket.packed, freshUSBpacket.unpaked);
 
-		cmd_ready_usb = unpack_payload(p->packed, p->unpaked);
 		/*
 		int err = fm_queue_put(&unpacked_packet_queue, p);
 		if (err)
