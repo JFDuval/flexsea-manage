@@ -208,40 +208,41 @@ void slaveTransmit(uint8_t port)
 //Slave Communication function. Call at 1kHz.
 void slaveTransmit(uint8_t port)
 {
+	/*Note: this is only a demonstration. In the final application, we want
+			 * to send the commands accumulated on a ring buffer here.*/
+	uint8_t slaveIndex = 0;
+
 	if(port == PORT_RS485_1)
 	{
-		/*Note: this is only a demonstration. In the final application, we want
-		 * to send the commands accumulated on a ring buffer here.*/
-
-		//Packet injection:
-		if(slaveComm[0].tx.inject == 1)
-		{
-			slaveComm[0].tx.inject = 0;
-			if(IS_CMD_RW(slaveComm[0].tx.cmd) == READ)
-			{
-				slaveComm[0].transceiverState = TRANS_STATE_TX_THEN_RX;
-			}
-			else
-			{
-				slaveComm[0].transceiverState = TRANS_STATE_TX;
-			}
-
-			PWst[0].port = port;
-			PWst[0].reply_port = slaveComm[0].reply_port;
-
-			memcpy(PWst[0].packed, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
-
-			flexsea_send_serial_slave(&PWst[0]);
-
-//			flexsea_send_serial_slave(port, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
-		}
+		slaveIndex = 0;
 	}
 	else if(port == PORT_RS485_2)
 	{
-		/*Note: this is only a demonstration. In the final application, we want
-		 * to send the commands accumulated on a ring buffer here.*/
+		slaveIndex = 1;
+	}
 
-		//ToDo****************
+	//Packet injection:
+	if(slaveComm[slaveIndex].tx.inject == 1)
+	{
+		slaveComm[slaveIndex].tx.inject = 0;
+		if(IS_CMD_RW(slaveComm[slaveIndex].tx.cmd) == READ)
+		{
+			slaveComm[slaveIndex].transceiverState = TRANS_STATE_TX_THEN_RX;
+		}
+		else
+		{
+			slaveComm[slaveIndex].transceiverState = TRANS_STATE_TX;
+		}
+
+		PWst[slaveIndex].port = port;
+		PWst[slaveIndex].reply_port = slaveComm[slaveIndex].reply_port;
+
+		memcpy(PWst[slaveIndex].packed, slaveComm[slaveIndex].tx.txBuf, \
+				slaveComm[slaveIndex].tx.len);
+
+		flexsea_send_serial_slave(&PWst[slaveIndex]);
+
+//			flexsea_send_serial_slave(port, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
 	}
 }
 
