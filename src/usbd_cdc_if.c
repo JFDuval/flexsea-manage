@@ -37,7 +37,7 @@
 int usb_bytes_received = 0;
 uint8_t usb_user_rx_buf[100];
 volatile uint8_t data_ready_usb = 0;
-volatile PacketWrapper* fresh_packet = NULL;
+volatile uint8_t freshUSBpacketFlag = 0;
 
 /* USER CODE BEGIN INCLUDE */
 #include <fm_block_allocator.h>
@@ -153,6 +153,7 @@ static int8_t CDC_Init_FS(void)
   hUsbDevice_0 = &hUsbDeviceFS;
   /* USER CODE BEGIN 3 */
   /* Set Application Buffers */
+  /*
 	PacketWrapper* p = fm_pool_allocate_block();
 	p->port = PORT_USB;
 	p->reply_port = PORT_USB;
@@ -166,6 +167,11 @@ static int8_t CDC_Init_FS(void)
   USBD_CDC_SetRxBuffer(hUsbDevice_0, p->packed);
 
   USBD_CDC_ReceivePacket(hUsbDevice_0);
+  */
+	//Legacy implementation - doesn't use the queue:
+	USBD_CDC_SetTxBuffer(hUsbDevice_0, UserTxBufferFS, 0);
+	USBD_CDC_SetRxBuffer(hUsbDevice_0, UserRxBufferFS);
+	USBD_CDC_ReceivePacket(hUsbDevice_0);
 
   return (USBD_OK);
   /* USER CODE END 3 */
@@ -279,14 +285,17 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 	if (Buf == NULL || Len == NULL)
 		return USBD_FAIL;
 
-	if (fresh_packet == NULL) {
-		fresh_packet = (PacketWrapper*) Buf;
-	} else {
-		return USBD_FAIL;
-	}
+	//Buffers for next packet:
+	USBD_CDC_SetRxBuffer(hUsbDevice_0, UserRxBufferFS);
+	USBD_CDC_ReceivePacket(hUsbDevice_0);
 
+	//Save this packet:
+	freshUSBpacket.port = PORT_USB;
+	freshUSBpacket.reply_port = PORT_USB;
+	memcpy(freshUSBpacket.packed, Buf, (*Len));
+	freshUSBpacketFlag = 1;
 
-  return (USBD_OK);
+	return (USBD_OK);
   /* USER CODE END 6 */
 }
 
@@ -318,7 +327,6 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 
   if( hUsbDevice_0 == NULL)
 	  return -1;
-
 
   USBD_CDC_SetTxBuffer(hUsbDevice_0, Buf, Len);
   result = USBD_CDC_TransmitPacket(hUsbDevice_0);

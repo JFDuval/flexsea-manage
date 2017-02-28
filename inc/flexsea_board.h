@@ -146,5 +146,7 @@ extern uint8_t bytes_ready_spi;
 extern int8_t cmd_ready_spi;
 extern int8_t cmd_ready_usb;
 
+extern volatile PacketWrapper freshUSBpacket;
+
 #endif	//INC_FLEXSEA_BOARD_H
 

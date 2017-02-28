@@ -40,9 +40,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc.h"
 /* USER CODE BEGIN INCLUDE */
+#include <flexsea.h>
 /* USER CODE END INCLUDE */
 
  extern volatile uint8_t data_ready_usb;
+ extern volatile uint8_t freshUSBpacketFlag;
 
 extern   USBD_HandleTypeDef  *hUsbDevice_0;
 extern uint8_t UserRxBufferFS[];

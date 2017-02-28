@@ -36,6 +36,7 @@
 #include "fm_master_slave_comm.h"
 #include <fm_block_allocator.h>
 #include <flexsea_payload.h>
+#include <flexsea_board.h>
 #include <stdbool.h>
 
 //****************************************************************************
@@ -99,6 +100,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 {
 	uint8_t info[2] = {0,0};
 
+	/*
 	//Valid communication from any port?
 	PacketWrapper* p = fm_queue_get(&unpacked_packet_queue);
 	while (p != NULL)
@@ -109,6 +111,15 @@ void parseMasterCommands(uint8_t *new_cmd)
 		//LED:
 		*new_cmd = 1;
 		p = fm_queue_get(&unpacked_packet_queue);
+	}
+	*/
+
+	if(cmd_ready_usb > 0)
+	{
+		//LED:
+		*new_cmd = 1;
+		cmd_ready_usb = 0;
+		payload_parse_str(&freshUSBpacket);
 	}
 }
 

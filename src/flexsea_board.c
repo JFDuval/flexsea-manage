@@ -73,7 +73,8 @@ uint8_t bytes_ready_spi = 0;
 int8_t cmd_ready_spi = 0;
 int8_t cmd_ready_usb = 0;
 
-extern volatile PacketWrapper* fresh_packet;
+//extern volatile PacketWrapper* fresh_packet;
+volatile PacketWrapper freshUSBpacket;
 
 //****************************************************************************
 // Function(s)
@@ -138,15 +139,22 @@ void flexsea_send_serial_master(PacketWrapper* p)
 
 void flexsea_receive_from_master(void)
 {
-	if (fresh_packet != NULL ) {
-		PacketWrapper* p = fresh_packet;
-		fresh_packet = NULL;
+	//if (fresh_packet != NULL )
+	//{
+	if(freshUSBpacketFlag == 1)
+	{
+		freshUSBpacketFlag = 0;
+
+		PacketWrapper* p = &freshUSBpacket;
+		//fresh_packet = NULL;
 
 		cmd_ready_usb = unpack_payload(p->packed, p->unpaked);
+		/*
 		int err = fm_queue_put(&unpacked_packet_queue, p);
 		if (err)
 			fm_pool_free_block(p);
-
+		*/
+		/*
 		PacketWrapper* new_p = fm_pool_allocate_block();
 		new_p->port = PORT_USB;
 		new_p->reply_port = PORT_USB;
@@ -156,6 +164,7 @@ void flexsea_receive_from_master(void)
 
 		USBD_CDC_SetRxBuffer(hUsbDevice_0, new_p->packed);
 		USBD_CDC_ReceivePacket(hUsbDevice_0);
+		*/
 	}
 }
 
