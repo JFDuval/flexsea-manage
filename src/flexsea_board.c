@@ -76,6 +76,10 @@ int8_t cmd_ready_usb = 0;
 //extern volatile PacketWrapper* fresh_packet;
 volatile PacketWrapper freshUSBpacket;
 
+//Note: this is temporary:
+PacketWrapper masterInbound[3], masterOutbound[3];
+PacketWrapper slaveInbound[2], slaveOutbound[2];
+
 //****************************************************************************
 // Function(s)
 //****************************************************************************
@@ -83,7 +87,7 @@ volatile PacketWrapper freshUSBpacket;
 //platform independent (for example, we don't need need puts_rs485() for Plan)
 void flexsea_send_serial_slave(PacketWrapper* p)
 {
-	uint8_t port = p->port;
+	uint8_t port = p->destinationPort;
 	uint8_t* str = p->packed;
 	//size_t length = COMM_STR_BUF_LEN;	//ToDo why was this a size_t?
 	//puts_rs485_1 takes a uint16, not a uint32
@@ -92,14 +96,16 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	if(port == PORT_RS485_1)
 	{
 		puts_rs485_1(str, length);
-		slaveComm[0].transceiverState = TRANS_STATE_TX_THEN_RX;	//ToDo we do not always want to RX
+		slaveCommPeriph[0].transState = TS_TRANSMIT_THEN_RECEIVE;
+		//ToDo we do not always want to RX
 		//log_entry(slaveComm[0].transceiverState);	//ToDo remove, debug only
 		slaveComm[0].reply_port = p->reply_port;
 	}
 	else if(port == PORT_RS485_2)
 	{
 		puts_rs485_2(str, length);
-		slaveComm[1].transceiverState = TRANS_STATE_TX_THEN_RX;	//ToDo we do not always want to RX
+		slaveCommPeriph[1].transState = TS_TRANSMIT_THEN_RECEIVE;
+		//ToDo we do not always want to RX
 		slaveComm[1].reply_port = p->reply_port;
 	}
 	else
@@ -139,13 +145,39 @@ void flexsea_send_serial_master(PacketWrapper* p)
 
 void flexsea_receive_from_master(void)
 {
+	//USB:
+	if(masterCommPeriph[0].rx.bytesReadyFlag > 0)
+	{
+		//Transition from CommInterface to PacketWrapper:
+		fillPacketFromCommPeriph(&masterCommPeriph[0], &masterInbound[0]);
+
+		//Try unpacking:
+		masterCommPeriph[0].rx.unpackedPacketsAvailable = unpack_payload( \
+				masterInbound[0].packed, masterInbound[0].unpaked);
+
+		//Drop flag
+		masterCommPeriph[0].rx.bytesReadyFlag = 0;
+	}
+
+	if(masterCommPeriph[1].rx.bytesReadyFlag > 0)
+	{
+		return;	//ToDo
+	}
+
+	if(masterCommPeriph[2].rx.bytesReadyFlag > 0)
+	{
+		return;	//ToDo
+	}
+
 	//if (fresh_packet != NULL )
 	//{
+	/*
 	if(freshUSBpacketFlag == 1)
 	{
 		freshUSBpacketFlag = 0;
 
 		cmd_ready_usb = unpack_payload(freshUSBpacket.packed, freshUSBpacket.unpaked);
+		*/
 
 		/*
 		int err = fm_queue_put(&unpacked_packet_queue, p);
@@ -163,7 +195,7 @@ void flexsea_receive_from_master(void)
 		USBD_CDC_SetRxBuffer(hUsbDevice_0, new_p->packed);
 		USBD_CDC_ReceivePacket(hUsbDevice_0);
 		*/
-	}
+	//}
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -189,18 +221,18 @@ void flexsea_start_receiving_from_master(void)
 void flexsea_receive_from_slave(void)
 {
 	//We only listen if we requested a reply:
-	if(slaveComm[0].transceiverState == TRANS_STATE_PREP_RX)
+	if(slaveCommPeriph[0].transState == TS_PREP_TO_RECEIVE)
 	{
-		slaveComm[0].transceiverState = TRANS_STATE_RX;
+		slaveCommPeriph[0].transState = TS_RECEIVE;
 
 		reception_rs485_1_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
 
 	//We only listen if we requested a reply:
-	if(slaveComm[1].transceiverState == TRANS_STATE_PREP_RX)
+	if(slaveCommPeriph[1].transState == TS_PREP_TO_RECEIVE)
 	{
-		slaveComm[1].transceiverState = TRANS_STATE_RX;
+		slaveCommPeriph[1].transState = TS_RECEIVE;
 
 		reception_rs485_2_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.

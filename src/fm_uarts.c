@@ -479,10 +479,17 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	}
 
 	//Change state:
+	/* ToDo remove, legacy
 	if(slaveComm[transceiver].transceiverState == TRANS_STATE_TX_THEN_RX)
 	{
 		slaveComm[transceiver].transceiverState = TRANS_STATE_PREP_RX;
 	}
+	*/
+	if(slaveCommPeriph[transceiver].transState == TS_TRANSMIT_THEN_RECEIVE)
+	{
+		slaveCommPeriph[transceiver].transState = TS_PREP_TO_RECEIVE;
+	}
+
 }
 
 //Function called after a completed DMA transfer, UART6 RX

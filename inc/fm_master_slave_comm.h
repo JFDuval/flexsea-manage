@@ -47,6 +47,7 @@ void init_master_slave_comm(void);
 void parseMasterCommands(uint8_t *new_cmd);
 void parseSlaveCommands(uint8_t *new_cmd);
 void slaveTransmit(uint8_t port);
+void initCommPeriph(CommPeriph *cp, Port port, PortType pt);
 
 //****************************************************************************
 // Definition(s):

@@ -57,9 +57,6 @@ int main(void)
 
 	//initSlaveComm();
 
-	//Initialize queues (comm)
-	//fm_pool_init();	//ToDo: this is called init_flexsea_payload_ptr, do I need it here?
-
 	//Initialize all the peripherals
 	init_peripherals();
 

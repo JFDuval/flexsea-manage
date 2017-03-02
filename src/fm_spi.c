@@ -142,12 +142,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 		// At this point, the SPI transfer is complete, and packet->unpacked
 		// should contain COMM_STR_BUF_LEN bytes received from the master
+		/* TODO ******************
 		p->port = PORT_SPI;
 		int err = fm_queue_put(&packet_queue, p);
 		if (err) {
 			fm_pool_free_block(p);
 			return;
 		}
+		*/
 		/*
 		// transfer over the buffer
 		// Todo: transfer over the number of bytes that have been received instead of COMM_STR_BUF_LEN every time
@@ -162,11 +164,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			aRxBuffer[i] = 0;
 		}
 		*/
-
+/*
 		p = fm_pool_allocate_block();
 		if (p == NULL)
 			return; // No more blocks available. Consider reporting up the stack
-
+*/
 
 
 

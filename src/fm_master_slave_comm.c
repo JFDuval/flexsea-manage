@@ -49,7 +49,7 @@ uint8_t tmp_rx_command_wireless[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_1[PAYLOAD_BUF_LEN];
 uint8_t tmp_rx_command_485_2[PAYLOAD_BUF_LEN];
 
-MsgQueue slave_queue;
+//MsgQueue slave_queue;
 PacketWrapper PWpsc[2];
 PacketWrapper PWst[2];
 
@@ -64,12 +64,15 @@ PacketWrapper PWst[2];
 void initSlaveComm(void)
 {
 	//...
-	fm_queue_init(&slave_queue, 10);
+	//fm_queue_init(&slave_queue, 10);
 }
 
 //Prepares the structures:
 void init_master_slave_comm(void)
 {
+	//Legacy - remove soon:
+	//=====================
+
 	//Slave Port #1:
 	slaveComm[0].port = PORT_RS485_1;
 	slaveComm[0].rx.bytesReady = 0;
@@ -82,9 +85,9 @@ void init_master_slave_comm(void)
 	slaveComm[1].port = PORT_RS485_2;
 	slaveComm[1].rx.bytesReady = 0;
 	slaveComm[1].rx.cmdReady = 0;
-	slaveComm[1].rx.commStr = comm_str_485_1;
+	slaveComm[1].rx.commStr = comm_str_485_2;
 	//slaveComm[0].rx.rxBuf = rx_buf_1;
-	slaveComm[1].rx.rxCmd = rx_command_485_1;
+	slaveComm[1].rx.rxCmd = rx_command_485_2;
 
 	//Master Port #3:
 	masterComm[2].port = PORT_WIRELESS;
@@ -94,7 +97,38 @@ void init_master_slave_comm(void)
 	//slaveComm[2].rx.rxBuf = rx_buf_1;
 	masterComm[2].rx.rxCmd = rx_command_wireless;
 
-	//ToDo: use this approach for USB & SPI
+	//New approach:
+	//=============
+
+	//Default state:
+	initCommPeriph(&masterCommPeriph[0], PORT_USB, MASTER);
+	initCommPeriph(&slaveCommPeriph[0], PORT_RS485_1, SLAVE);
+	initCommPeriph(&slaveCommPeriph[1], PORT_RS485_2, SLAVE);
+
+	//Personalize specific fields:
+	//...
+}
+
+//Initialize CommPeriph to defaults:
+void initCommPeriph(CommPeriph *cp, Port port, PortType pt)
+{
+	cp->port = port;
+	cp->portType = pt;
+	cp->transState = TS_UNKNOWN;
+
+	cp->rx.bytesReadyFlag = 0;
+	cp->rx.unpackedPacketsAvailable = 0;
+	cp->rx.unpackedPtr = cp->rx.unpacked;
+	cp->rx.packedPtr = cp->rx.packed;
+	memset(cp->rx.packed, 0, COMM_PERIPH_ARR_LEN);
+	memset(cp->rx.unpacked, 0, COMM_PERIPH_ARR_LEN);
+
+	cp->tx.bytesReadyFlag = 0;
+	cp->tx.unpackedPacketsAvailable = 0;
+	cp->tx.unpackedPtr = cp->tx.unpacked;
+	cp->tx.packedPtr = cp->tx.packed;
+	memset(cp->tx.packed, 0, COMM_PERIPH_ARR_LEN);
+	memset(cp->tx.unpacked, 0, COMM_PERIPH_ARR_LEN);
 }
 
 //Did we receive new commands? Can we parse them?
@@ -119,12 +153,20 @@ void parseMasterCommands(uint8_t *new_cmd)
 	//ToDo *****IMPORTANT***** This is an old-school implementation,
 	//and it's missing SPI & Bluetooth!
 
+	/*
 	if(cmd_ready_usb > 0)
 	{
 		//LED:
 		*new_cmd = 1;
 		cmd_ready_usb = 0;
 		payload_parse_str(&freshUSBpacket);
+	}
+	*/
+	if(masterCommPeriph[0].rx.unpackedPacketsAvailable > 0)
+	{
+		masterCommPeriph[0].rx.unpackedPacketsAvailable = 0;
+		*new_cmd = 1;
+		payload_parse_str(&masterInbound[0]);
 	}
 }
 
@@ -211,6 +253,7 @@ void slaveTransmit(uint8_t port)
 	/*Note: this is only a demonstration. In the final application, we want
 			 * to send the commands accumulated on a ring buffer here.*/
 	uint8_t slaveIndex = 0;
+	PacketWrapper *p;
 
 	if(port == PORT_RS485_1)
 	{
@@ -220,7 +263,25 @@ void slaveTransmit(uint8_t port)
 	{
 		slaveIndex = 1;
 	}
+	p = &slaveOutbound[slaveIndex];
 
+	if(slaveCommPeriph[slaveIndex].tx.packetReady == 1)
+	{
+		slaveCommPeriph[slaveIndex].tx.packetReady = 0;
+
+		if(IS_CMD_RW(p->cmd) == READ)
+		{
+			slaveCommPeriph[slaveIndex].transState = TS_TRANSMIT_THEN_RECEIVE;
+		}
+		else
+		{
+			slaveCommPeriph[slaveIndex].transState = TS_TRANSMIT;
+		}
+
+		flexsea_send_serial_slave(p);
+	}
+
+	/*
 	//Packet injection:
 	if(slaveComm[slaveIndex].tx.inject == 1)
 	{
@@ -234,6 +295,9 @@ void slaveTransmit(uint8_t port)
 			slaveComm[slaveIndex].transceiverState = TRANS_STATE_TX;
 		}
 
+		flexsea_send_serial_slave(&slaveOutbound[slaveIndex]);
+		*/
+		/*
 		PWst[slaveIndex].port = port;
 		PWst[slaveIndex].reply_port = slaveComm[slaveIndex].reply_port;
 
@@ -241,9 +305,8 @@ void slaveTransmit(uint8_t port)
 				slaveComm[slaveIndex].tx.len);
 
 		flexsea_send_serial_slave(&PWst[slaveIndex]);
-
-//			flexsea_send_serial_slave(port, slaveComm[0].tx.txBuf, slaveComm[0].tx.len);
-	}
+		*/
+	//}
 }
 
 //****************************************************************************

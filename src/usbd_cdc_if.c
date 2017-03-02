@@ -42,6 +42,7 @@ volatile uint8_t freshUSBpacketFlag = 0;
 /* USER CODE BEGIN INCLUDE */
 //#include <fm_block_allocator.h>
 #include <stdbool.h>
+#include <flexsea_comm.h>
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -292,10 +293,19 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 	USBD_CDC_ReceivePacket(hUsbDevice_0);
 
 	//Save this packet:
+	/*
 	freshUSBpacket.port = PORT_USB;
 	freshUSBpacket.reply_port = PORT_USB;
 	memcpy(freshUSBpacket.packed, Buf, (*Len));
 	freshUSBpacketFlag = 1;
+	*/
+	//ToDo add better overflow detection here
+	if((*Len) > COMM_PERIPH_ARR_LEN)
+	{
+		(*Len) = COMM_PERIPH_ARR_LEN;
+	}
+	memcpy(masterCommPeriph[0].rx.packed, Buf, (*Len));
+	masterCommPeriph[0].rx.bytesReadyFlag = 1;
 
 	return (USBD_OK);
   /* USER CODE END 6 */

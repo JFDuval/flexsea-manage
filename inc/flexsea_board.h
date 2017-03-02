@@ -148,5 +148,9 @@ extern int8_t cmd_ready_usb;
 
 extern volatile PacketWrapper freshUSBpacket;
 
+//Note: this is temporary:
+extern PacketWrapper masterInbound[3], masterOutbound[3];
+extern PacketWrapper slaveInbound[2], slaveOutbound[2];
+
 #endif	//INC_FLEXSEA_BOARD_H
 
