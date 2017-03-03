@@ -34,8 +34,8 @@
 #include "usbd_cdc_if.h"
 #include "main.h"
 
-int usb_bytes_received = 0;
-uint8_t usb_user_rx_buf[100];
+//int usb_bytes_received = 0;
+//uint8_t usb_user_rx_buf[100];
 volatile uint8_t data_ready_usb = 0;
 volatile uint8_t freshUSBpacketFlag = 0;
 
@@ -283,28 +283,18 @@ static int8_t CDC_Control_FS  (uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-	/*
-	if (Buf == NULL || Len == NULL)
-		return USBD_FAIL;
-	*/
 
 	//Buffers for next packet:
 	USBD_CDC_SetRxBuffer(hUsbDevice_0, UserRxBufferFS);
 	USBD_CDC_ReceivePacket(hUsbDevice_0);
 
-	//Save this packet:
-	/*
-	freshUSBpacket.port = PORT_USB;
-	freshUSBpacket.reply_port = PORT_USB;
-	memcpy(freshUSBpacket.packed, Buf, (*Len));
-	freshUSBpacketFlag = 1;
-	*/
 	//ToDo add better overflow detection here
 	if((*Len) > COMM_PERIPH_ARR_LEN)
 	{
 		(*Len) = COMM_PERIPH_ARR_LEN;
 	}
-	memcpy(masterCommPeriph[0].rx.packed, Buf, (*Len));
+	//memcpy(masterCommPeriph[0].rx.packed, Buf, (*Len));
+	update_rx_buf_array_usb(UserRxBufferFS, (*Len));
 	masterCommPeriph[0].rx.bytesReadyFlag = 1;
 
 	return (USBD_OK);
@@ -345,14 +335,14 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
   return result;
 }
 
+/*
 //Returns the number of bytes available
 uint32_t usb_bytes_available(void)
 {
 	return usb_bytes_received;
 	//return USBD_LL_GetRxDataSize(hUsbDevice_0, CDC_OUT_EP);
 }
-
-
+*/
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
 /* USER CODE END  PRIVATE_FUNCTIONS_IMPLEMENTATION */

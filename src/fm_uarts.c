@@ -451,7 +451,8 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
-	slaveComm[0].rx.bytesReady++;
+	//slaveComm[0].rx.bytesReady++;
+	slaveCommPeriph[0].rx.bytesReadyFlag++;
 
 	//DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
 }
@@ -513,7 +514,8 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
-	slaveComm[1].rx.bytesReady++;
+	//slaveComm[1].rx.bytesReady++;
+	slaveCommPeriph[1].rx.bytesReadyFlag++;
 }
 
 //Function called after a completed DMA transfer, UART3 RX
@@ -529,7 +531,8 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
-	masterComm[2].rx.bytesReady++;
+	//masterComm[2].rx.bytesReady++;
+	masterCommPeriph[2].rx.bytesReadyFlag++;
 }
 
 //****************************************************************************

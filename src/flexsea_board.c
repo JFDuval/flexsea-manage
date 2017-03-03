@@ -65,10 +65,6 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //===============
 //</FlexSEA User>
 
-//ToDo what is that doing here? Remove
-//extern uint8_t rx_command_4[PAYLOAD_BUFFERS][PACKAGED_PAYLOAD_LEN];
-//int8_t unpack_payload(uint8_t *buf, uint8_t rx_cmd[][PACKAGED_PAYLOAD_LEN]);
-
 uint8_t bytes_ready_spi = 0;
 int8_t cmd_ready_spi = 0;
 int8_t cmd_ready_usb = 0;
@@ -89,8 +85,6 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 {
 	uint8_t port = p->destinationPort;
 	uint8_t* str = p->packed;
-	//size_t length = COMM_STR_BUF_LEN;	//ToDo why was this a size_t?
-	//puts_rs485_1 takes a uint16, not a uint32
 	uint16_t length = COMM_STR_BUF_LEN;
 
 	if(port == PORT_RS485_1)
@@ -119,7 +113,7 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 
 void flexsea_send_serial_master(PacketWrapper* p)
 {
-	Port port = p->port;
+	Port port = p->destinationPort;
 	uint8_t *str = p->packed;
 	uint16_t length = COMM_STR_BUF_LEN;
 	int i = 0;
@@ -140,7 +134,6 @@ void flexsea_send_serial_master(PacketWrapper* p)
 	{
 		puts_expUart(str, length);
 	}
-	//fm_pool_free_block(p);
 }
 
 void flexsea_receive_from_master(void)
@@ -148,12 +141,18 @@ void flexsea_receive_from_master(void)
 	//USB:
 	if(masterCommPeriph[0].rx.bytesReadyFlag > 0)
 	{
-		//Transition from CommInterface to PacketWrapper:
-		fillPacketFromCommPeriph(&masterCommPeriph[0], &masterInbound[0]);
-
-		//Try unpacking:
+		//Try unpacking. This is the only way to know if we have a packet and
+		//not just random bytes, or an incomplete packet.
 		masterCommPeriph[0].rx.unpackedPacketsAvailable = unpack_payload( \
-				masterInbound[0].packed, masterInbound[0].unpaked);
+				masterCommPeriph[0].rx.inputBufferPtr, \
+				masterCommPeriph[0].rx.packedPtr, \
+				masterCommPeriph[0].rx.unpackedPtr);
+
+		if(masterCommPeriph[0].rx.unpackedPacketsAvailable > 0)
+		{
+			//Transition from CommInterface to PacketWrapper:
+			fillPacketFromCommPeriph(&masterCommPeriph[0], &masterInbound[0]);
+		}
 
 		//Drop flag
 		masterCommPeriph[0].rx.bytesReadyFlag = 0;
@@ -168,34 +167,6 @@ void flexsea_receive_from_master(void)
 	{
 		return;	//ToDo
 	}
-
-	//if (fresh_packet != NULL )
-	//{
-	/*
-	if(freshUSBpacketFlag == 1)
-	{
-		freshUSBpacketFlag = 0;
-
-		cmd_ready_usb = unpack_payload(freshUSBpacket.packed, freshUSBpacket.unpaked);
-		*/
-
-		/*
-		int err = fm_queue_put(&unpacked_packet_queue, p);
-		if (err)
-			fm_pool_free_block(p);
-		*/
-		/*
-		PacketWrapper* new_p = fm_pool_allocate_block();
-		new_p->port = PORT_USB;
-		new_p->reply_port = PORT_USB;
-
-		if (new_p == NULL)
-			return; // No more blocks available. Consider reporting up the stack
-
-		USBD_CDC_SetRxBuffer(hUsbDevice_0, new_p->packed);
-		USBD_CDC_ReceivePacket(hUsbDevice_0);
-		*/
-	//}
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -203,12 +174,6 @@ void flexsea_start_receiving_from_master(void)
 	// start receive over SPI
 	if (HAL_SPI_GetState(&spi4_handle) == HAL_SPI_STATE_READY)
 	{
-		/*
-		PacketWrapper* p = fm_pool_allocate_block();
-		if (p == NULL)
-			return;
-		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, p->packed, COMM_STR_BUF_LEN) != HAL_OK)
-		*/
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, (uint8_t *)aRxBuffer, COMM_STR_BUF_LEN) != HAL_OK)
 		{
 			// Transfer error in transmission process
@@ -239,19 +204,31 @@ void flexsea_receive_from_slave(void)
 	}
 
 	//Did we receive new bytes?
-	if(slaveComm[0].rx.bytesReady > 0)
+	if(slaveCommPeriph[0].rx.bytesReadyFlag > 0)
 	{
-		slaveComm[0].rx.bytesReady = 0;
+		slaveCommPeriph[0].rx.bytesReadyFlag = 0;
 		//Got new data in, try to decode
-		slaveComm[0].rx.cmdReady = unpack_payload_485_1();
+
+		//unpack_payload_485_1() is unpack_payload(rx_buf_1, rx_command_1);
+		slaveCommPeriph[0].rx.unpackedPacketsAvailable = unpack_payload_485_1();	//This should be more generic
+
+		if(slaveCommPeriph[0].rx.unpackedPacketsAvailable > 0)
+		{
+			//We build a packet. ToDo this should be done closer to the buffer...
+			memcpy(slaveInbound[0].packed, rx_buf_1, 48);
+			memcpy(slaveInbound[0].unpaked, rx_command_1, 48);
+
+			//Transition from CommInterface to PacketWrapper:
+			fillPacketFromCommPeriph(&slaveCommPeriph[0], &slaveInbound[0]);
+			slaveInbound[0].destinationPort = slaveOutbound[0].sourcePort;
+		}
 	}
 
-	//Did we receive new bytes?
-	if(slaveComm[1].rx.bytesReady > 0)
+	if(slaveCommPeriph[1].rx.bytesReadyFlag > 0)
 	{
-		slaveComm[1].rx.bytesReady = 0;
+		slaveCommPeriph[1].rx.bytesReadyFlag = 0;
 		//Got new data in, try to decode
-		slaveComm[1].rx.cmdReady = unpack_payload_485_2();
+		slaveCommPeriph[1].rx.unpackedPacketsAvailable = unpack_payload_485_2();
 	}
 }
 

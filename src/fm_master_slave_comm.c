@@ -70,47 +70,22 @@ void initSlaveComm(void)
 //Prepares the structures:
 void init_master_slave_comm(void)
 {
-	//Legacy - remove soon:
-	//=====================
-
-	//Slave Port #1:
-	slaveComm[0].port = PORT_RS485_1;
-	slaveComm[0].rx.bytesReady = 0;
-	slaveComm[0].rx.cmdReady = 0;
-	slaveComm[0].rx.commStr = comm_str_485_1;
-	//slaveComm[0].rx.rxBuf = rx_buf_1;
-	slaveComm[0].rx.rxCmd = rx_command_485_1;
-
-	//Slave Port #2:
-	slaveComm[1].port = PORT_RS485_2;
-	slaveComm[1].rx.bytesReady = 0;
-	slaveComm[1].rx.cmdReady = 0;
-	slaveComm[1].rx.commStr = comm_str_485_2;
-	//slaveComm[0].rx.rxBuf = rx_buf_1;
-	slaveComm[1].rx.rxCmd = rx_command_485_2;
-
-	//Master Port #3:
-	masterComm[2].port = PORT_WIRELESS;
-	masterComm[2].rx.bytesReady = 0;
-	masterComm[2].rx.cmdReady = 0;
-	masterComm[2].rx.commStr = comm_str_wireless;
-	//slaveComm[2].rx.rxBuf = rx_buf_1;
-	masterComm[2].rx.rxCmd = rx_command_wireless;
-
-	//New approach:
-	//=============
-
 	//Default state:
-	initCommPeriph(&masterCommPeriph[0], PORT_USB, MASTER);
-	initCommPeriph(&slaveCommPeriph[0], PORT_RS485_1, SLAVE);
-	initCommPeriph(&slaveCommPeriph[1], PORT_RS485_2, SLAVE);
+	initCommPeriph(&masterCommPeriph[0], PORT_USB, MASTER, rx_buf_4, \
+			comm_str_4, rx_command_4, &masterInbound[0], &masterOutbound[0]);
+	initCommPeriph(&slaveCommPeriph[0], PORT_RS485_1, SLAVE, rx_buf_1, \
+			comm_str_1, rx_command_1, &slaveInbound[0], &slaveOutbound[0]);
+	initCommPeriph(&slaveCommPeriph[1], PORT_RS485_2, SLAVE, rx_buf_2, \
+			comm_str_2, rx_command_2, &slaveInbound[1], &slaveOutbound[1]);
 
 	//Personalize specific fields:
 	//...
 }
 
 //Initialize CommPeriph to defaults:
-void initCommPeriph(CommPeriph *cp, Port port, PortType pt)
+void initCommPeriph(CommPeriph *cp, Port port, PortType pt, uint8_t *input, \
+					uint8_t *unpacked, uint8_t *packed, \
+					PacketWrapper *inbound, PacketWrapper *outbound)
 {
 	cp->port = port;
 	cp->portType = pt;
@@ -118,8 +93,9 @@ void initCommPeriph(CommPeriph *cp, Port port, PortType pt)
 
 	cp->rx.bytesReadyFlag = 0;
 	cp->rx.unpackedPacketsAvailable = 0;
-	cp->rx.unpackedPtr = cp->rx.unpacked;
-	cp->rx.packedPtr = cp->rx.packed;
+	cp->rx.inputBufferPtr = input;
+	cp->rx.unpackedPtr = unpacked;
+	cp->rx.packedPtr = packed;
 	memset(cp->rx.packed, 0, COMM_PERIPH_ARR_LEN);
 	memset(cp->rx.unpacked, 0, COMM_PERIPH_ARR_LEN);
 
@@ -129,44 +105,47 @@ void initCommPeriph(CommPeriph *cp, Port port, PortType pt)
 	cp->tx.packedPtr = cp->tx.packed;
 	memset(cp->tx.packed, 0, COMM_PERIPH_ARR_LEN);
 	memset(cp->tx.unpacked, 0, COMM_PERIPH_ARR_LEN);
+
+	linkCommPeriphPacketWrappers(cp, inbound, outbound);
+}
+
+void linkCommPeriphPacketWrappers(CommPeriph *cp, PacketWrapper *inbound, \
+					PacketWrapper *outbound)
+{
+	//Force family:
+	cp->in = inbound;
+	cp->out = outbound;
+	inbound->parent = (CommPeriph*)cp;
+	outbound->parent = (CommPeriph*)cp;
+
+	//Children inherit from parent:
+	if(cp->portType == MASTER)
+	{
+		inbound->travelDir = DOWNSTREAM;
+		inbound->sourcePort = cp->port;
+		outbound->travelDir = UPSTREAM;
+		outbound->destinationPort = cp->port;
+	}
+	else
+	{
+		inbound->travelDir = UPSTREAM;
+		inbound->destinationPort = cp->port;
+		outbound->travelDir = DOWNSTREAM;
+		outbound->sourcePort = cp->port;
+	}
 }
 
 //Did we receive new commands? Can we parse them?
 void parseMasterCommands(uint8_t *new_cmd)
 {
-	uint8_t info[2] = {0,0};
+	//ToDo *****IMPORTANT***** it's missing SPI & Bluetooth!
 
-	/*
-	//Valid communication from any port?
-	PacketWrapper* p = fm_queue_get(&unpacked_packet_queue);
-	while (p != NULL)
-	{
-		info[0] = p->port;
-		payload_parse_str(p);
-
-		//LED:
-		*new_cmd = 1;
-		p = fm_queue_get(&unpacked_packet_queue);
-	}
-	*/
-
-	//ToDo *****IMPORTANT***** This is an old-school implementation,
-	//and it's missing SPI & Bluetooth!
-
-	/*
-	if(cmd_ready_usb > 0)
-	{
-		//LED:
-		*new_cmd = 1;
-		cmd_ready_usb = 0;
-		payload_parse_str(&freshUSBpacket);
-	}
-	*/
+	//USB
 	if(masterCommPeriph[0].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[0].rx.unpackedPacketsAvailable = 0;
-		*new_cmd = 1;
 		payload_parse_str(&masterInbound[0]);
+		*new_cmd = 1;
 	}
 }
 
@@ -174,28 +153,17 @@ void parseMasterCommands(uint8_t *new_cmd)
 void parseSlaveCommands(uint8_t *new_cmd)
 {
 	//Valid communication from RS-485 #1?
+	if(slaveCommPeriph[0].rx.unpackedPacketsAvailable > 0)
+	{
+		slaveCommPeriph[0].rx.unpackedPacketsAvailable = 0;
+		payload_parse_str(&slaveCommPeriph[0]);
+	}
+
+	/*
+	//Valid communication from RS-485 #1?
 	if(slaveComm[0].rx.cmdReady > 0)
 	{
 		slaveComm[0].rx.cmdReady = 0;
-		/*
-		PacketWrapper* p = fm_pool_allocate_block();
-		if (p == NULL)
-			return;
-
-		memcpy(p->unpaked, &rx_command_485_1[0], COMM_STR_BUF_LEN);
-		memcpy(p->packed, rx_buf_1, COMM_STR_BUF_LEN);
-		*/
-		/*
-		//Cheap trick to get first line	//ToDo: support more than 1
-		for(i = 0; i < PAYLOAD_BUF_LEN; i++)
-		{
-			tmp_rx_command_485_1[i] = rx_command_485_1[0][i];
-		}*/
-
-		/*
-		p->port = slaveComm[0].reply_port;
-		payload_parse_str(p);
-		*/
 
 		PWpsc[0].port = slaveComm[0].port;
 		PWpsc[0].reply_port = slaveComm[0].reply_port;
@@ -204,22 +172,12 @@ void parseSlaveCommands(uint8_t *new_cmd)
 
 		payload_parse_str(&PWpsc[0]);
 	}
+	*/
 
 	//Valid communication from RS-485 #2?
 	if(slaveComm[1].rx.cmdReady > 0)
 	{
 		slaveComm[1].rx.cmdReady = 0;
-		/*
-		PacketWrapper* p = fm_pool_allocate_block();
-		if (p == NULL)
-			return;
-
-		memcpy(p->unpaked, &rx_command_485_2[0], COMM_STR_BUF_LEN);
-		memcpy(p->packed, rx_buf_2, COMM_STR_BUF_LEN);
-		// parse the command and execute it
-		p->port = slaveComm[1].reply_port;
-		payload_parse_str(p);
-		*/
 
 		PWpsc[1].port = slaveComm[1].port;
 		PWpsc[1].reply_port = slaveComm[1].reply_port;
@@ -230,23 +188,6 @@ void parseSlaveCommands(uint8_t *new_cmd)
 	}
 }
 
-//Slave Communication function. Call at 1kHz.
-//ToDo: this ignores the parameter 'port'. It was there to offset the comm between the 2 buses.
-/*
-void slaveTransmit(uint8_t port)
-{
-	PacketWrapper* p = fm_queue_get(&slave_queue);
-
-	if (p == NULL)
-		return;
-
-	//Send to slave port:
-	if((p->port == PORT_RS485_1) || (p->port == PORT_RS485_2))
-	{
-		flexsea_send_serial_slave(p);
-	}
-}
-*/
 //Slave Communication function. Call at 1kHz.
 void slaveTransmit(uint8_t port)
 {
@@ -280,33 +221,6 @@ void slaveTransmit(uint8_t port)
 
 		flexsea_send_serial_slave(p);
 	}
-
-	/*
-	//Packet injection:
-	if(slaveComm[slaveIndex].tx.inject == 1)
-	{
-		slaveComm[slaveIndex].tx.inject = 0;
-		if(IS_CMD_RW(slaveComm[slaveIndex].tx.cmd) == READ)
-		{
-			slaveComm[slaveIndex].transceiverState = TRANS_STATE_TX_THEN_RX;
-		}
-		else
-		{
-			slaveComm[slaveIndex].transceiverState = TRANS_STATE_TX;
-		}
-
-		flexsea_send_serial_slave(&slaveOutbound[slaveIndex]);
-		*/
-		/*
-		PWst[slaveIndex].port = port;
-		PWst[slaveIndex].reply_port = slaveComm[slaveIndex].reply_port;
-
-		memcpy(PWst[slaveIndex].packed, slaveComm[slaveIndex].tx.txBuf, \
-				slaveComm[slaveIndex].tx.len);
-
-		flexsea_send_serial_slave(&PWst[slaveIndex]);
-		*/
-	//}
 }
 
 //****************************************************************************
