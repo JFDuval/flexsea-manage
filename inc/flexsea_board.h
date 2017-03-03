@@ -89,6 +89,13 @@ uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw);
 #define ENABLE_FLEXSEA_BUF_4		//USB
 #define ENABLE_FLEXSEA_BUF_5		//Wireless
 
+//CommPeriph indexes:
+#define MCP_USB						0
+#define MCP_SPI						1
+#define MCP_WIRELESS				2
+#define SCP_RS485_1					0
+#define SCP_RS485_2					1
+
 //Overload buffer & function names (for user convenience):
 
 #include <flexsea_buffers.h>
@@ -143,13 +150,6 @@ extern uint8_t board_up_id;
 extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT];
 extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT];
 
-extern uint8_t bytes_ready_spi;
-extern int8_t cmd_ready_spi;
-extern int8_t cmd_ready_usb;
-
-extern volatile PacketWrapper freshUSBpacket;
-
-//Note: this is temporary:
 extern PacketWrapper masterInbound[3], masterOutbound[3];
 extern PacketWrapper slaveInbound[2], slaveOutbound[2];
 

@@ -43,16 +43,6 @@
 // Variable(s)
 //****************************************************************************
 
-uint8_t tmp_rx_command_spi[PAYLOAD_BUF_LEN];
-uint8_t tmp_rx_command_usb[PAYLOAD_BUF_LEN];
-uint8_t tmp_rx_command_wireless[PAYLOAD_BUF_LEN];
-uint8_t tmp_rx_command_485_1[PAYLOAD_BUF_LEN];
-uint8_t tmp_rx_command_485_2[PAYLOAD_BUF_LEN];
-
-//MsgQueue slave_queue;
-PacketWrapper PWpsc[2];
-PacketWrapper PWst[2];
-
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -61,22 +51,19 @@ PacketWrapper PWst[2];
 // Public Function(s)
 //****************************************************************************
 
-void initSlaveComm(void)
-{
-	//...
-	//fm_queue_init(&slave_queue, 10);
-}
-
 //Prepares the structures:
-void init_master_slave_comm(void)
+void initMasterSlaveComm(void)
 {
 	//Default state:
-	initCommPeriph(&masterCommPeriph[0], PORT_USB, MASTER, rx_buf_4, \
-			comm_str_4, rx_command_4, &masterInbound[0], &masterOutbound[0]);
-	initCommPeriph(&slaveCommPeriph[0], PORT_RS485_1, SLAVE, rx_buf_1, \
-			comm_str_1, rx_command_1, &slaveInbound[0], &slaveOutbound[0]);
-	initCommPeriph(&slaveCommPeriph[1], PORT_RS485_2, SLAVE, rx_buf_2, \
-			comm_str_2, rx_command_2, &slaveInbound[1], &slaveOutbound[1]);
+	initCommPeriph(&masterCommPeriph[MCP_USB], PORT_USB, MASTER, rx_buf_4, \
+			comm_str_4, rx_command_4, &masterInbound[MCP_USB], \
+			&masterOutbound[MCP_USB]);
+	initCommPeriph(&slaveCommPeriph[SCP_RS485_1], PORT_RS485_1, SLAVE, rx_buf_1, \
+			comm_str_1, rx_command_1, &slaveInbound[SCP_RS485_1], \
+			&slaveOutbound[SCP_RS485_1]);
+	initCommPeriph(&slaveCommPeriph[SCP_RS485_2], PORT_RS485_2, SLAVE, rx_buf_2, \
+			comm_str_2, rx_command_2, &slaveInbound[SCP_RS485_2], \
+			&slaveOutbound[SCP_RS485_2]);
 
 	//Personalize specific fields:
 	//...
@@ -109,6 +96,7 @@ void initCommPeriph(CommPeriph *cp, Port port, PortType pt, uint8_t *input, \
 	linkCommPeriphPacketWrappers(cp, inbound, outbound);
 }
 
+//Each CommPeriph is associated to two PacketWrappers (inbound & outbound)
 void linkCommPeriphPacketWrappers(CommPeriph *cp, PacketWrapper *inbound, \
 					PacketWrapper *outbound)
 {
@@ -138,53 +126,50 @@ void linkCommPeriphPacketWrappers(CommPeriph *cp, PacketWrapper *inbound, \
 //Did we receive new commands? Can we parse them?
 void parseMasterCommands(uint8_t *new_cmd)
 {
-	//ToDo *****IMPORTANT***** it's missing SPI & Bluetooth!
+	uint8_t newCmdLed = 0;
 
 	//USB
-	if(masterCommPeriph[0].rx.unpackedPacketsAvailable > 0)
+	if(masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable > 0)
 	{
-		masterCommPeriph[0].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&masterInbound[0]);
-		*new_cmd = 1;
+		masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable = 0;
+		payload_parse_str(&masterInbound[MCP_USB]);
+		newCmdLed = 1;
 	}
+
+	//SPI
+	if(masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable > 0)
+	{
+		masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable = 0;
+		payload_parse_str(&masterInbound[MCP_SPI]);
+		newCmdLed = 1;
+	}
+
+	//Wireless
+	if(masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable > 0)
+	{
+		masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable = 0;
+		payload_parse_str(&masterInbound[MCP_WIRELESS]);
+		newCmdLed = 1;
+	}
+
+	*new_cmd = newCmdLed;
 }
 
 //Did we receive new commands? Can we parse them?
 void parseSlaveCommands(uint8_t *new_cmd)
 {
 	//Valid communication from RS-485 #1?
-	if(slaveCommPeriph[0].rx.unpackedPacketsAvailable > 0)
+	if(slaveCommPeriph[SCP_RS485_1].rx.unpackedPacketsAvailable > 0)
 	{
-		slaveCommPeriph[0].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&slaveCommPeriph[0]);
+		slaveCommPeriph[SCP_RS485_1].rx.unpackedPacketsAvailable = 0;
+		payload_parse_str(&slaveInbound[SCP_RS485_1]);
 	}
-
-	/*
-	//Valid communication from RS-485 #1?
-	if(slaveComm[0].rx.cmdReady > 0)
-	{
-		slaveComm[0].rx.cmdReady = 0;
-
-		PWpsc[0].port = slaveComm[0].port;
-		PWpsc[0].reply_port = slaveComm[0].reply_port;
-		memcpy(PWpsc[0].unpaked, &rx_command_485_1[0], COMM_STR_BUF_LEN);
-		memcpy(PWpsc[0].packed, rx_buf_1, COMM_STR_BUF_LEN);
-
-		payload_parse_str(&PWpsc[0]);
-	}
-	*/
 
 	//Valid communication from RS-485 #2?
-	if(slaveComm[1].rx.cmdReady > 0)
+	if(slaveCommPeriph[SCP_RS485_2].rx.unpackedPacketsAvailable > 0)
 	{
-		slaveComm[1].rx.cmdReady = 0;
-
-		PWpsc[1].port = slaveComm[1].port;
-		PWpsc[1].reply_port = slaveComm[1].reply_port;
-		memcpy(PWpsc[1].unpaked, &rx_command_485_2[0], COMM_STR_BUF_LEN);
-		memcpy(PWpsc[1].packed, rx_buf_2, COMM_STR_BUF_LEN);
-
-		payload_parse_str(&PWpsc[1]);
+		slaveCommPeriph[SCP_RS485_2].rx.unpackedPacketsAvailable = 0;
+		payload_parse_str(&slaveInbound[SCP_RS485_2]);
 	}
 }
 
@@ -198,11 +183,11 @@ void slaveTransmit(uint8_t port)
 
 	if(port == PORT_RS485_1)
 	{
-		slaveIndex = 0;
+		slaveIndex = SCP_RS485_1;
 	}
 	else if(port == PORT_RS485_2)
 	{
-		slaveIndex = 1;
+		slaveIndex = SCP_RS485_2;
 	}
 	p = &slaveOutbound[slaveIndex];
 

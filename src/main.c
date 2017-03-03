@@ -55,8 +55,6 @@ int main(void)
 	//Prepare FlexSEA stack:
 	init_flexsea_payload_ptr();
 
-	//initSlaveComm();
-
 	//Initialize all the peripherals
 	init_peripherals();
 

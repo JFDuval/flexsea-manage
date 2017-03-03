@@ -34,7 +34,7 @@
 
 #include "main.h"
 #include "fm_spi.h"
-#include <fm_block_allocator.h>
+#include <flexsea_comm.h>
 
 //****************************************************************************
 // Variable(s)
@@ -196,8 +196,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void SPI_new_data_Callback(void)
 {
-	bytes_ready_spi = 1;
 	//Got new data in, try to decode
+	masterCommPeriph[MCP_SPI].rx.bytesReadyFlag = 1;
 }
 
 //****************************************************************************

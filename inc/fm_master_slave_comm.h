@@ -42,8 +42,7 @@
 // Public Function Prototype(s):
 //****************************************************************************
 
-void initSlaveComm(void);
-void init_master_slave_comm(void);
+void initMasterSlaveComm(void);
 void parseMasterCommands(uint8_t *new_cmd);
 void parseSlaveCommands(uint8_t *new_cmd);
 void slaveTransmit(uint8_t port);
@@ -62,4 +61,3 @@ void linkCommPeriphPacketWrappers(CommPeriph *cp, PacketWrapper *inbound, \
 //****************************************************************************
 
 #endif // INC_MAST_SLAVE_COMM_H
-

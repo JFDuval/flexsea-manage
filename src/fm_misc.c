@@ -127,7 +127,7 @@ void init_peripherals(void)
 	#endif	//USE_COMM_TEST
 
 	//Software:
-	init_master_slave_comm();
+	initMasterSlaveComm();
 
 	//All RGB LEDs OFF
 	LEDR(0);

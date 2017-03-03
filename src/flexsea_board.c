@@ -65,14 +65,7 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //===============
 //</FlexSEA User>
 
-uint8_t bytes_ready_spi = 0;
-int8_t cmd_ready_spi = 0;
-int8_t cmd_ready_usb = 0;
-
-//extern volatile PacketWrapper* fresh_packet;
-volatile PacketWrapper freshUSBpacket;
-
-//Note: this is temporary:
+//PacketWrappers associated with our ComPeriph structures:
 PacketWrapper masterInbound[3], masterOutbound[3];
 PacketWrapper slaveInbound[2], slaveOutbound[2];
 
@@ -92,7 +85,6 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 		puts_rs485_1(str, length);
 		slaveCommPeriph[0].transState = TS_TRANSMIT_THEN_RECEIVE;
 		//ToDo we do not always want to RX
-		//log_entry(slaveComm[0].transceiverState);	//ToDo remove, debug only
 		slaveComm[0].reply_port = p->reply_port;
 	}
 	else if(port == PORT_RS485_2)
@@ -107,8 +99,6 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 		//Unknown port, call flexsea_error()
 		flexsea_error(SE_INVALID_SLAVE);
 	}
-
-	//fm_pool_free_block(p);
 }
 
 void flexsea_send_serial_master(PacketWrapper* p)
@@ -139,17 +129,11 @@ void flexsea_send_serial_master(PacketWrapper* p)
 void flexsea_receive_from_master(void)
 {
 	//USB:
-	tryUnpacking(&masterCommPeriph[0],  &masterInbound[0]);
+	tryUnpacking(&masterCommPeriph[MCP_USB],  &masterInbound[MCP_USB]);
 
-	if(masterCommPeriph[1].rx.bytesReadyFlag > 0)
-	{
-		return;	//ToDo
-	}
-
-	if(masterCommPeriph[2].rx.bytesReadyFlag > 0)
-	{
-		return;	//ToDo
-	}
+	//Incomplete, ToDo (flag won't be raised)
+	tryUnpacking(&masterCommPeriph[MCP_SPI],  &masterInbound[MCP_SPI]);
+	tryUnpacking(&masterCommPeriph[MCP_WIRELESS],  &masterInbound[MCP_WIRELESS]);
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -172,18 +156,18 @@ void flexsea_receive_from_slave(void)
 	//==================
 
 	//We only listen if we requested a reply:
-	if(slaveCommPeriph[0].transState == TS_PREP_TO_RECEIVE)
+	if(slaveCommPeriph[SCP_RS485_1].transState == TS_PREP_TO_RECEIVE)
 	{
-		slaveCommPeriph[0].transState = TS_RECEIVE;
+		slaveCommPeriph[SCP_RS485_1].transState = TS_RECEIVE;
 
 		reception_rs485_1_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
 
 	//We only listen if we requested a reply:
-	if(slaveCommPeriph[1].transState == TS_PREP_TO_RECEIVE)
+	if(slaveCommPeriph[SCP_RS485_2].transState == TS_PREP_TO_RECEIVE)
 	{
-		slaveCommPeriph[1].transState = TS_RECEIVE;
+		slaveCommPeriph[SCP_RS485_2].transState = TS_RECEIVE;
 
 		reception_rs485_2_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
@@ -192,37 +176,8 @@ void flexsea_receive_from_slave(void)
 	//Did we get new bytes?
 	//=====================
 
-	//Did we receive new bytes?
-	if(slaveCommPeriph[0].rx.bytesReadyFlag > 0)
-	{
-		slaveCommPeriph[0].rx.bytesReadyFlag = 0;
-		//Got new data in, try to decode
-
-
-
-		/*
-		//unpack_payload_485_1() is unpack_payload(rx_buf_1, rx_command_1);
-		slaveCommPeriph[0].rx.unpackedPacketsAvailable = unpack_payload_485_1();	//This should be more generic
-
-		if(slaveCommPeriph[0].rx.unpackedPacketsAvailable > 0)
-		{
-			//We build a packet. ToDo this should be done closer to the buffer...
-			memcpy(slaveInbound[0].packed, rx_buf_1, 48);
-			memcpy(slaveInbound[0].unpaked, rx_command_1, 48);
-
-			//Transition from CommInterface to PacketWrapper:
-			fillPacketFromCommPeriph(&slaveCommPeriph[0], &slaveInbound[0]);
-			slaveInbound[0].destinationPort = slaveOutbound[0].sourcePort;
-		}
-		*/
-	}
-
-	if(slaveCommPeriph[1].rx.bytesReadyFlag > 0)
-	{
-		slaveCommPeriph[1].rx.bytesReadyFlag = 0;
-		//Got new data in, try to decode
-		slaveCommPeriph[1].rx.unpackedPacketsAvailable = unpack_payload_485_2();
-	}
+	tryUnpacking(&slaveCommPeriph[SCP_RS485_1], &slaveInbound[SCP_RS485_1]);
+	tryUnpacking(&slaveCommPeriph[SCP_RS485_2], &slaveInbound[SCP_RS485_2]);
 }
 
 //Copies the generated comm_str to the aTxBuffer
@@ -238,6 +193,7 @@ void comm_str_to_txbuffer(void)
 	}
 }
 
+//Do you have bytes ready? Can they be unpacked? Let's give it a shot.
 uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw)
 {
 	uint8_t retVal = 0;

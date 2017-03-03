@@ -125,7 +125,6 @@ void init_usart1(uint32_t baudrate)
 	init_dma2_stream7_ch4();	//TX
 }
 
-
 //USART6 init function: RS-485 #2
 //TX and RX are done via DMA
 void init_usart6(uint32_t baudrate)
@@ -343,7 +342,6 @@ uint8_t reception_rs485_1_blocking(void)
 	for(delay = 0; delay < 600; delay++);		//Short delay
 
 	//Receive enable
-
 	rs485_set_mode(PORT_RS485_1, RS485_RX);
 	tmp = USART1->DR;	//Read buffer to clear
 
@@ -472,17 +470,10 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	}
 
 	//Change state:
-	/* ToDo remove, legacy
-	if(slaveComm[transceiver].transceiverState == TRANS_STATE_TX_THEN_RX)
-	{
-		slaveComm[transceiver].transceiverState = TRANS_STATE_PREP_RX;
-	}
-	*/
 	if(slaveCommPeriph[transceiver].transState == TS_TRANSMIT_THEN_RECEIVE)
 	{
 		slaveCommPeriph[transceiver].transState = TS_PREP_TO_RECEIVE;
 	}
-
 }
 
 //Function called after a completed DMA transfer, UART6 RX
@@ -499,14 +490,12 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 		{
 			return;
 		}
-
 	}
 
 	//Deal with FlexSEA buffers here:
 	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
-	//slaveComm[1].rx.bytesReady++;
 	slaveCommPeriph[1].rx.bytesReadyFlag++;
 }
 
