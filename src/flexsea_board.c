@@ -139,24 +139,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 void flexsea_receive_from_master(void)
 {
 	//USB:
-	if(masterCommPeriph[0].rx.bytesReadyFlag > 0)
-	{
-		//Try unpacking. This is the only way to know if we have a packet and
-		//not just random bytes, or an incomplete packet.
-		masterCommPeriph[0].rx.unpackedPacketsAvailable = unpack_payload( \
-				masterCommPeriph[0].rx.inputBufferPtr, \
-				masterCommPeriph[0].rx.packedPtr, \
-				masterCommPeriph[0].rx.unpackedPtr);
-
-		if(masterCommPeriph[0].rx.unpackedPacketsAvailable > 0)
-		{
-			//Transition from CommInterface to PacketWrapper:
-			fillPacketFromCommPeriph(&masterCommPeriph[0], &masterInbound[0]);
-		}
-
-		//Drop flag
-		masterCommPeriph[0].rx.bytesReadyFlag = 0;
-	}
+	tryUnpacking(&masterCommPeriph[0],  &masterInbound[0]);
 
 	if(masterCommPeriph[1].rx.bytesReadyFlag > 0)
 	{
@@ -185,6 +168,9 @@ void flexsea_start_receiving_from_master(void)
 //Receive data from a slave
 void flexsea_receive_from_slave(void)
 {
+	//Transceiver state:
+	//==================
+
 	//We only listen if we requested a reply:
 	if(slaveCommPeriph[0].transState == TS_PREP_TO_RECEIVE)
 	{
@@ -203,12 +189,18 @@ void flexsea_receive_from_slave(void)
 		//From this point on data will be received via the interrupt.
 	}
 
+	//Did we get new bytes?
+	//=====================
+
 	//Did we receive new bytes?
 	if(slaveCommPeriph[0].rx.bytesReadyFlag > 0)
 	{
 		slaveCommPeriph[0].rx.bytesReadyFlag = 0;
 		//Got new data in, try to decode
 
+
+
+		/*
 		//unpack_payload_485_1() is unpack_payload(rx_buf_1, rx_command_1);
 		slaveCommPeriph[0].rx.unpackedPacketsAvailable = unpack_payload_485_1();	//This should be more generic
 
@@ -222,6 +214,7 @@ void flexsea_receive_from_slave(void)
 			fillPacketFromCommPeriph(&slaveCommPeriph[0], &slaveInbound[0]);
 			slaveInbound[0].destinationPort = slaveOutbound[0].sourcePort;
 		}
+		*/
 	}
 
 	if(slaveCommPeriph[1].rx.bytesReadyFlag > 0)
@@ -243,4 +236,31 @@ void comm_str_to_txbuffer(void)
 	{
 		aTxBuffer[i] = comm_str_spi[i];
 	}
+}
+
+uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw)
+{
+	uint8_t retVal = 0;
+
+	if(cp->rx.bytesReadyFlag > 0)
+	{
+		//Try unpacking. This is the only way to know if we have a packet and
+		//not just random bytes, or an incomplete packet.
+		cp->rx.unpackedPacketsAvailable = unpack_payload( \
+				cp->rx.inputBufferPtr, \
+				cp->rx.packedPtr, \
+				cp->rx.unpackedPtr);
+
+		if(cp->rx.unpackedPacketsAvailable > 0)
+		{
+			//Transition from CommInterface to PacketWrapper:
+			fillPacketFromCommPeriph(cp, pw);
+			retVal = 1;
+		}
+
+		//Drop flag
+		cp->rx.bytesReadyFlag = 0;
+	}
+
+	return retVal;
 }

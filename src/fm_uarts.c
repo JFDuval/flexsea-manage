@@ -440,21 +440,13 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 		{
 			return;
 		}
-
-		DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
-		DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
 	}
-
-	//DEBUG_OUT_DIO7(1);	//ToDo remove, debug only
 
 	//Deal with FlexSEA buffers here:
 	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
-	//slaveComm[0].rx.bytesReady++;
 	slaveCommPeriph[0].rx.bytesReadyFlag++;
-
-	//DEBUG_OUT_DIO7(0);	//ToDo remove, debug only
 }
 
 //Code branches here once a TX transfer is complete (either: ISR or DMA)

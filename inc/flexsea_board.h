@@ -53,6 +53,7 @@ void flexsea_receive_from_slave(void);
 //void build_slave_payload(uint8_t base_addr);
 void comm_str_to_txbuffer(void);
 //void flexsea_prepare_spi_tx_buffer(uint8_t base_addr);
+uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw);
 
 //****************************************************************************
 // Definition(s):
