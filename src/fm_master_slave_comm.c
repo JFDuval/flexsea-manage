@@ -110,15 +110,21 @@ void linkCommPeriphPacketWrappers(CommPeriph *cp, PacketWrapper *inbound, \
 	{
 		inbound->travelDir = DOWNSTREAM;
 		inbound->sourcePort = cp->port;
+		inbound->destinationPort = PORT_NONE;
+
 		outbound->travelDir = UPSTREAM;
+		outbound->sourcePort = PORT_NONE;
 		outbound->destinationPort = cp->port;
 	}
 	else
 	{
 		inbound->travelDir = UPSTREAM;
-		inbound->destinationPort = cp->port;
+		inbound->sourcePort = cp->port;
+		inbound->destinationPort = PORT_NONE;
+
 		outbound->travelDir = DOWNSTREAM;
-		outbound->sourcePort = cp->port;
+		outbound->sourcePort = PORT_NONE;
+		outbound->destinationPort = cp->port;
 	}
 }
 
