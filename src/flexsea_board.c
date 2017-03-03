@@ -77,6 +77,7 @@ static void transitionToReception(CommPeriph *cp, uint8_t (*f)(void));
 //****************************************************************************
 // Function(s)
 //****************************************************************************
+
 //Wrapper for the specific serial functions. Useful to keep flexsea_network
 //platform independent (for example, we don't need need puts_rs485() for Plan)
 void flexsea_send_serial_slave(PacketWrapper* p)
@@ -88,16 +89,27 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	if(port == PORT_RS485_1)
 	{
 		puts_rs485_1(str, length);
-		slaveCommPeriph[0].transState = TS_TRANSMIT_THEN_RECEIVE;
-		//ToDo we do not always want to RX
-		slaveComm[0].reply_port = p->reply_port;
+		if(IS_CMD_RW(p->cmd))
+		{
+			slaveCommPeriph[SCP_RS485_1].transState = TS_TRANSMIT_THEN_RECEIVE;
+		}
+		else
+		{
+			slaveCommPeriph[SCP_RS485_1].transState = TS_TRANSMIT;
+		}
+
 	}
 	else if(port == PORT_RS485_2)
 	{
 		puts_rs485_2(str, length);
-		slaveCommPeriph[1].transState = TS_TRANSMIT_THEN_RECEIVE;
-		//ToDo we do not always want to RX
-		slaveComm[1].reply_port = p->reply_port;
+		if(IS_CMD_RW(p->cmd))
+		{
+			slaveCommPeriph[SCP_RS485_2].transState = TS_TRANSMIT_THEN_RECEIVE;
+		}
+		else
+		{
+			slaveCommPeriph[SCP_RS485_2].transState = TS_TRANSMIT;
+		}
 	}
 	else
 	{
@@ -111,15 +123,11 @@ void flexsea_send_serial_master(PacketWrapper* p)
 	Port port = p->destinationPort;
 	uint8_t *str = p->packed;
 	uint16_t length = COMM_STR_BUF_LEN;
-	int i = 0;
 
 	if(port == PORT_SPI)
 	{
-		for(i = 0; i < length; i++)
-		{
-			comm_str_spi[i] = str[i];
-		}
 		//This will be sent during the next SPI transaction
+		memcpy(comm_str_spi, str, length);
 	}
 	else if(port == PORT_USB)
 	{
@@ -159,33 +167,13 @@ void flexsea_receive_from_slave(void)
 {
 	//Transceiver state:
 	//==================
-
 	transitionToReception(&slaveCommPeriph[SCP_RS485_1], \
 			reception_rs485_1_blocking);
-
-	/*
-	//We only listen if we requested a reply:
-	if(slaveCommPeriph[SCP_RS485_1].transState == TS_PREP_TO_RECEIVE)
-	{
-		slaveCommPeriph[SCP_RS485_1].transState = TS_RECEIVE;
-
-		reception_rs485_1_blocking();	//Sets the transceiver to Receive
-		//From this point on data will be received via the interrupt.
-	}
-	*/
-
-	//We only listen if we requested a reply:
-	if(slaveCommPeriph[SCP_RS485_2].transState == TS_PREP_TO_RECEIVE)
-	{
-		slaveCommPeriph[SCP_RS485_2].transState = TS_RECEIVE;
-
-		reception_rs485_2_blocking();	//Sets the transceiver to Receive
-		//From this point on data will be received via the interrupt.
-	}
+	transitionToReception(&slaveCommPeriph[SCP_RS485_2], \
+				reception_rs485_2_blocking);
 
 	//Did we get new bytes?
 	//=====================
-
 	tryUnpacking(&slaveCommPeriph[SCP_RS485_1], &slaveInbound[SCP_RS485_1]);
 	tryUnpacking(&slaveCommPeriph[SCP_RS485_2], &slaveInbound[SCP_RS485_2]);
 }
