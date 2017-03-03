@@ -142,35 +142,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 		// At this point, the SPI transfer is complete, and packet->unpacked
 		// should contain COMM_STR_BUF_LEN bytes received from the master
-		/* TODO ******************
-		p->port = PORT_SPI;
-		int err = fm_queue_put(&packet_queue, p);
-		if (err) {
-			fm_pool_free_block(p);
-			return;
-		}
-		*/
-		/*
-		// transfer over the buffer
-		// Todo: transfer over the number of bytes that have been received instead of COMM_STR_BUF_LEN every time
-		for(uint8_t i = 0; i < COMM_STR_BUF_LEN; i++)
-		{
-			update_rx_buf_byte_spi(aRxBuffer[i]);
-			//ToDo update to array
-		}
-		// clear the SPI buffer
-		for(uint8_t i = 0; i < COMM_STR_BUF_LEN; i++)
-		{
-			aRxBuffer[i] = 0;
-		}
-		*/
-/*
-		p = fm_pool_allocate_block();
-		if (p == NULL)
-			return; // No more blocks available. Consider reporting up the stack
-*/
-
-
+		/* TODO ******************/
 
 		// reset the SPI pointer and counter
 		spi4_handle.RxXferCount = COMM_STR_BUF_LEN;
@@ -179,8 +151,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 		//Data for the next cycle:
 		//comm_str was already generated, now we place it in the buffer:
-		// TODO ig figure out if we should use buffer pools for the TX direction
-		comm_str_to_txbuffer();
+		memcpy(aTxBuffer, comm_str_spi, COMM_STR_BUF_LEN);
 
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer,
 				(uint8_t *) aRxBuffer, COMM_STR_BUF_LEN) != HAL_OK)

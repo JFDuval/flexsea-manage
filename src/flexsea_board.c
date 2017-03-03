@@ -37,9 +37,8 @@
 #include <fm_uarts.h>
 #include "flexsea_board.h"
 #include "../../flexsea-system/inc/flexsea_system.h"
-//#include <fm_block_allocator.h>
 #include <flexsea_comm.h>
-#include <stdbool.h>
+#include <flexsea_payload.h>
 
 //****************************************************************************
 // Variable(s)
@@ -68,6 +67,12 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //PacketWrappers associated with our ComPeriph structures:
 PacketWrapper masterInbound[3], masterOutbound[3];
 PacketWrapper slaveInbound[2], slaveOutbound[2];
+
+//****************************************************************************
+// Private Function Prototype(s):
+//****************************************************************************
+
+static void transitionToReception(CommPeriph *cp, uint8_t (*f)(void));
 
 //****************************************************************************
 // Function(s)
@@ -155,6 +160,10 @@ void flexsea_receive_from_slave(void)
 	//Transceiver state:
 	//==================
 
+	transitionToReception(&slaveCommPeriph[SCP_RS485_1], \
+			reception_rs485_1_blocking);
+
+	/*
 	//We only listen if we requested a reply:
 	if(slaveCommPeriph[SCP_RS485_1].transState == TS_PREP_TO_RECEIVE)
 	{
@@ -163,6 +172,7 @@ void flexsea_receive_from_slave(void)
 		reception_rs485_1_blocking();	//Sets the transceiver to Receive
 		//From this point on data will be received via the interrupt.
 	}
+	*/
 
 	//We only listen if we requested a reply:
 	if(slaveCommPeriph[SCP_RS485_2].transState == TS_PREP_TO_RECEIVE)
@@ -180,43 +190,19 @@ void flexsea_receive_from_slave(void)
 	tryUnpacking(&slaveCommPeriph[SCP_RS485_2], &slaveInbound[SCP_RS485_2]);
 }
 
-//Copies the generated comm_str to the aTxBuffer
-//It will be transfered the next time the master writes to us.
-//ToDo generalize, use buffers as arguments
-void comm_str_to_txbuffer(void)
+//****************************************************************************
+// Private Function(s)
+//****************************************************************************
+
+//Special function for the RS-485 reception and transceiver state management
+static void transitionToReception(CommPeriph *cp, uint8_t (*f)(void))
 {
-	uint8_t i = 0;
-
-	for(i = 0; i < COMM_STR_BUF_LEN; i++)
+	//We only listen if we requested a reply:
+	if(cp->transState == TS_PREP_TO_RECEIVE)
 	{
-		aTxBuffer[i] = comm_str_spi[i];
+		cp->transState = TS_RECEIVE;
+
+		f();	//Sets the transceiver to Receive
+		//From this point on data will be received via the interrupt.
 	}
-}
-
-//Do you have bytes ready? Can they be unpacked? Let's give it a shot.
-uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw)
-{
-	uint8_t retVal = 0;
-
-	if(cp->rx.bytesReadyFlag > 0)
-	{
-		//Try unpacking. This is the only way to know if we have a packet and
-		//not just random bytes, or an incomplete packet.
-		cp->rx.unpackedPacketsAvailable = unpack_payload( \
-				cp->rx.inputBufferPtr, \
-				cp->rx.packedPtr, \
-				cp->rx.unpackedPtr);
-
-		if(cp->rx.unpackedPacketsAvailable > 0)
-		{
-			//Transition from CommInterface to PacketWrapper:
-			fillPacketFromCommPeriph(cp, pw);
-			retVal = 1;
-		}
-
-		//Drop flag
-		cp->rx.bytesReadyFlag = 0;
-	}
-
-	return retVal;
 }

@@ -48,12 +48,6 @@ void flexsea_send_serial_master(PacketWrapper* p);
 void flexsea_receive_from_master(void);
 void flexsea_start_receiving_from_master(void);
 void flexsea_receive_from_slave(void);
-//void flexsea_clear_slave_read_buffer(void);
-//void flexsea_update_slave_read_buffer(uint8_t read_offset);
-//void build_slave_payload(uint8_t base_addr);
-void comm_str_to_txbuffer(void);
-//void flexsea_prepare_spi_tx_buffer(uint8_t base_addr);
-uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw);
 
 //****************************************************************************
 // Definition(s):
@@ -129,10 +123,6 @@ uint8_t tryUnpacking(CommPeriph *cp, PacketWrapper *pw);
 #define rx_command_wireless				rx_command_5
 #define update_rx_buf_byte_wireless		update_rx_buf_byte_5
 #define update_rx_buf_array_wireless	update_rx_buf_array_5
-
-//Communication ports:
-
-
 
 //===============
 //</FlexSEA User>
