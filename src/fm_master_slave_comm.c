@@ -137,7 +137,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 	if(masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[MCP_USB][INBOUND]);
+		payload_parse_str(&packet[PORT_USB][INBOUND]);
 		newCmdLed = 1;
 	}
 
@@ -145,7 +145,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 	if(masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[MCP_SPI][INBOUND]);
+		payload_parse_str(&packet[PORT_SPI][INBOUND]);
 		newCmdLed = 1;
 	}
 
@@ -153,7 +153,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 	if(masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[MCP_WIRELESS][INBOUND]);
+		payload_parse_str(&packet[PORT_WIRELESS][INBOUND]);
 		newCmdLed = 1;
 	}
 
