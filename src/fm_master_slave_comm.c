@@ -71,33 +71,33 @@ void initMasterSlaveComm(void)
 //Did we receive new commands? Can we parse them?
 void parseMasterCommands(uint8_t *new_cmd)
 {
-	uint8_t newCmdLed = 0;
+	uint8_t parseResult = 0, newCmdLed = 0;
 
 	//USB
 	if(commPeriph[PORT_USB].rx.unpackedPacketsAvailable > 0)
 	{
 		commPeriph[PORT_USB].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[PORT_USB][INBOUND]);
-		newCmdLed = 1;
+		parseResult = payload_parse_str(&packet[PORT_USB][INBOUND]);
+		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
 	}
 
 	//SPI
 	if(commPeriph[PORT_SPI].rx.unpackedPacketsAvailable > 0)
 	{
 		commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[PORT_SPI][INBOUND]);
-		newCmdLed = 1;
+		parseResult = payload_parse_str(&packet[PORT_SPI][INBOUND]);
+		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
 	}
 
 	//Wireless
 	if(commPeriph[PORT_WIRELESS].rx.unpackedPacketsAvailable > 0)
 	{
 		commPeriph[PORT_WIRELESS].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[PORT_WIRELESS][INBOUND]);
-		newCmdLed = 1;
+		parseResult = payload_parse_str(&packet[PORT_WIRELESS][INBOUND]);
+		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
 	}
 
-	*new_cmd = newCmdLed;
+	if(newCmdLed > 0) {*new_cmd = 1;}
 }
 
 //Did we receive new commands? Can we parse them?
