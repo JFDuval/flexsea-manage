@@ -64,10 +64,6 @@ uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 //===============
 //</FlexSEA User>
 
-//PacketWrappers associated with our ComPeriph structures:
-PacketWrapper masterInbound[3], masterOutbound[3];
-PacketWrapper slaveInbound[2], slaveOutbound[2];
-
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -142,11 +138,11 @@ void flexsea_send_serial_master(PacketWrapper* p)
 void flexsea_receive_from_master(void)
 {
 	//USB:
-	tryUnpacking(&masterCommPeriph[MCP_USB],  &masterInbound[MCP_USB]);
+	tryUnpacking(&masterCommPeriph[MCP_USB], &packet[PORT_USB][INBOUND]);
 
 	//Incomplete, ToDo (flag won't be raised)
-	tryUnpacking(&masterCommPeriph[MCP_SPI],  &masterInbound[MCP_SPI]);
-	tryUnpacking(&masterCommPeriph[MCP_WIRELESS],  &masterInbound[MCP_WIRELESS]);
+	tryUnpacking(&masterCommPeriph[MCP_SPI], &packet[PORT_SPI][INBOUND]);
+	tryUnpacking(&masterCommPeriph[MCP_WIRELESS], &packet[PORT_WIRELESS][INBOUND]);
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -174,8 +170,8 @@ void flexsea_receive_from_slave(void)
 
 	//Did we get new bytes?
 	//=====================
-	tryUnpacking(&slaveCommPeriph[SCP_RS485_1], &slaveInbound[SCP_RS485_1]);
-	tryUnpacking(&slaveCommPeriph[SCP_RS485_2], &slaveInbound[SCP_RS485_2]);
+	tryUnpacking(&slaveCommPeriph[SCP_RS485_1], &packet[PORT_RS485_1][INBOUND]);
+	tryUnpacking(&slaveCommPeriph[SCP_RS485_2], &packet[PORT_RS485_2][INBOUND]);
 }
 
 //****************************************************************************

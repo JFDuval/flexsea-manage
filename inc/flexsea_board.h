@@ -140,8 +140,5 @@ extern uint8_t board_up_id;
 extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT];
 extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT];
 
-extern PacketWrapper masterInbound[3], masterOutbound[3];
-extern PacketWrapper slaveInbound[2], slaveOutbound[2];
-
 #endif	//INC_FLEXSEA_BOARD_H
 

@@ -55,14 +55,14 @@ void initMasterSlaveComm(void)
 {
 	//Default state:
 	initCommPeriph(&masterCommPeriph[MCP_USB], PORT_USB, MASTER, rx_buf_4, \
-			comm_str_4, rx_command_4, &masterInbound[MCP_USB], \
-			&masterOutbound[MCP_USB]);
+			comm_str_4, rx_command_4, &packet[PORT_USB][INBOUND], \
+			&packet[PORT_USB][OUTBOUND]);
 	initCommPeriph(&slaveCommPeriph[SCP_RS485_1], PORT_RS485_1, SLAVE, rx_buf_1, \
-			comm_str_1, rx_command_1, &slaveInbound[SCP_RS485_1], \
-			&slaveOutbound[SCP_RS485_1]);
+			comm_str_1, rx_command_1, &packet[PORT_RS485_1][INBOUND], \
+			&packet[PORT_RS485_1][OUTBOUND]);
 	initCommPeriph(&slaveCommPeriph[SCP_RS485_2], PORT_RS485_2, SLAVE, rx_buf_2, \
-			comm_str_2, rx_command_2, &slaveInbound[SCP_RS485_2], \
-			&slaveOutbound[SCP_RS485_2]);
+			comm_str_2, rx_command_2, &packet[PORT_RS485_2][INBOUND], \
+			&packet[PORT_RS485_2][OUTBOUND]);
 
 	//Personalize specific fields:
 	//...
@@ -137,7 +137,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 	if(masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&masterInbound[MCP_USB]);
+		payload_parse_str(&packet[MCP_USB][INBOUND]);
 		newCmdLed = 1;
 	}
 
@@ -145,7 +145,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 	if(masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&masterInbound[MCP_SPI]);
+		payload_parse_str(&packet[MCP_SPI][INBOUND]);
 		newCmdLed = 1;
 	}
 
@@ -153,7 +153,7 @@ void parseMasterCommands(uint8_t *new_cmd)
 	if(masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable > 0)
 	{
 		masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&masterInbound[MCP_WIRELESS]);
+		payload_parse_str(&packet[MCP_WIRELESS][INBOUND]);
 		newCmdLed = 1;
 	}
 
@@ -167,14 +167,14 @@ void parseSlaveCommands(uint8_t *new_cmd)
 	if(slaveCommPeriph[SCP_RS485_1].rx.unpackedPacketsAvailable > 0)
 	{
 		slaveCommPeriph[SCP_RS485_1].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&slaveInbound[SCP_RS485_1]);
+		payload_parse_str(&packet[PORT_RS485_1][INBOUND]);
 	}
 
 	//Valid communication from RS-485 #2?
 	if(slaveCommPeriph[SCP_RS485_2].rx.unpackedPacketsAvailable > 0)
 	{
 		slaveCommPeriph[SCP_RS485_2].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&slaveInbound[SCP_RS485_2]);
+		payload_parse_str(&packet[PORT_RS485_2][INBOUND]);
 	}
 }
 
@@ -194,7 +194,7 @@ void slaveTransmit(uint8_t port)
 	{
 		slaveIndex = SCP_RS485_2;
 	}
-	p = &slaveOutbound[slaveIndex];
+	p = &packet[slaveIndex][OUTBOUND];
 
 	if(slaveCommPeriph[slaveIndex].tx.packetReady == 1)
 	{
