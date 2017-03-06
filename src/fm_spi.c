@@ -168,7 +168,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 void SPI_new_data_Callback(void)
 {
 	//Got new data in, try to decode
-	masterCommPeriph[MCP_SPI].rx.bytesReadyFlag = 1;
+	commPeriph[PORT_SPI].rx.bytesReadyFlag = 1;
 }
 
 //****************************************************************************

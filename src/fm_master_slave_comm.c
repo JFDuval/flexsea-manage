@@ -54,13 +54,13 @@
 void initMasterSlaveComm(void)
 {
 	//Default state:
-	initCommPeriph(&masterCommPeriph[MCP_USB], PORT_USB, MASTER, rx_buf_4, \
+	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_4, \
 			comm_str_4, rx_command_4, &packet[PORT_USB][INBOUND], \
 			&packet[PORT_USB][OUTBOUND]);
-	initCommPeriph(&slaveCommPeriph[SCP_RS485_1], PORT_RS485_1, SLAVE, rx_buf_1, \
+	initCommPeriph(&commPeriph[PORT_RS485_1], PORT_RS485_1, SLAVE, rx_buf_1, \
 			comm_str_1, rx_command_1, &packet[PORT_RS485_1][INBOUND], \
 			&packet[PORT_RS485_1][OUTBOUND]);
-	initCommPeriph(&slaveCommPeriph[SCP_RS485_2], PORT_RS485_2, SLAVE, rx_buf_2, \
+	initCommPeriph(&commPeriph[PORT_RS485_2], PORT_RS485_2, SLAVE, rx_buf_2, \
 			comm_str_2, rx_command_2, &packet[PORT_RS485_2][INBOUND], \
 			&packet[PORT_RS485_2][OUTBOUND]);
 
@@ -134,25 +134,25 @@ void parseMasterCommands(uint8_t *new_cmd)
 	uint8_t newCmdLed = 0;
 
 	//USB
-	if(masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable > 0)
+	if(commPeriph[PORT_USB].rx.unpackedPacketsAvailable > 0)
 	{
-		masterCommPeriph[MCP_USB].rx.unpackedPacketsAvailable = 0;
+		commPeriph[PORT_USB].rx.unpackedPacketsAvailable = 0;
 		payload_parse_str(&packet[PORT_USB][INBOUND]);
 		newCmdLed = 1;
 	}
 
 	//SPI
-	if(masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable > 0)
+	if(commPeriph[PORT_SPI].rx.unpackedPacketsAvailable > 0)
 	{
-		masterCommPeriph[MCP_SPI].rx.unpackedPacketsAvailable = 0;
+		commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = 0;
 		payload_parse_str(&packet[PORT_SPI][INBOUND]);
 		newCmdLed = 1;
 	}
 
 	//Wireless
-	if(masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable > 0)
+	if(commPeriph[PORT_WIRELESS].rx.unpackedPacketsAvailable > 0)
 	{
-		masterCommPeriph[MCP_WIRELESS].rx.unpackedPacketsAvailable = 0;
+		commPeriph[PORT_WIRELESS].rx.unpackedPacketsAvailable = 0;
 		payload_parse_str(&packet[PORT_WIRELESS][INBOUND]);
 		newCmdLed = 1;
 	}
@@ -164,52 +164,47 @@ void parseMasterCommands(uint8_t *new_cmd)
 void parseSlaveCommands(uint8_t *new_cmd)
 {
 	//Valid communication from RS-485 #1?
-	if(slaveCommPeriph[SCP_RS485_1].rx.unpackedPacketsAvailable > 0)
+	if(commPeriph[PORT_RS485_1].rx.unpackedPacketsAvailable > 0)
 	{
-		slaveCommPeriph[SCP_RS485_1].rx.unpackedPacketsAvailable = 0;
+		commPeriph[PORT_RS485_1].rx.unpackedPacketsAvailable = 0;
 		payload_parse_str(&packet[PORT_RS485_1][INBOUND]);
 	}
 
 	//Valid communication from RS-485 #2?
-	if(slaveCommPeriph[SCP_RS485_2].rx.unpackedPacketsAvailable > 0)
+	if(commPeriph[PORT_RS485_2].rx.unpackedPacketsAvailable > 0)
 	{
-		slaveCommPeriph[SCP_RS485_2].rx.unpackedPacketsAvailable = 0;
+		commPeriph[PORT_RS485_2].rx.unpackedPacketsAvailable = 0;
 		payload_parse_str(&packet[PORT_RS485_2][INBOUND]);
 	}
 }
 
 //Slave Communication function. Call at 1kHz.
-void slaveTransmit(uint8_t port)
+void slaveTransmit(Port port)
 {
 	/*Note: this is only a demonstration. In the final application, we want
 			 * to send the commands accumulated on a ring buffer here.*/
 	uint8_t slaveIndex = 0;
 	PacketWrapper *p;
 
-	if(port == PORT_RS485_1)
+	if((port == PORT_RS485_1) || (port == PORT_RS485_2))
 	{
-		slaveIndex = SCP_RS485_1;
-	}
-	else if(port == PORT_RS485_2)
-	{
-		slaveIndex = SCP_RS485_2;
-	}
-	p = &packet[slaveIndex][OUTBOUND];
+		p = &packet[port][OUTBOUND];
 
-	if(slaveCommPeriph[slaveIndex].tx.packetReady == 1)
-	{
-		slaveCommPeriph[slaveIndex].tx.packetReady = 0;
-
-		if(IS_CMD_RW(p->cmd) == READ)
+		if(commPeriph[port].tx.packetReady == 1)
 		{
-			slaveCommPeriph[slaveIndex].transState = TS_TRANSMIT_THEN_RECEIVE;
-		}
-		else
-		{
-			slaveCommPeriph[slaveIndex].transState = TS_TRANSMIT;
-		}
+			commPeriph[port].tx.packetReady = 0;
 
-		flexsea_send_serial_slave(p);
+			if(IS_CMD_RW(p->cmd) == READ)
+			{
+				commPeriph[port].transState = TS_TRANSMIT_THEN_RECEIVE;
+			}
+			else
+			{
+				commPeriph[port].transState = TS_TRANSMIT;
+			}
+
+			flexsea_send_serial_slave(p);
+		}
 	}
 }
 

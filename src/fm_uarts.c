@@ -444,13 +444,13 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
-	slaveCommPeriph[0].rx.bytesReadyFlag++;
+	commPeriph[PORT_RS485_1].rx.bytesReadyFlag++;
 }
 
 //Code branches here once a TX transfer is complete (either: ISR or DMA)
 void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
-	uint8_t transceiver = 0;
+	Port transceiver = 0;
 	//Reset state to Ready:
 	husart->State = HAL_USART_STATE_READY;
 
@@ -458,11 +458,11 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	if(husart->Instance == USART1)
 	{
 		DEBUG_OUT_DIO4(0);	//ToDo remove, debug only
-		transceiver = 0;
+		transceiver = PORT_RS485_1;
 	}
 	else if(husart->Instance == USART6)
 	{
-		transceiver = 1;
+		transceiver = PORT_RS485_2;
 	}
 	else
 	{
@@ -470,9 +470,9 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	}
 
 	//Change state:
-	if(slaveCommPeriph[transceiver].transState == TS_TRANSMIT_THEN_RECEIVE)
+	if(commPeriph[transceiver].transState == TS_TRANSMIT_THEN_RECEIVE)
 	{
-		slaveCommPeriph[transceiver].transState = TS_PREP_TO_RECEIVE;
+		commPeriph[transceiver].transState = TS_PREP_TO_RECEIVE;
 	}
 }
 
@@ -496,7 +496,7 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
-	slaveCommPeriph[1].rx.bytesReadyFlag++;
+	commPeriph[PORT_RS485_2].rx.bytesReadyFlag++;
 }
 
 //Function called after a completed DMA transfer, UART3 RX
@@ -513,7 +513,7 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	//Empty DMA buffer once it's copied:
 	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
 	//masterComm[2].rx.bytesReady++;
-	masterCommPeriph[2].rx.bytesReadyFlag++;
+	commPeriph[PORT_WIRELESS].rx.bytesReadyFlag++;
 }
 
 //****************************************************************************

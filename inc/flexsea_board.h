@@ -84,11 +84,11 @@ void flexsea_receive_from_slave(void);
 #define ENABLE_FLEXSEA_BUF_5		//Wireless
 
 //CommPeriph indexes:
-#define MCP_USB						0
-#define MCP_SPI						1
-#define MCP_WIRELESS				2
-#define SCP_RS485_1					0
-#define SCP_RS485_2					1
+//#define MCP_USB						0
+//#define MCP_SPI						1
+//#define MCP_WIRELESS				2
+//#define SCP_RS485_1					0
+//#define SCP_RS485_2					1
 
 //Overload buffer & function names (for user convenience):
 

@@ -293,9 +293,9 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 	{
 		(*Len) = COMM_PERIPH_ARR_LEN;
 	}
-	//memcpy(masterCommPeriph[0].rx.packed, Buf, (*Len));
+
 	update_rx_buf_array_usb(UserRxBufferFS, (*Len));
-	masterCommPeriph[0].rx.bytesReadyFlag = 1;
+	commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
 
 	return (USBD_OK);
   /* USER CODE END 6 */

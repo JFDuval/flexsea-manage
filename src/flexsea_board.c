@@ -82,35 +82,30 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	uint8_t* str = p->packed;
 	uint16_t length = COMM_STR_BUF_LEN;
 
+	//If it's a valid slave port, send message...
 	if(port == PORT_RS485_1)
 	{
 		puts_rs485_1(str, length);
-		if(IS_CMD_RW(p->cmd))
-		{
-			slaveCommPeriph[SCP_RS485_1].transState = TS_TRANSMIT_THEN_RECEIVE;
-		}
-		else
-		{
-			slaveCommPeriph[SCP_RS485_1].transState = TS_TRANSMIT;
-		}
-
 	}
 	else if(port == PORT_RS485_2)
 	{
 		puts_rs485_2(str, length);
-		if(IS_CMD_RW(p->cmd))
-		{
-			slaveCommPeriph[SCP_RS485_2].transState = TS_TRANSMIT_THEN_RECEIVE;
-		}
-		else
-		{
-			slaveCommPeriph[SCP_RS485_2].transState = TS_TRANSMIT;
-		}
 	}
 	else
 	{
 		//Unknown port, call flexsea_error()
 		flexsea_error(SE_INVALID_SLAVE);
+		return;
+	}
+
+	//...then take care of the transceiver state to allow reception (if needed)
+	if(IS_CMD_RW(p->cmd))
+	{
+		commPeriph[port].transState = TS_TRANSMIT_THEN_RECEIVE;
+	}
+	else
+	{
+		commPeriph[port].transState = TS_TRANSMIT;
 	}
 }
 
@@ -138,11 +133,11 @@ void flexsea_send_serial_master(PacketWrapper* p)
 void flexsea_receive_from_master(void)
 {
 	//USB:
-	tryUnpacking(&masterCommPeriph[MCP_USB], &packet[PORT_USB][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
 	//Incomplete, ToDo (flag won't be raised)
-	tryUnpacking(&masterCommPeriph[MCP_SPI], &packet[PORT_SPI][INBOUND]);
-	tryUnpacking(&masterCommPeriph[MCP_WIRELESS], &packet[PORT_WIRELESS][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_WIRELESS], &packet[PORT_WIRELESS][INBOUND]);
 }
 
 void flexsea_start_receiving_from_master(void)
@@ -163,15 +158,15 @@ void flexsea_receive_from_slave(void)
 {
 	//Transceiver state:
 	//==================
-	transitionToReception(&slaveCommPeriph[SCP_RS485_1], \
+	transitionToReception(&commPeriph[PORT_RS485_1], \
 			reception_rs485_1_blocking);
-	transitionToReception(&slaveCommPeriph[SCP_RS485_2], \
+	transitionToReception(&commPeriph[PORT_RS485_2], \
 				reception_rs485_2_blocking);
 
 	//Did we get new bytes?
 	//=====================
-	tryUnpacking(&slaveCommPeriph[SCP_RS485_1], &packet[PORT_RS485_1][INBOUND]);
-	tryUnpacking(&slaveCommPeriph[SCP_RS485_2], &packet[PORT_RS485_2][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);
 }
 
 //****************************************************************************
