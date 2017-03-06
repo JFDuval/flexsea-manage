@@ -68,66 +68,6 @@ void initMasterSlaveComm(void)
 	//...
 }
 
-//Initialize CommPeriph to defaults:
-void initCommPeriph(CommPeriph *cp, Port port, PortType pt, uint8_t *input, \
-					uint8_t *unpacked, uint8_t *packed, \
-					PacketWrapper *inbound, PacketWrapper *outbound)
-{
-	cp->port = port;
-	cp->portType = pt;
-	cp->transState = TS_UNKNOWN;
-
-	cp->rx.bytesReadyFlag = 0;
-	cp->rx.unpackedPacketsAvailable = 0;
-	cp->rx.inputBufferPtr = input;
-	cp->rx.unpackedPtr = unpacked;
-	cp->rx.packedPtr = packed;
-	memset(cp->rx.packed, 0, COMM_PERIPH_ARR_LEN);
-	memset(cp->rx.unpacked, 0, COMM_PERIPH_ARR_LEN);
-
-	cp->tx.bytesReadyFlag = 0;
-	cp->tx.unpackedPacketsAvailable = 0;
-	cp->tx.unpackedPtr = cp->tx.unpacked;
-	cp->tx.packedPtr = cp->tx.packed;
-	memset(cp->tx.packed, 0, COMM_PERIPH_ARR_LEN);
-	memset(cp->tx.unpacked, 0, COMM_PERIPH_ARR_LEN);
-
-	linkCommPeriphPacketWrappers(cp, inbound, outbound);
-}
-
-//Each CommPeriph is associated to two PacketWrappers (inbound & outbound)
-void linkCommPeriphPacketWrappers(CommPeriph *cp, PacketWrapper *inbound, \
-					PacketWrapper *outbound)
-{
-	//Force family:
-	cp->in = inbound;
-	cp->out = outbound;
-	inbound->parent = (CommPeriph*)cp;
-	outbound->parent = (CommPeriph*)cp;
-
-	//Children inherit from parent:
-	if(cp->portType == MASTER)
-	{
-		inbound->travelDir = DOWNSTREAM;
-		inbound->sourcePort = cp->port;
-		inbound->destinationPort = PORT_NONE;
-
-		outbound->travelDir = UPSTREAM;
-		outbound->sourcePort = PORT_NONE;
-		outbound->destinationPort = cp->port;
-	}
-	else
-	{
-		inbound->travelDir = UPSTREAM;
-		inbound->sourcePort = cp->port;
-		inbound->destinationPort = PORT_NONE;
-
-		outbound->travelDir = DOWNSTREAM;
-		outbound->sourcePort = PORT_NONE;
-		outbound->destinationPort = cp->port;
-	}
-}
-
 //Did we receive new commands? Can we parse them?
 void parseMasterCommands(uint8_t *new_cmd)
 {
