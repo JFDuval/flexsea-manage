@@ -43,6 +43,10 @@
 // Variable(s)
 //****************************************************************************
 
+//Map fsm case to an index:
+void (*fsmCases[10])(void) = {&mainFSM0, &mainFSM1, &mainFSM2, &mainFSM3, \
+			&mainFSM4, &mainFSM5, &mainFSM6, &mainFSM7,	&mainFSM8, &mainFSM9};
+
 //****************************************************************************
 // Function(s)
 //****************************************************************************
@@ -79,41 +83,8 @@ int main(void)
 		{
 			tb_100us_flag = 0;
 
-			switch(tb_100us_timeshare)
-			{
-				case 0:
-					main_fsm_case_0();
-					break;
-				case 1:
-					main_fsm_case_1();
-					break;
-				case 2:
-					main_fsm_case_2();
-					break;
-				case 3:
-					main_fsm_case_3();
-					break;
-				case 4:
-					main_fsm_case_4();
-					break;
-				case 5:
-					main_fsm_case_5();
-					break;
-				case 6:
-					main_fsm_case_6();
-					break;
-				case 7:
-					main_fsm_case_7();
-					break;
-				case 8:
-					main_fsm_case_8();
-					break;
-				case 9:
-					main_fsm_case_9();
-					break;
-				default:
-					break;
-			}
+			//Timing FSM:
+			fsmCases[tb_100us_timeshare]();
 
 			//Increment value, limits to 0-9
 			tb_100us_timeshare++;
@@ -121,7 +92,7 @@ int main(void)
 
 			//The code below is executed every 100us, after the previous slot.
 			//Keep it short!
-			main_fsm_10kHz();
+			mainFSM10kHz();
 		}
 
 		//1ms

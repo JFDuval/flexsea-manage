@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] main_fsm: Contains all the case() code for the main FSM
 *****************************************************************************
@@ -27,16 +27,16 @@
 	* 2016-09-23 | jfduval | Initial GPL-3.0 release
 	*
 ****************************************************************************/
-	
+
 #ifndef INC_MAIN_FSM_H
 #define INC_MAIN_FSM_H
 
 //****************************************************************************
 // Include(s)
-//****************************************************************************		
-	
+//****************************************************************************
+
 #include "main.h"
-	
+
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
@@ -47,28 +47,28 @@ extern uint8_t new_cmd_led;
 // Public Function Prototype(s):
 //****************************************************************************
 
-void main_fsm_case_0(void);
-void main_fsm_case_1(void);
-void main_fsm_case_2(void);
-void main_fsm_case_3(void);
-void main_fsm_case_4(void);
-void main_fsm_case_5(void);
-void main_fsm_case_6(void);
-void main_fsm_case_7(void);
-void main_fsm_case_8(void);
-void main_fsm_case_9(void);
+void mainFSM0(void);
+void mainFSM1(void);
+void mainFSM2(void);
+void mainFSM3(void);
+void mainFSM4(void);
+void mainFSM5(void);
+void mainFSM6(void);
+void mainFSM7(void);
+void mainFSM8(void);
+void mainFSM9(void);
 
-void main_fsm_10kHz(void);
-void main_fsm_asynchronous(void);
+void mainFSM10kHz(void);
+void mainFSMasynchronous(void);
 
 //****************************************************************************
 // Definition(s):
-//****************************************************************************	
+//****************************************************************************
 
 //****************************************************************************
 // Structure(s)
-//****************************************************************************	
+//****************************************************************************
 
-	
+
 #endif	//INC_MAIN_FSM_H
-	
+

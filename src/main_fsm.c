@@ -61,31 +61,31 @@ uint16_t delay = 0;
 //================
 
 //Case 0: I2C1 + slaveComm
-void main_fsm_case_0(void)
+void mainFSM0(void)
 {
 	slaveTransmit(PORT_RS485_1);
 }
 
 //Case 1: I2C2
-void main_fsm_case_1(void)
+void mainFSM1(void)
 {
 	i2c1_fsm();
 }
 
 //Case 2:
-void main_fsm_case_2(void)
+void mainFSM2(void)
 {
 	i2c2_fsm();
 }
 
 //Case 3:
-void main_fsm_case_3(void)
+void mainFSM3(void)
 {
 	slaveTransmit(PORT_RS485_2);
 }
 
 //Case 4: User Functions
-void main_fsm_case_4(void)
+void mainFSM4(void)
 {
 	#if(RUNTIME_FSM1 == ENABLED)
 	user_fsm_1();
@@ -93,7 +93,7 @@ void main_fsm_case_4(void)
 }
 
 //Case 5:
-void main_fsm_case_5(void)
+void mainFSM5(void)
 {
 	#ifdef BT_SLAVE_STREAM
 
@@ -117,7 +117,7 @@ void main_fsm_case_5(void)
 }
 
 //Case 6:
-void main_fsm_case_6(void)
+void mainFSM6(void)
 {
 	//User switch:
 	manag1.sw1 = read_sw1();
@@ -127,13 +127,13 @@ void main_fsm_case_6(void)
 }
 
 //Case 7:
-void main_fsm_case_7(void)
+void mainFSM7(void)
 {
 
 }
 
 //Case 8: User functions
-void main_fsm_case_8(void)
+void mainFSM8(void)
 {
 	#if(RUNTIME_FSM2 == ENABLED)
 	user_fsm_2();
@@ -141,7 +141,7 @@ void main_fsm_case_8(void)
 }
 
 //Case 9: User Interface
-void main_fsm_case_9(void)
+void mainFSM9(void)
 {
 	//UI RGB LED
 	rgbLedRefreshFade();
@@ -155,7 +155,7 @@ void main_fsm_case_9(void)
 //10kHz time slot:
 //================
 
-void main_fsm_10kHz(void)
+void mainFSM10kHz(void)
 {
 	#ifdef USE_COMM_TEST
 
@@ -183,7 +183,7 @@ void main_fsm_10kHz(void)
 //Asynchronous time slots:
 //========================
 
-void main_fsm_asynchronous(void)
+void mainFSMasynchronous(void)
 {
 
 }
