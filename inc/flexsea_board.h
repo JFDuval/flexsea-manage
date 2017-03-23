@@ -37,7 +37,7 @@
 //****************************************************************************
 
 #include <stdint.h>
-#include <flexsea.h>
+#include "../flexsea-comm/inc/flexsea_comm.h"
 
 //****************************************************************************
 // Prototype(s):
@@ -48,6 +48,10 @@ void flexsea_send_serial_master(PacketWrapper* p);
 void flexsea_receive_from_master(void);
 void flexsea_start_receiving_from_master(void);
 void flexsea_receive_from_slave(void);
+uint8_t getBoardID(void);
+uint8_t getBoardUpID(void);
+uint8_t getBoardSubID(uint8_t sub, uint8_t idx);
+uint8_t getSlaveCnt(uint8_t sub);
 
 //****************************************************************************
 // Definition(s):
@@ -56,10 +60,10 @@ void flexsea_receive_from_slave(void);
 //<FlexSEA User>
 //==============
 
-//Board type - un-comment only one!
-//Make sure it matches with board_id!
+//Board type: define as a global symbol. List of options:
+//(and make sure it matches with board_id!)
 //#define BOARD_TYPE_FLEXSEA_PLAN
-#define BOARD_TYPE_FLEXSEA_MANAGE
+//#define BOARD_TYPE_FLEXSEA_MANAGE
 //#define BOARD_TYPE_FLEXSEA_EXECUTE
 
 //How many slave busses?
@@ -92,7 +96,7 @@ void flexsea_receive_from_slave(void);
 
 //Overload buffer & function names (for user convenience):
 
-#include <flexsea_buffers.h>
+//#include <flexsea_buffers.h>
 
 #define comm_str_485_1					comm_str_1
 #define unpack_payload_485_1			unpack_payload_1
@@ -134,11 +138,6 @@ void flexsea_receive_from_slave(void);
 //****************************************************************************
 // Shared variable(s)
 //****************************************************************************
-
-extern uint8_t board_id;
-extern uint8_t board_up_id;
-extern uint8_t board_sub1_id[SLAVE_BUS_1_CNT];
-extern uint8_t board_sub2_id[SLAVE_BUS_2_CNT];
 
 #endif	//INC_FLEXSEA_BOARD_H
 
