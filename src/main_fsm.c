@@ -96,6 +96,7 @@ void mainFSM4(void)
 //Case 5:
 void mainFSM5(void)
 {
+	//ToDo: remove, replaced by the Auto mode
 	#ifdef BT_SLAVE_STREAM
 
 		//No transmission for the first 5s:
@@ -171,6 +172,11 @@ void mainFSM9(void)
 
 void mainFSM10kHz(void)
 {
+	static uint8_t toggle = 0;
+	toggle ^= 1;
+	DEBUG_OUT_DIO4(toggle);
+
+
 	#ifdef USE_COMM_TEST
 
 		comm_test();

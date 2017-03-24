@@ -43,13 +43,11 @@
 #include <flexsea.h>
 /* USER CODE END INCLUDE */
 
- extern volatile uint8_t data_ready_usb;
- extern volatile uint8_t freshUSBpacketFlag;
 
 extern   USBD_HandleTypeDef  *hUsbDevice_0;
-extern uint8_t UserRxBufferFS[];
+//extern uint8_t UserRxBufferFS[];
 
- uint32_t usb_bytes_available(void);
+ //uint32_t usb_bytes_available(void);
 //int8_t CDC_Receive_FS  (uint8_t* pbuf, uint32_t *Len);
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY

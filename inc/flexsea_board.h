@@ -77,9 +77,6 @@ uint8_t getSlaveCnt(uint8_t sub);
 //How many possible masters?
 #define COMM_MASTERS				3
 
-//Slave Read Buffer Size:
-//#define SLAVE_READ_BUFFER_LEN		32		//ToDo TBD
-
 //Enabled the required FlexSEA Buffers for this board:
 #define ENABLE_FLEXSEA_BUF_1		//RS-485 #1
 #define ENABLE_FLEXSEA_BUF_2		//RS-485 #2
@@ -87,16 +84,7 @@ uint8_t getSlaveCnt(uint8_t sub);
 #define ENABLE_FLEXSEA_BUF_4		//USB
 #define ENABLE_FLEXSEA_BUF_5		//Wireless
 
-//CommPeriph indexes:
-//#define MCP_USB						0
-//#define MCP_SPI						1
-//#define MCP_WIRELESS				2
-//#define SCP_RS485_1					0
-//#define SCP_RS485_2					1
-
 //Overload buffer & function names (for user convenience):
-
-//#include <flexsea_buffers.h>
 
 #define comm_str_485_1					comm_str_1
 #define unpack_payload_485_1			unpack_payload_1

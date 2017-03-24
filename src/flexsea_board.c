@@ -114,6 +114,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 	Port port = p->destinationPort;
 	uint8_t *str = p->packed;
 	uint16_t length = COMM_STR_BUF_LEN;
+	uint8_t retVal = 0;
 
 	if(port == PORT_SPI)
 	{
@@ -122,7 +123,11 @@ void flexsea_send_serial_master(PacketWrapper* p)
 	}
 	else if(port == PORT_USB)
 	{
-		CDC_Transmit_FS(str, length);
+		retVal = CDC_Transmit_FS(str, length);
+		if(retVal != USBD_OK)
+		{
+			while(1);
+		}
 	}
 	else if(port == PORT_WIRELESS)
 	{
