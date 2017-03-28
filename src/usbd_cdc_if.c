@@ -267,7 +267,7 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 	//ToDo add better overflow detection here
 	tLen = ((*Len) > COMM_PERIPH_ARR_LEN) ? COMM_PERIPH_ARR_LEN : (*Len);
 
-	update_rx_buf_array_usb(UserRxBufferFS, tLen);
+	update_rx_buf_usb(UserRxBufferFS, tLen);
 	commPeriph[PORT_USB].rx.bytesReadyFlag = 1;
 
 	//Buffers for next packet:

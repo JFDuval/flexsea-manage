@@ -138,7 +138,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 void flexsea_receive_from_master(void)
 {
 	//USB:
-	tryUnpacking(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
+	commPeriph[PORT_USB].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
 	//Incomplete, ToDo (flag won't be raised)
 	tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);

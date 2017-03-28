@@ -139,8 +139,7 @@ void mainFSM7(void)
 			//hopefully this works ok
 			uint8_t cp_str[256] = {0};
 			cp_str[P_XID] = streamReceiver;
-			uint8_t info[2] = {PORT_USB,PORT_USB};
-			(*flexsea_payload_ptr[streamCmd][RX_PTYPE_READ]) (cp_str, info);
+			(*flexsea_payload_ptr[streamCmd][RX_PTYPE_READ]) (cp_str, &streamPortInfo);
 		}
 		sinceLastStreamSend++;
 		sinceLastStreamSend%=streamPeriod;
