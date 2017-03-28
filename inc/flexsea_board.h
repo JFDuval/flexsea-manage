@@ -109,6 +109,8 @@ uint8_t getSlaveCnt(uint8_t sub);
  #define rx_command_usb					rx_command_4
  #define update_rx_buf_byte_usb			update_rx_buf_byte_4
  #define update_rx_buf_array_usb		update_rx_buf_array_4
+#define update_rx_buf_usb(x, y)		circ_buff_write(commPeriph[PORT_USB].rx.circularBuff, (x), (y))
+
 
 #define comm_str_wireless				comm_str_5
 #define unpack_payload_wireless			unpack_payload_5
