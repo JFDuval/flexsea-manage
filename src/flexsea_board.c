@@ -126,7 +126,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 		retVal = CDC_Transmit_FS(str, length);
 		if(retVal != USBD_OK)
 		{
-			while(1);
+			//(Handle errors here)
 		}
 	}
 	else if(port == PORT_WIRELESS)
