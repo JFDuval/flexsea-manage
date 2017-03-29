@@ -45,7 +45,6 @@ ADC_MultiModeTypeDef multimode;
 
 DMA_HandleTypeDef hdma_adc1;
 __IO volatile uint16_t adc_results[ADC_CHANNELS];
-//unsigned int adc_results[ADC_CHANNELS];
 unsigned int adc_filtered_results[ADC_CHANNELS];
 
 volatile uint8_t readyForNextAdcConversion = 0;

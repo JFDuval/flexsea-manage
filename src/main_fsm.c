@@ -51,13 +51,6 @@
 
 uint8_t new_cmd_led = 0;
 
-//Test code only - ToDo integrate or remove:
-//#define BT_SLAVE_STREAM
-#ifdef BT_SLAVE_STREAM
-uint8_t info[2] = {PORT_WIRELESS, PORT_WIRELESS};
-uint16_t delay = 0;
-#endif
-
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -104,26 +97,7 @@ void mainFSM4(void)
 //Case 5:
 void mainFSM5(void)
 {
-	//ToDo: remove, replaced by the Auto mode
-	#ifdef BT_SLAVE_STREAM
 
-		//No transmission for the first 5s:
-		delay++;
-		if(delay < 5000)
-			return;
-
-		//Send data at 100Hz:
-		static uint8_t cnt = 0;
-		cnt++;
-		cnt %= 10;
-		if(!cnt)
-		{
-			tx_cmd_data_read_all_w(TX_N_DEFAULT);
-			//delayUsBlocking(500);	//ToDo remove, test only! ************
-			packAndSend(P_AND_S_DEFAULT, FLEXSEA_PLAN_1, info, SEND_TO_MASTER);
-		}
-
-	#endif	//BT_SLAVE_STREAM
 }
 
 //Case 6:
@@ -168,10 +142,7 @@ void mainFSM9(void)
 	//UI RGB LED
 	rgbLedRefreshFade();
 	rgb_led_ui(0, 0, 0, new_cmd_led);    //ToDo add error codes
-	if(new_cmd_led)
-	{
-		new_cmd_led = 0;
-	}
+	if(new_cmd_led) {new_cmd_led = 0;}
 }
 
 //10kHz time slot:
@@ -179,11 +150,6 @@ void mainFSM9(void)
 
 void mainFSM10kHz(void)
 {
-	static uint8_t toggle = 0;
-	toggle ^= 1;
-	DEBUG_OUT_DIO4(toggle);
-
-
 	#ifdef USE_COMM_TEST
 
 		comm_test();
@@ -214,7 +180,3 @@ void mainFSMasynchronous(void)
 {
 
 }
-
-//****************************************************************************
-// Private Function(s)
-//****************************************************************************

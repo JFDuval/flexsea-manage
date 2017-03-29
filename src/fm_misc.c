@@ -53,9 +53,6 @@
 // Variable(s)
 //****************************************************************************
 
-uint8_t test_payload[PAYLOAD_BUF_LEN];
-uint8_t usb_test_string[40] = "[FlexSEA-Manage 0.1 USB]\n";
-
 //****************************************************************************
 // Private Function Prototype(s):
 //****************************************************************************
@@ -151,8 +148,6 @@ void init_peripherals(void)
 }
 
 //Computes a bunch of stuff to maximize calculations:
-#define MAX_I	25
-#define MAX_J	25
 long long bunchOfUselessMath(void)
 {
 	float resArray[MAX_I*MAX_J];

@@ -255,7 +255,7 @@ void rgb_led_test_code_blocking(void)
 	}
 }
 
-void user_button_test_blocking(void)
+void user_button_test(void)
 {
 	if(read_sw1())
 	{
@@ -265,8 +265,6 @@ void user_button_test_blocking(void)
 	{
 		LED1(1);
 	}
-
-	//HAL_Delay(10);
 }
 
 //****************************************************************************
