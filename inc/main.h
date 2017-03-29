@@ -40,6 +40,9 @@
 #include <string.h>
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
+#include "cortexm/ExceptionHandlers.h"
+
+/*
 #include "stm32f4xx_hal_conf.h"
 #include "stm32f4xx_hal_cortex.h"
 #include "stm32f4xx_hal_uart.h"
@@ -49,7 +52,7 @@
 #include "stm32f4xx_hal_dma.h"
 #include "stm32f4xx_hal_spi.h"
 #include "stm32f4xx_hal_tim.h"
-#include "cortexm/ExceptionHandlers.h"
+
 #include "main_fsm.h"
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
@@ -75,6 +78,8 @@
 #include "../flexsea-comm/inc/flexsea.h"
 #include "../flexsea-system/test/flexsea-system_test-all.h"
 #include "../flexsea-comm/test/flexsea-comm_test-all.h"
+*/
+
 
 //****************************************************************************
 // Prototype(s):

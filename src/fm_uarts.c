@@ -38,6 +38,8 @@
 #include <main.h>
 #include "fm_uarts.h"
 #include <flexsea_comm.h>
+#include "flexsea_sys_def.h"
+#include "flexsea_board.h"
 
 //****************************************************************************
 // Variable(s)

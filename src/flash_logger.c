@@ -218,7 +218,7 @@ int flashLogInit(void)
 	}
 
 	// we did not find any records, just start from scratch
-	if (log_head == ~0)
+	if (log_head == 0)
 	{
 		log_head = log_tail = 0;
 		return 0;

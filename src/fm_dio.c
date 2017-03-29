@@ -41,6 +41,7 @@
 
 #include "main.h"
 #include "fm_dio.h"
+#include "flexsea_sys_def.h"
 
 //****************************************************************************
 // Variable(s)

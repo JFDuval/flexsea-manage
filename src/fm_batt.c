@@ -36,6 +36,9 @@
 
 #include "main.h"
 #include "fm_batt.h"
+#include "flexsea_global_structs.h"
+#include "fm_i2c.h"
+#include "stm32f4xx_hal_i2c.h"
 
 //****************************************************************************
 // Variable(s)

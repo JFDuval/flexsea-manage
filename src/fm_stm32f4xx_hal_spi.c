@@ -20,25 +20,25 @@
       The SPI HAL driver can be used as follows:
 
       (#) Declare a SPI_HandleTypeDef handle structure, for example:
-          SPI_HandleTypeDef  hspi; 
+          SPI_HandleTypeDef  hspi;
 
       (#)Initialize the SPI low level resources by implementing the HAL_SPI_MspInit ()API:
-          (##) Enable the SPIx interface clock 
+          (##) Enable the SPIx interface clock
           (##) SPI pins configuration
-              (+++) Enable the clock for the SPI GPIOs 
+              (+++) Enable the clock for the SPI GPIOs
               (+++) Configure these SPI pins as alternate function push-pull
           (##) NVIC configuration if you need to use interrupt process
               (+++) Configure the SPIx interrupt priority
               (+++) Enable the NVIC SPI IRQ handle
           (##) DMA Configuration if you need to use DMA process
               (+++) Declare a DMA_HandleTypeDef handle structure for the transmit or receive stream
-              (+++) Enable the DMAx interface clock using 
-              (+++) Configure the DMA handle parameters 
+              (+++) Enable the DMAx interface clock using
+              (+++) Configure the DMA handle parameters
               (+++) Configure the DMA Tx or Rx Stream
               (+++) Associate the initilalized hdma_tx handle to the hspi DMA Tx or Rx handle
               (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx or Rx Stream
 
-      (#) Program the Mode, Direction , Data size, Baudrate Prescaler, NSS 
+      (#) Program the Mode, Direction , Data size, Baudrate Prescaler, NSS
           management, Clock polarity and phase, FirstBit and CRC configuration in the hspi Init structure.
 
       (#) Initialize the SPI registers by calling the HAL_SPI_Init() API:
@@ -50,7 +50,7 @@
           (##) Master 2Lines RxOnly
           (##) Master 1Line Rx
       (#) The CRC feature is not managed when the DMA circular mode is enabled
-      (#) When the SPI DMA Pause/Stop features are used, we must use the following APIs 
+      (#) When the SPI DMA Pause/Stop features are used, we must use the following APIs
           the HAL_SPI_DMAPause()/ HAL_SPI_DMAStop() only under the SPI callbacks
 
 
@@ -92,6 +92,7 @@
 //ToDo 2: update the file header (from STM, modified by Steven, etc)
 
 #include "main.h"
+#include "flexsea_comm_def.h"
 
 #ifndef NULL
 	#define NULL 0
@@ -101,7 +102,7 @@
  * @{
  */
 
-/** @defgroup SPI 
+/** @defgroup SPI
  * @brief SPI HAL module driver
  * @{
  */
@@ -127,23 +128,23 @@ static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uin
  * @{
  */
 
-/** @defgroup SPI_Group1 Initialization and de-initialization functions 
- *  @brief    Initialization and Configuration functions 
+/** @defgroup SPI_Group1 Initialization and de-initialization functions
+ *  @brief    Initialization and Configuration functions
  *
 @verbatim
  ===============================================================================
               ##### Initialization and de-initialization functions #####
  ===============================================================================
-    [..]  This subsection provides a set of functions allowing to initialize and 
+    [..]  This subsection provides a set of functions allowing to initialize and
           de-initialiaze the SPIx peripheral:
 
-      (+) User must implement HAL_SPI_MspInit() function in which he configures 
+      (+) User must implement HAL_SPI_MspInit() function in which he configures
           all related peripherals resources (CLOCK, GPIO, DMA, IT and NVIC ).
 
-      (+) Call the function HAL_SPI_Init() to configure the selected device with 
+      (+) Call the function HAL_SPI_Init() to configure the selected device with
           the selected configuration:
         (++) Mode
-        (++) Direction 
+        (++) Direction
         (++) Data Size
         (++) Clock Polarity and Phase
         (++) NSS Management
@@ -153,8 +154,8 @@ static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uin
         (++) CRC Calculation
         (++) CRC Polynomial if CRC enabled
 
-      (+) Call the function HAL_SPI_DeInit() to restore the default configuration 
-          of the selected SPIx periperal.       
+      (+) Call the function HAL_SPI_DeInit() to restore the default configuration
+          of the selected SPIx periperal.
 
 @endverbatim
  * @{
@@ -310,10 +311,10 @@ __weak void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
             after finishing transfer.
        (++) No-Blocking mode: The communication is performed using Interrupts
            or DMA, These APIs return the HAL status.
-           The end of the data processing will be indicated through the 
-           dedicated SPI IRQ when using Interrupt mode or the DMA IRQ when 
+           The end of the data processing will be indicated through the
+           dedicated SPI IRQ when using Interrupt mode or the DMA IRQ when
            using DMA mode.
-           The HAL_SPI_TxCpltCallback(), HAL_SPI_RxCpltCallback() and HAL_SPI_TxRxCpltCallback() user callbacks 
+           The HAL_SPI_TxCpltCallback(), HAL_SPI_RxCpltCallback() and HAL_SPI_TxRxCpltCallback() user callbacks
            will be executed respectivelly at the end of the transmit or Receive process
            The HAL_SPI_ErrorCallback()user callback will be executed when a communication error is detected
 
@@ -1385,13 +1386,13 @@ __weak void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
  * @}
  */
 
-/** @defgroup SPI_Group3 Peripheral State and Errors functions 
+/** @defgroup SPI_Group3 Peripheral State and Errors functions
  *  @brief   SPI control functions
  *
 @verbatim
  ===============================================================================
                       ##### Peripheral State and Errors functions #####
- ===============================================================================  
+ ===============================================================================
     [..]
     This subsection provides a set of functions allowing to control the SPI.
      (+) HAL_SPI_GetState() API can be helpful to check in run-time the state of the SPI peripheral
@@ -1694,7 +1695,7 @@ static void SPI_RxISR(SPI_HandleTypeDef *hspi)
  *                the configuration information for SPI module.
  * @retval HAL status
  */
-static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
+static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout)
 {
 	uint32_t tickstart = 0;
 

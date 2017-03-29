@@ -211,7 +211,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="flexsea-manage/main.c|test/test_main.c|common|common/src|system/Src/stm32f4-hal/stm32f4xx_hal_spi.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="flexsea-manage/main.c|test/test_main.c|common|common/src|system/Src/stm32f4-hal/stm32f4xx_hal_spi.c|flexsea-system/test/*|flexsea-comm/test/*|flexsea-user/test/*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -509,7 +509,10 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="test/test_main.c|common|system/Src/stm32f4-hal/stm32f4xx_hal_spi.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="flexsea-user|flexsea-system/test|flexsea-comm/test|test/test_main.c|common|system/Src/stm32f4-hal/stm32f4xx_hal_spi.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="flexsea-comm/test"/>
+						<entry excluding="*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="flexsea-system/test"/>
+						<entry excluding="*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="flexsea-user/test"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

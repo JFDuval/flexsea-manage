@@ -35,6 +35,8 @@
 #include "main.h"
 #include "fm_spi.h"
 #include <flexsea_comm.h>
+#include "flexsea_board.h"
+#include "flexsea_sys_def.h"
 
 //****************************************************************************
 // Variable(s)

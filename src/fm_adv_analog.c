@@ -44,6 +44,8 @@
 
 #include "main.h"
 #include "fm_adv_analog.h"
+#include "fm_i2c.h"
+#include "stm32f4xx_hal_i2c.h"
 
 //****************************************************************************
 // Variable(s)

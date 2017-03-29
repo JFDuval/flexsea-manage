@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
@@ -34,6 +34,7 @@
 
 #include "main.h"
 #include "rgb_led.h"
+#include "fm_ui.h"
 
 //****************************************************************************
 // Variable(s)
@@ -67,7 +68,7 @@ void rgbLedRefresh(void)
 {
 	static uint8_t cnt = 0;
 	static uint8_t rON = 0, gON = 0, bON = 0;
-	
+
 	//New cycle?
 	if(!cnt)
 	{
@@ -79,27 +80,27 @@ void rgbLedRefresh(void)
 		gON = 1;
 		bON = 1;
 	}
-	
+
 	//Ready to turn OFF?
-	
+
 	if(rON && cnt >= rgbPeriodR)
 	{
 		LEDR(0);
 		rON = 0;
 	}
-	
+
 	if(gON && cnt >= rgbPeriodG)
 	{
 		LEDG(0);
 		gON = 0;
 	}
-	
+
 	if(bON && cnt >= rgbPeriodB)
 	{
 		LEDB(0);
 		bON = 0;
 	}
-	
+
 	//Increment counter. It will eventually roll over.
 	cnt += 2;
 }
@@ -117,12 +118,12 @@ void rgbLedRefreshFade(void)
 
 	val++;
 	val %= FADE_PERIOD_MS;
-	
+
 	if(val > FADE_MIDPOINT-2)
 		fade = FADE_PERIOD_MS - val;
 	else
 		fade = val;
-	
+
 	rgbFade = (uint8_t) (fade>>1 & 0xFF);
 }
 
@@ -130,12 +131,12 @@ void rgbLedRefreshFade(void)
 void rgbLedRefresh_testcode_blocking(void)
 {
 	uint8_t div = 0;
-	
+
 	while(1)
-	{		
+	{
 		rgbLedSet(0, rgbFade, 0);
 		HAL_Delay(100);
-		
+
 		div++;
 		div %= 10;
 		if(!div)

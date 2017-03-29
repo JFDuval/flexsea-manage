@@ -28,10 +28,10 @@
 	*
 ****************************************************************************/
 
-#include <stdint.h>
-#include <string.h>
-#include "flash_driver.h"
 #include "main.h"
+#include "fm_spi.h"
+#include "flash_driver.h"
+#include "fm_stm32f4xx_hal_spi.h"
 
 static __inline__ int flashWaitReady(void)
 {

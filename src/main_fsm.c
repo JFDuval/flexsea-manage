@@ -36,6 +36,8 @@
 #include "main_fsm.h"
 #include "fm_master_slave_comm.h"
 #include "flexsea_cmd_stream.h"
+#include "flexsea_global_structs.h"
+#include "fm_dio.h"
 
 //****************************************************************************
 // Variable(s)
