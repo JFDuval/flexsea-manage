@@ -34,6 +34,8 @@
 
 #include "main.h"
 #include "fm_i2c.h"
+#include "fm_imu.h"
+#include "user-mn.h"
 
 //****************************************************************************
 // Variable(s)

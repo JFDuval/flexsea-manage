@@ -37,7 +37,13 @@
 #include "fm_master_slave_comm.h"
 #include "flexsea_cmd_stream.h"
 #include "flexsea_global_structs.h"
+#include "flexsea_board.h"
 #include "fm_dio.h"
+#include "fm_i2c.h"
+#include "fm_adc.h"
+#include "fm_ui.h"
+#include "rgb_led.h"
+#include "user-mn.h"
 
 //****************************************************************************
 // Variable(s)

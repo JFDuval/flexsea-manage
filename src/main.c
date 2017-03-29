@@ -39,6 +39,11 @@
 #include "fm_timer.h"
 #include "fm_master_slave_comm.h"
 #include "fm_ui.h"
+#include "fm_misc.h"
+#include "user-mn.h"
+#include "flexsea_board.h"
+#include "flexsea_system.h"
+#include "flexsea_global_structs.h"
 
 //****************************************************************************
 // Variable(s)

@@ -34,6 +34,7 @@
 
 #include "main.h"
 #include "fm_timer.h"
+#include "fm_dio.h"
 
 //****************************************************************************
 // Variable(s)

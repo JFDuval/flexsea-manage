@@ -33,9 +33,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
 #include "main.h"
+#include <flexsea_comm.h>
+#include "flexsea_board.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include <flexsea_comm.h>
+
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
