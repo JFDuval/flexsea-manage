@@ -49,7 +49,9 @@
 // Variable(s)
 //****************************************************************************
 
+
 uint8_t new_cmd_led = 0;
+uint16_t servoPos = SERVO_MIN;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -58,6 +60,49 @@ uint8_t new_cmd_led = 0;
 //****************************************************************************
 // Public Function(s)
 //****************************************************************************
+
+
+
+void servo(uint8_t pos)
+{
+	static uint16_t period = 0;
+	static uint16_t switchTimeout = 0;
+	period++;
+	period %= 200;
+
+	if(period < pos)
+	{
+		DEBUG_OUT_DIO7(1);
+	}
+	else
+	{
+		DEBUG_OUT_DIO7(0);
+	}
+
+	//Switch:
+	if(switchTimeout > 0)
+		switchTimeout--;
+
+	if(!switchTimeout)
+	{
+		if(HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_13) == GPIO_PIN_SET)
+		{
+			switchTimeout = 2000;
+
+			if(servoPos == SERVO_MAX)
+				servoPos = SERVO_MIN;
+			else
+				servoPos = SERVO_MAX;
+		}
+	}
+
+	/*
+	else
+	{
+		servoPos = SERVO_MIN;
+	}
+	*/
+}
 
 //1kHz time slots:
 //================
@@ -171,6 +216,8 @@ void mainFSM10kHz(void)
 	//Did we receive new commands? Can we parse them?
 	parseMasterCommands(&new_cmd_led);
 	parseSlaveCommands(&new_cmd_led);
+
+	servo(servoPos);
 }
 
 //Asynchronous time slots:

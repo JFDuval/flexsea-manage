@@ -90,12 +90,18 @@ void init_dio(void)
 	HAL_GPIO_Init(GPIOF, &GPIO_InitStructure);
 
 	// Configure pins as outputs
-	GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_12 | GPIO_PIN_13
-			| GPIO_PIN_14;
+	GPIO_InitStructure.Pin = GPIO_PIN_8 | GPIO_PIN_12 | GPIO_PIN_14;
 	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
 	GPIO_InitStructure.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOG, &GPIO_InitStructure);
+
+	// Configure pins as input
+		GPIO_InitStructure.Pin = GPIO_PIN_13;
+		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+		GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		HAL_GPIO_Init(GPIOG, &GPIO_InitStructure);
 
 	//All inputs:
 	dio_direction = 0b00001111;

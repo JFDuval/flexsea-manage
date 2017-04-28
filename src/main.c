@@ -130,6 +130,23 @@ int main(void)
 		if(tb_1000ms_flag)
 		{
 			tb_1000ms_flag = 0;
+
+			/*
+			if(servoPos == SERVO_MIN)
+				servoPos = SERVO_MAX;
+			else
+				servoPos = SERVO_MIN;
+				*/
+			/*
+			if(HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_13) == GPIO_PIN_SET)
+			{
+				servoPos = SERVO_MAX;
+			}
+			else
+			{
+				servoPos = SERVO_MIN;
+			}
+			*/
 		}
 	}
 }
