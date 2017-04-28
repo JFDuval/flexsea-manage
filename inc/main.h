@@ -91,4 +91,6 @@ int main(void);
 // Definition(s):
 //****************************************************************************
 
+extern int16_t gvar0, gvar1, gvar2, gvar3;
+
 #endif // MAIN_H_
