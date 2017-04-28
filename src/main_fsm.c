@@ -61,16 +61,18 @@ uint16_t servoPos = SERVO_MIN;
 // Public Function(s)
 //****************************************************************************
 
-
-
 void servo(uint8_t pos)
 {
 	static uint16_t period = 0;
 	static uint16_t switchTimeout = 0;
+	static int32_t servoOnDelay = 0;
 	period++;
 	period %= 200;
 
-	if(period < pos)
+	if(servoOnDelay > 0)
+		servoOnDelay--;
+
+	if((period < pos) && (servoOnDelay > 0))
 	{
 		DEBUG_OUT_DIO7(1);
 	}
@@ -93,15 +95,9 @@ void servo(uint8_t pos)
 				servoPos = SERVO_MIN;
 			else
 				servoPos = SERVO_MAX;
+			servoOnDelay = 30000;
 		}
 	}
-
-	/*
-	else
-	{
-		servoPos = SERVO_MIN;
-	}
-	*/
 }
 
 //1kHz time slots:
