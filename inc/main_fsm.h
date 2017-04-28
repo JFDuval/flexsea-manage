@@ -43,6 +43,7 @@
 
 extern uint8_t new_cmd_led;
 extern uint16_t servoPos;
+extern uint8_t servoExtTrigger;
 
 //****************************************************************************
 // Public Function Prototype(s):

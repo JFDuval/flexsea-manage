@@ -131,20 +131,15 @@ int main(void)
 		{
 			tb_1000ms_flag = 0;
 
+			//Demo for external trigger:
 			/*
-			if(servoPos == SERVO_MIN)
-				servoPos = SERVO_MAX;
-			else
-				servoPos = SERVO_MIN;
-				*/
-			/*
-			if(HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_13) == GPIO_PIN_SET)
+			static uint8_t div = 0;
+			div++;
+			div %= 7;
+
+			if(!div)
 			{
-				servoPos = SERVO_MAX;
-			}
-			else
-			{
-				servoPos = SERVO_MIN;
+				servoExtTrigger = 1;
 			}
 			*/
 		}
