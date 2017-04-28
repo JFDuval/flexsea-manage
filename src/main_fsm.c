@@ -49,9 +49,9 @@
 // Variable(s)
 //****************************************************************************
 
-
 uint8_t new_cmd_led = 0;
 uint16_t servoPos = SERVO_MIN;
+uint8_t servoExtTrigger = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -61,15 +61,18 @@ uint16_t servoPos = SERVO_MIN;
 // Public Function(s)
 //****************************************************************************
 
-
-void servo(uint8_t pos)
+void servo(uint8_t pos, uint8_t *extTrigger)
 {
 	static uint16_t period = 0;
 	static uint16_t switchTimeout = 0;
+	static int32_t servoOnDelay = 0;
 	period++;
 	period %= 200;
 
-	if(period < pos)
+	if(servoOnDelay > 0)
+		servoOnDelay--;
+
+	if((period < pos) && (servoOnDelay > 0))
 	{
 		DEBUG_OUT_DIO7(1);
 	}
@@ -84,23 +87,20 @@ void servo(uint8_t pos)
 
 	if(!switchTimeout)
 	{
-		if(HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_13) == GPIO_PIN_SET)
+		if((HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_13) == GPIO_PIN_SET) || (*extTrigger))
 		{
 			switchTimeout = 2000;
+
+			if(*extTrigger)
+				(*extTrigger) = 0;
 
 			if(servoPos == SERVO_MAX)
 				servoPos = SERVO_MIN;
 			else
 				servoPos = SERVO_MAX;
+			servoOnDelay = 30000;
 		}
 	}
-
-	/*
-	else
-	{
-		servoPos = SERVO_MIN;
-	}
-	*/
 }
 
 void KnockDetection(void)
@@ -260,7 +260,7 @@ void mainFSM10kHz(void)
 	parseMasterCommands(&new_cmd_led);
 	parseSlaveCommands(&new_cmd_led);
 
-	servo(servoPos);
+	servo(servoPos, &servoExtTrigger);
 }
 
 //Asynchronous time slots:
