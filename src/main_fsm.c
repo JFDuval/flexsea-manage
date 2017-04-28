@@ -62,7 +62,6 @@ uint16_t servoPos = SERVO_MIN;
 //****************************************************************************
 
 
-
 void servo(uint8_t pos)
 {
 	static uint16_t period = 0;
@@ -102,6 +101,50 @@ void servo(uint8_t pos)
 		servoPos = SERVO_MIN;
 	}
 	*/
+}
+
+void KnockDetection(void)
+{
+    static int32_t acc, avgacc, normacc, rectacc,difftog,knocktog;
+    static int32_t csl = 0,ktmr=0;
+    static int64_t cntr =0;
+    static int64_t accs;
+    acc = imu.accel.z;
+    cntr++;
+    csl++;
+    ktmr++;
+
+    accs+= acc;
+    avgacc = accs/cntr;
+
+    normacc = acc-avgacc;
+    rectacc = normacc;
+    if (rectacc<0) {rectacc = -rectacc;}
+
+    static int32_t mintime = 100, longtime = 300, mindiff = 800;
+
+    if (csl>mintime && rectacc>mindiff)
+    {
+        difftog^=1;
+        csl = 0;
+    }
+
+    static int32_t knocks[10] = {350,220,165,370,705,395,0,0,0,0};
+    static int32_t knockindx = 0;
+
+    if (csl == 0)
+    {
+        if (ktmr<knocks[knockindx]-knocks[knockindx]/2 || ktmr>knocks[knockindx]+knocks[knockindx]/2) {knockindx = 0;}
+        else {knockindx++;}
+        ktmr = 0;
+    }
+
+    if (knocks[knockindx]== 0)
+    {
+        knocktog^=1;
+        knockindx = 0;
+    }
+
 }
 
 //1kHz time slots:
@@ -227,3 +270,6 @@ void mainFSMasynchronous(void)
 {
 
 }
+
+
+
