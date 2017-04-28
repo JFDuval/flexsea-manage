@@ -44,6 +44,7 @@
 #include "fm_ui.h"
 #include "rgb_led.h"
 #include "user-mn.h"
+#include "fm_imu.h"
 
 //****************************************************************************
 // Variable(s)
@@ -105,7 +106,7 @@ void servo(uint8_t pos, uint8_t *extTrigger)
 
 void KnockDetection(void)
 {
-    static int32_t acc, avgacc, normacc, rectacc,difftog,knocktog;
+    static int32_t acc, avgacc, normacc, rectacc,difftog,knocktog, lastacc, diffacc;
     static int32_t csl = 0,ktmr=0;
     static int64_t cntr =0;
     static int64_t accs;
@@ -118,10 +119,16 @@ void KnockDetection(void)
     avgacc = accs/cntr;
 
     normacc = acc-avgacc;
+    lastacc = rectacc;
     rectacc = normacc;
     if (rectacc<0) {rectacc = -rectacc;}
 
-    static int32_t mintime = 100, longtime = 300, mindiff = 800;
+    diffacc = rectacc-lastacc;
+    if (diffacc<0) {diffacc = 0;}
+
+    static int32_t mintime = 100, mindiff = 800;
+
+    gvar0 = rectacc;
 
     if (csl>mintime && rectacc>mindiff)
     {
@@ -143,8 +150,11 @@ void KnockDetection(void)
     {
         knocktog^=1;
         knockindx = 0;
+        servoExtTrigger = 1;
     }
-
+    gvar1 = knockindx;
+    gvar2 = servoExtTrigger;
+    gvar3 = diffacc;
 }
 
 //1kHz time slots:
@@ -219,9 +229,10 @@ void mainFSM7(void)
 //Case 8: User functions
 void mainFSM8(void)
 {
-	#if(RUNTIME_FSM2 == ENABLED)
-	user_fsm_2();
-	#endif //RUNTIME_FSM2 == ENABLED
+	KnockDetection();
+	//#if(RUNTIME_FSM2 == ENABLED)
+	//user_fsm_2();
+	//#endif //RUNTIME_FSM2 == ENABLED
 }
 
 //Case 9: User Interface

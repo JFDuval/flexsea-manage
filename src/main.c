@@ -48,6 +48,7 @@
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
+int16_t gvar0, gvar1, gvar2, gvar3;
 
 //Map fsm case to an index:
 void (*fsmCases[10])(void) = {&mainFSM0, &mainFSM1, &mainFSM2, &mainFSM3, \
