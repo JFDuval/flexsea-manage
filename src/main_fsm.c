@@ -45,6 +45,8 @@
 #include "rgb_led.h"
 #include "user-mn.h"
 #include "fm_imu.h"
+#include "fm_uarts.h"
+
 
 //****************************************************************************
 // Variable(s)
@@ -53,6 +55,10 @@
 uint8_t new_cmd_led = 0;
 uint16_t servoPos = SERVO_MIN;
 uint8_t servoExtTrigger = 0;
+#define GET_STATE() (servoPos > ((SERVO_MAX + SERVO_MIN) / 2))
+#define SET_LOCKED() do { servoExtTrigger = (GET_STATE() != 0); } while(0)
+#define SET_UNLOCKED() do { servoExtTrigger = (GET_STATE() != 1); } while(0)
+// servo max implies unlocked)
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -193,9 +199,9 @@ void mainFSM4(void)
 }
 
 //Case 5:
-uint8_t state = 0; //locked
 void mainFSM5(void)
 {
+	uint8_t state = GET_STATE();
 	// Communicate with pi over uart
 	uint8_t msgFlag = uart3_dest & 0x00FF;
 
@@ -207,12 +213,12 @@ void mainFSM5(void)
 		if(msg & 0x04)
 		{
 			//unlock
-			state = 1;
+			SET_UNLOCKED();
 		}
 		else
 		{
 			//lock
-			state = 0;
+			SET_LOCKED();
 		}
 	}
 
@@ -222,7 +228,7 @@ void mainFSM5(void)
 	if(counter == 0)
 	{
 		// send status
-		uint8_t msg = (state == 0 ) ? 0 : 1; // 0 means locked 1 means unlocked
+		uint8_t msg = state; // 0 means locked 1 means unlocked
 		puts_expUart(&msg, 1);
 	}
 
