@@ -183,8 +183,38 @@ void mainFSM4(void)
 }
 
 //Case 5:
+uint8_t state = 0; //locked
 void mainFSM5(void)
 {
+	// Communicate with pi over uart
+	uint8_t msgFlag = uart3_dest & 0x00FF;
+
+	if(msgFlag)
+	{
+		uint8_t msg = (uart3_dest & 0xFF00) >> 1;
+		//bit 3 of the msg is for command
+		//bit 3 high means unlock
+		if(msg & 0x04)
+		{
+			//unlock
+			state = 1;
+		}
+		else
+		{
+			//lock
+			state = 0;
+		}
+	}
+
+	int counter = 0;
+	counter = (counter + 1) % 500;
+
+	if(counter == 0)
+	{
+		// send status
+		uint8_t msg = (state == 0 ) ? 0 : 1; // 0 means locked 1 means unlocked
+		puts_expUart(&msg, 1);
+	}
 
 }
 

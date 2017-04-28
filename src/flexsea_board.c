@@ -48,6 +48,8 @@
 // Variable(s)
 //****************************************************************************
 
+uint16_t uart3_dest;
+
 //<FlexSEA User>
 //==============
 //Board architecture. Has to be changed in all the flexsea_board files!

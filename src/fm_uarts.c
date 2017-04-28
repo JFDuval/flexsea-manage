@@ -511,11 +511,14 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	}
 
 	//Deal with FlexSEA buffers here:
-	update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);
+	memcpy(uart3_dest, uart3_dma_rx_buf, uart3_dma_xfer_len);
+	uart3_dest |= 1;
+
+	//update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
 	//masterComm[2].rx.bytesReady++;
-	commPeriph[PORT_WIRELESS].rx.bytesReadyFlag++;
+	//commPeriph[PORT_WIRELESS].rx.bytesReadyFlag++;
 }
 
 //****************************************************************************
@@ -712,7 +715,7 @@ static void init_dma1_stream1_ch4(void)
 
 	//Start the DMA peripheral
 	HAL_DMA_Start_IT(&hdma1_str1_ch4, (uint32_t) &USART3->DR,
-			(uint32_t) uart3_dma_buf_ptr, uart3_dma_xfer_len);
+			(uint32_t) uart3_dma_buf_ptr, 2);
 }
 
 //Using DMA2 Ch 4 Stream 7 for USART1 TX
