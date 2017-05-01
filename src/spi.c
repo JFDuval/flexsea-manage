@@ -68,12 +68,12 @@ void init_spi4(void)
 
 	spi4_handle.Instance = SPI4;
 	spi4_handle.Init.Direction = SPI_DIRECTION_2LINES; 				// Full duplex
-	spi4_handle.Init.Mode = SPI_MODE_SLAVE;     					// Slave to the Plan board
+	spi4_handle.Init.Mode = SPI_MODE_SLAVE;							// Slave to the Plan board
 	spi4_handle.Init.DataSize = SPI_DATASIZE_8BIT; 					// 8bits words
-	spi4_handle.Init.CLKPolarity = SPI_POLARITY_LOW;    			// clock is low when idle (CPOL = 0)
-	spi4_handle.Init.CLKPhase = SPI_PHASE_1EDGE;    				// data sampled at first (rising) edge (CPHA = 0)
+	spi4_handle.Init.CLKPolarity = SPI_POLARITY_LOW;				// clock is low when idle (CPOL = 0)
+	spi4_handle.Init.CLKPhase = SPI_PHASE_1EDGE;					// data sampled at first (rising) edge (CPHA = 0)
 	spi4_handle.Init.NSS = SPI_NSS_SOFT; 							// uses software slave select
-	spi4_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;   // SPI frequency is APB2 frequency / 4	ToDo Adjust!
+	spi4_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;	// SPI frequency is APB2 frequency / 4	ToDo Adjust!
 	spi4_handle.Init.FirstBit = SPI_FIRSTBIT_MSB;					// data is transmitted MSB first
 	spi4_handle.Init.TIMode = SPI_TIMODE_DISABLED;					//
 	spi4_handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
@@ -99,7 +99,7 @@ void init_spi5(void)
 	spi5_handle.Init.CLKPolarity = SPI_POLARITY_LOW;    			// clock is low when idle (CPOL = 0)
 	spi5_handle.Init.CLKPhase = SPI_PHASE_1EDGE;    				// data sampled at first (rising) edge (CPHA = 0)
 	spi5_handle.Init.NSS = SPI_NSS_HARD_OUTPUT; 					// uses hardware slave select
-	spi5_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;   // SPI frequency is APB2 frequency / 4	****ToDo Adjust!
+	spi5_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;	// SPI frequency is APB2 frequency (84MHz) / Prescaler
 	spi5_handle.Init.FirstBit = SPI_FIRSTBIT_MSB;					// data is transmitted MSB first
 	spi5_handle.Init.TIMode = SPI_TIMODE_DISABLED;					//
 	spi5_handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
@@ -124,8 +124,8 @@ void init_spi6(void)
 	spi6_handle.Init.DataSize = SPI_DATASIZE_8BIT; 					// 8bits words
 	spi6_handle.Init.CLKPolarity = SPI_POLARITY_LOW;    			// clock is low when idle (CPOL = 0)
 	spi6_handle.Init.CLKPhase = SPI_PHASE_1EDGE;    				// data sampled at first (rising) edge (CPHA = 0)
-	spi6_handle.Init.NSS = SPI_NSS_HARD_OUTPUT; 					// uses hardware slave select
-	spi6_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;   // SPI frequency is APB2 frequency / 4	****ToDo Adjust!
+	spi6_handle.Init.NSS = SPI_NSS_SOFT; 							// Chip select
+	spi6_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;	// SPI frequency is APB2 frequency (84MHz) / Prescaler
 	spi6_handle.Init.FirstBit = SPI_FIRSTBIT_MSB;					// data is transmitted MSB first
 	spi6_handle.Init.TIMode = SPI_TIMODE_DISABLED;					//
 	spi6_handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
@@ -135,6 +135,10 @@ void init_spi6(void)
 	{
 		flexsea_error(SE_INIT_SPI);
 	}
+
+	//Manually setting NSS as hardware & enabled:
+	//SPI6->CR1 &= ~SPI_CR1_SSM;	//SSM = 0
+	//SPI6->CR2 |= SPI_CR2_SSOE;	//SSOE = 1;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -171,6 +175,16 @@ void SPI_new_data_Callback(void)
 {
 	//Got new data in, try to decode
 	commPeriph[PORT_SPI].rx.bytesReadyFlag = 1;
+}
+
+void spi6Transmit(uint8_t *pData, uint16_t len)
+{
+	//SPI6->CR1 &= ~SPI_CR1_SSI;	//NSS low
+	//HAL_SPI_Transmit_IT(&spi6_handle, pData, len);
+	HAL_GPIO_WritePin(GPIOG, 1<<8, 0);
+	HAL_SPI_Transmit(&spi6_handle, pData, len, 100);
+	HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+	//SPI6->CR1 |= SPI_CR1_SSI;	//NSS high
 }
 
 //****************************************************************************
@@ -257,12 +271,19 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		//SCK6: 	PG13
 
 		//All but NSS:
-		GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_12 | GPIO_PIN_13
-				| GPIO_PIN_14;
+		GPIO_InitStruct.Pin =  GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14;
 		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
 		GPIO_InitStruct.Alternate = GPIO_AF5_SPI6;
+		HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+		//NSS as PP output
+		GPIO_InitStruct.Pin =  GPIO_PIN_8;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		//GPIO_InitStruct.Alternate = GPIO_AF5_SPI6;
 		HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 		//Enable interrupts/NVIC for SPI data lines

@@ -93,7 +93,7 @@ void init_peripherals(void)
 
 	#endif
 
-	//init_spi6();				//Expansion
+	init_spi6();				//Expansion
 
 	#ifdef USE_I2C_1
 

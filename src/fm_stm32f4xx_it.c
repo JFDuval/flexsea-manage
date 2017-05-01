@@ -63,6 +63,11 @@ void SPI4_IRQHandler(void)
 	HAL_SPI_IRQHandler(&spi4_handle);
 }
 
+void SPI6_IRQHandler(void)
+{
+	HAL_SPI_IRQHandler(&spi6_handle);
+}
+
 void EXTI4_IRQHandler(void)
 {
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
@@ -151,7 +156,6 @@ void DMA2_Stream0_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(&hdma_adc1);
 }
-
 
 //USB:
 void OTG_FS_IRQHandler(void)

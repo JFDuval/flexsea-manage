@@ -17,9 +17,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************
 	[Lead developper] Jean-Francois (JF) Duval, jfduval at dephy dot com.
-	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab 
+	[Origin] Based on Jean-Francois Duval's work at the MIT Media Lab
 	Biomechatronics research group <http://biomech.media.mit.edu/>
-	[Contributors] 
+	[Contributors]
 *****************************************************************************
 	[This file] fm_spi: SPI Slave
 *****************************************************************************
@@ -58,6 +58,7 @@ void init_spi4(void);
 void init_spi5(void);
 void init_spi6(void);
 void SPI_new_data_Callback(void);
+void spi6Transmit(uint8_t *pData, uint16_t len);
 
 //****************************************************************************
 // Definition(s):
