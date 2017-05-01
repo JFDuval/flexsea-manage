@@ -119,12 +119,18 @@ int main(void)
 		//10ms
 		if(tb_10ms_flag)
 		{
+			#ifdef SPI_MASTER
+
+			/*
 			//Test code: transmit packet from SPI6
 			static uint16_t wait = 0;
-			if(wait < 500)
+			if(wait < 250)
 				wait++;
 			else
 				spi6Transmit(txData, 48);
+				*/
+
+			#endif
 
 			tb_10ms_flag = 0;
 		}

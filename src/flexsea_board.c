@@ -52,7 +52,12 @@
 //==============
 //Board architecture. Has to be changed in all the flexsea_board files!
 
+#ifdef SPI_MASTER
+uint8_t board_id = FLEXSEA_MANAGE_2;		//This board
+#else
 uint8_t board_id = FLEXSEA_MANAGE_1;		//This board
+#endif
+
 uint8_t board_up_id = FLEXSEA_PLAN_1;		//This board's master
 
 //Slave bus #1 (RS-485 #1):
@@ -62,6 +67,10 @@ uint8_t board_sub1_id[SLAVE_BUS_1_CNT] = {FLEXSEA_EXECUTE_1, FLEXSEA_EXECUTE_3};
 //Slave bus #2 (RS-485 #2):
 //=========================
 uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
+
+#ifdef SPI_MASTER
+uint8_t board_sub3_id[SLAVE_BUS_3_CNT] = {FLEXSEA_MANAGE_1};
+#endif
 
 //(make sure to update SLAVE_BUS_x_CNT in flexsea_board.h!)
 
@@ -94,6 +103,10 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	else if(port == PORT_RS485_2)
 	{
 		puts_rs485_2(str, length);
+	}
+	else if(port == PORT_EXP)
+	{
+		spi6Transmit(str, length);
 	}
 	else
 	{
@@ -192,6 +205,7 @@ uint8_t getBoardSubID(uint8_t sub, uint8_t idx)
 {
 	if(sub == 0){return board_sub1_id[idx];}
 	else if(sub == 1){return board_sub2_id[idx];}
+	else if(sub == 2){return board_sub3_id[idx];}
 
 	return 0;
 }
@@ -200,6 +214,7 @@ uint8_t getSlaveCnt(uint8_t sub)
 {
 	if(sub == 0){return SLAVE_BUS_1_CNT;}
 	else if(sub == 1){return SLAVE_BUS_2_CNT;}
+	else if(sub == 2){return SLAVE_BUS_3_CNT;}
 
 	return 0;
 }

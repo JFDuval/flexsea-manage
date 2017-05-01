@@ -78,6 +78,7 @@ void init_peripherals(void)
 	init_switches();
 	init_dio();					//All inputs by default
 	init_adc1();
+	init_spi6();				//Expansion
 	init_spi4();				//Plan
 
 	#ifdef USE_UART3
@@ -92,8 +93,6 @@ void init_peripherals(void)
 		flashLogInit();			//Start the logger
 
 	#endif
-
-	init_spi6();				//Expansion
 
 	#ifdef USE_I2C_1
 

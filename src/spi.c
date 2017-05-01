@@ -152,11 +152,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 		// reset the SPI pointer and counter
 		spi4_handle.RxXferCount = COMM_STR_BUF_LEN;
-		spi4_handle.pRxBuffPtr = p->unpaked;
+		spi4_handle.pRxBuffPtr = aRxBuffer;		//p->unpaked;
 		spi4_handle.pTxBuffPtr = aTxBuffer;    //Test
 
 		//Data for the next cycle:
 		//comm_str was already generated, now we place it in the buffer:
+
 		memcpy(aTxBuffer, comm_str_spi, COMM_STR_BUF_LEN);
 
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer,
@@ -310,8 +311,11 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		//GPIO_InitStruct.Alternate = GPIO_AF5_SPI6;
 		HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
+		//Start with pin high:
+		HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+
 		//Enable interrupts/NVIC for SPI data lines
-		HAL_NVIC_SetPriority(SPI6_IRQn, 7, 7);
+		HAL_NVIC_SetPriority(SPI6_IRQn, 4, 7);
 		HAL_NVIC_EnableIRQ(SPI6_IRQn);
 	}
 	else
