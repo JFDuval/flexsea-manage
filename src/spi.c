@@ -53,7 +53,7 @@ uint8_t aRxBuffer[COMM_STR_BUF_LEN];	//SPI4 RX buffer
 uint8_t aTxBuffer6[100];				//SPI6 TX buffer
 uint8_t aRxBuffer6[100];				//SPI6 RX buffer
 uint8_t endSpi6TxFlag = 0;
-uint16_t errorCnt = 0, ovrCnt = 0;;
+uint16_t errorCnt = 0, ovrCnt = 0, busyCnt = 0;
 uint32_t spi4_sr = 0;
 
 //****************************************************************************
@@ -155,16 +155,15 @@ void init_spi6(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	uint32_t dump = 0;
 	static uint8_t toggle = 0;
 	toggle ^= 1;
 	LED1(toggle);
 
-	static PacketWrapper* p = NULL; // TODO this start out as NULL, so how does the first buffer get allocated?
 	if(GPIO_Pin == GPIO_PIN_4)
 	{
 		// At this point, the SPI transfer is complete
 
+		//Overrun?
 		spi4_sr = SPI4->SR;
 		if(spi4_sr & SPI_SR_OVR)
 		{
@@ -172,6 +171,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
 			init_spi4();
 			ovrCnt++;
+		}
+
+		//Busy when it shouldn't be?
+		if(__HAL_SPI_GET_FLAG(&spi4_handle, SPI_FLAG_BSY))
+		{
+			SPI4->SR &= ~SPI_SR_BSY;
+			busyCnt++;
 		}
 
 		//Data for the next cycle:
