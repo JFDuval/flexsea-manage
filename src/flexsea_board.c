@@ -39,9 +39,9 @@
 #include "../../flexsea-system/inc/flexsea_system.h"
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
+#include <spi.h>
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
-#include "fm_spi.h"
 #include "fm_stm32f4xx_hal_spi.h"
 
 //****************************************************************************

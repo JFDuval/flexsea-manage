@@ -39,11 +39,11 @@
 // Include(s)
 //****************************************************************************
 
+#include <spi.h>
 #include "main.h"
 #include "fm_dio.h"
 #include "flexsea.h"
 #include "flexsea_sys_def.h"
-#include "fm_spi.h"
 
 //****************************************************************************
 // Variable(s)

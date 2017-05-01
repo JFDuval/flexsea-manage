@@ -34,11 +34,11 @@
 // Include(s)
 //****************************************************************************
 
+#include <ui.h>
 #include "main.h"
 #include "main_fsm.h"
 #include "fm_timer.h"
 #include "fm_master_slave_comm.h"
-#include "fm_ui.h"
 #include "fm_misc.h"
 #include "user-mn.h"
 #include "flexsea_board.h"
