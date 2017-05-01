@@ -68,9 +68,7 @@ uint8_t board_sub1_id[SLAVE_BUS_1_CNT] = {FLEXSEA_EXECUTE_1, FLEXSEA_EXECUTE_3};
 //=========================
 uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
 
-#ifdef SPI_MASTER
 uint8_t board_sub3_id[SLAVE_BUS_3_CNT] = {FLEXSEA_MANAGE_1};
-#endif
 
 //(make sure to update SLAVE_BUS_x_CNT in flexsea_board.h!)
 
@@ -157,8 +155,10 @@ void flexsea_receive_from_master(void)
 	//USB:
 	commPeriph[PORT_USB].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
+	//SPI:
+	commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);
+
 	//Incomplete, ToDo (flag won't be raised)
-	tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);
 	tryUnpacking(&commPeriph[PORT_WIRELESS], &packet[PORT_WIRELESS][INBOUND]);
 }
 
@@ -189,6 +189,7 @@ void flexsea_receive_from_slave(void)
 	//=====================
 	tryUnpacking(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);
 	tryUnpacking(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);
+	tryUnpacking(&commPeriph[PORT_EXP], &packet[PORT_EXP][INBOUND]);
 }
 
 uint8_t getBoardID(void)

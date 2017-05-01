@@ -146,9 +146,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	static PacketWrapper* p = NULL; // TODO this start out as NULL, so how does the first buffer get allocated?
 	if(GPIO_Pin == GPIO_PIN_4)
 	{
-		// At this point, the SPI transfer is complete, and packet->unpacked
-		// should contain COMM_STR_BUF_LEN bytes received from the master
-		/* TODO ******************/
+		// At this point, the SPI transfer is complete
 
 		// reset the SPI pointer and counter
 		spi4_handle.RxXferCount = COMM_STR_BUF_LEN;
@@ -156,8 +154,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		spi4_handle.pTxBuffPtr = aTxBuffer;    //Test
 
 		//Data for the next cycle:
-		//comm_str was already generated, now we place it in the buffer:
-
+		//comm_str was already generated, now we place it in the buffer:	//ToDo is that right?
 		memcpy(aTxBuffer, comm_str_spi, COMM_STR_BUF_LEN);
 
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer,
@@ -174,8 +171,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void SPI_new_data_Callback(void)
 {
-	//Got new data in, try to decode
-	commPeriph[PORT_SPI].rx.bytesReadyFlag = 1;
+	update_rx_buf_array_spi(aRxBuffer, 48);
+	//Empty DMA buffer once it's copied:
+	memset(aRxBuffer, 0, 48);
+	commPeriph[PORT_SPI].rx.bytesReadyFlag++;
 }
 
 void spi6Transmit(uint8_t *pData, uint16_t len)
@@ -209,6 +208,12 @@ void completeSpi6Transmit(void)
 	{
 		HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
 		endSpi6TxFlag = 0;
+
+		//Update buffers:
+		update_rx_buf_array_exp(aRxBuffer6, 48);
+		//Empty DMA buffer once it's copied:
+		memset(aRxBuffer6, 0, 48);
+		commPeriph[PORT_EXP].rx.bytesReadyFlag++;
 	}
 }
 
