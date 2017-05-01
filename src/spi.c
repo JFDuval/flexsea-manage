@@ -46,8 +46,12 @@ SPI_HandleTypeDef spi4_handle;
 SPI_HandleTypeDef spi5_handle;
 SPI_HandleTypeDef spi6_handle;
 
-uint8_t aTxBuffer[COMM_STR_BUF_LEN];	//SPI TX buffer
-uint8_t aRxBuffer[COMM_STR_BUF_LEN];	//SPI RX buffer
+uint8_t aTxBuffer[COMM_STR_BUF_LEN];	//SPI4 TX buffer
+uint8_t aRxBuffer[COMM_STR_BUF_LEN];	//SPI4 RX buffer
+
+uint8_t aTxBuffer6[100];				//SPI6 TX buffer
+uint8_t aRxBuffer6[100];				//SPI6 RX buffer
+uint8_t endSpi6TxFlag = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -73,7 +77,7 @@ void init_spi4(void)
 	spi4_handle.Init.CLKPolarity = SPI_POLARITY_LOW;				// clock is low when idle (CPOL = 0)
 	spi4_handle.Init.CLKPhase = SPI_PHASE_1EDGE;					// data sampled at first (rising) edge (CPHA = 0)
 	spi4_handle.Init.NSS = SPI_NSS_SOFT; 							// uses software slave select
-	spi4_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;	// SPI frequency is APB2 frequency / 4	ToDo Adjust!
+	spi4_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;	// SPI frequency is APB2 frequency (84MHz) / Prescaler
 	spi4_handle.Init.FirstBit = SPI_FIRSTBIT_MSB;					// data is transmitted MSB first
 	spi4_handle.Init.TIMode = SPI_TIMODE_DISABLED;					//
 	spi4_handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
@@ -99,7 +103,7 @@ void init_spi5(void)
 	spi5_handle.Init.CLKPolarity = SPI_POLARITY_LOW;    			// clock is low when idle (CPOL = 0)
 	spi5_handle.Init.CLKPhase = SPI_PHASE_1EDGE;    				// data sampled at first (rising) edge (CPHA = 0)
 	spi5_handle.Init.NSS = SPI_NSS_HARD_OUTPUT; 					// uses hardware slave select
-	spi5_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;	// SPI frequency is APB2 frequency (84MHz) / Prescaler
+	spi5_handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;	// SPI frequency is APB2 frequency (84MHz) / Prescaler
 	spi5_handle.Init.FirstBit = SPI_FIRSTBIT_MSB;					// data is transmitted MSB first
 	spi5_handle.Init.TIMode = SPI_TIMODE_DISABLED;					//
 	spi5_handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
@@ -135,10 +139,6 @@ void init_spi6(void)
 	{
 		flexsea_error(SE_INIT_SPI);
 	}
-
-	//Manually setting NSS as hardware & enabled:
-	//SPI6->CR1 &= ~SPI_CR1_SSM;	//SSM = 0
-	//SPI6->CR2 |= SPI_CR2_SSOE;	//SSOE = 1;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -179,12 +179,36 @@ void SPI_new_data_Callback(void)
 
 void spi6Transmit(uint8_t *pData, uint16_t len)
 {
-	//SPI6->CR1 &= ~SPI_CR1_SSI;	//NSS low
-	//HAL_SPI_Transmit_IT(&spi6_handle, pData, len);
 	HAL_GPIO_WritePin(GPIOG, 1<<8, 0);
-	HAL_SPI_Transmit(&spi6_handle, pData, len, 100);
-	HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
-	//SPI6->CR1 |= SPI_CR1_SSI;	//NSS high
+
+	//HAL_SPI_Transmit_IT(&spi6_handle, pData, len, 100);
+
+	spi6_handle.RxXferCount = 48;
+	spi4_handle.pRxBuffPtr = aRxBuffer6;
+	spi6_handle.pTxBuffPtr = aTxBuffer6;
+
+	memcpy(aTxBuffer6, pData, len);
+	HAL_SPI_TransmitReceive_IT(&spi6_handle, (uint8_t *) aTxBuffer6, (uint8_t *) aRxBuffer6, len);
+
+	//HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+}
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	if(hspi->Instance == SPI6)	//Expansion port
+	{
+		//HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+		endSpi6TxFlag = 1;
+	}
+}
+
+void completeSpi6Transmit(void)
+{
+	if(endSpi6TxFlag)
+	{
+		HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+		endSpi6TxFlag = 0;
+	}
 }
 
 //****************************************************************************

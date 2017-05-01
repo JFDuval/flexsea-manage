@@ -59,6 +59,8 @@ void init_spi5(void);
 void init_spi6(void);
 void SPI_new_data_Callback(void);
 void spi6Transmit(uint8_t *pData, uint16_t len);
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
+void completeSpi6Transmit(void);
 
 //****************************************************************************
 // Definition(s):
