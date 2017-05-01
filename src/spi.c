@@ -37,6 +37,7 @@
 #include <spi.h>
 #include "flexsea_board.h"
 #include "flexsea_sys_def.h"
+#include "ui.h"
 
 //****************************************************************************
 // Variable(s)
@@ -52,6 +53,8 @@ uint8_t aRxBuffer[COMM_STR_BUF_LEN];	//SPI4 RX buffer
 uint8_t aTxBuffer6[100];				//SPI6 TX buffer
 uint8_t aRxBuffer6[100];				//SPI6 RX buffer
 uint8_t endSpi6TxFlag = 0;
+uint16_t errorCnt = 0, ovrCnt = 0;;
+uint32_t spi4_sr = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -141,20 +144,38 @@ void init_spi6(void)
 	}
 }
 
+#define UNUSED(x) ((void)(x))
+#define __HAL_SPI_CLEAR_OVRFLAG_NEW(__HANDLE__)        \
+  do{                                              \
+    __IO uint32_t tmpreg_ovr = 0x00U;              \
+    tmpreg_ovr = (__HANDLE__)->Instance->DR;       \
+    tmpreg_ovr = (__HANDLE__)->Instance->SR;       \
+    UNUSED(tmpreg_ovr);                            \
+  } while(0)
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	uint32_t dump = 0;
+	static uint8_t toggle = 0;
+	toggle ^= 1;
+	LED1(toggle);
+
 	static PacketWrapper* p = NULL; // TODO this start out as NULL, so how does the first buffer get allocated?
 	if(GPIO_Pin == GPIO_PIN_4)
 	{
 		// At this point, the SPI transfer is complete
 
-		// reset the SPI pointer and counter
-		spi4_handle.RxXferCount = COMM_STR_BUF_LEN;
-		spi4_handle.pRxBuffPtr = aRxBuffer;		//p->unpaked;
-		spi4_handle.pTxBuffPtr = aTxBuffer;    //Test
+		spi4_sr = SPI4->SR;
+		if(spi4_sr & SPI_SR_OVR)
+		{
+			//We had an overrun condition:
+			__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
+			init_spi4();
+			ovrCnt++;
+		}
 
 		//Data for the next cycle:
-		//comm_str was already generated, now we place it in the buffer:	//ToDo is that right?
+		//comm_str was already generated, now we place it in the buffer:
 		memcpy(aTxBuffer, comm_str_spi, COMM_STR_BUF_LEN);
 
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer,
@@ -199,6 +220,16 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 	{
 		//HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
 		endSpi6TxFlag = 1;
+	}
+}
+
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
+{
+	if(hspi->Instance == SPI4)	//Plan
+	{
+		//Re-init the bus:
+		init_spi4();
+		errorCnt++;
 	}
 }
 
