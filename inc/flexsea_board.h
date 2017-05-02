@@ -78,13 +78,6 @@ uint8_t getSlaveCnt(uint8_t sub);
 //How many possible masters?
 #define COMM_MASTERS				3
 
-//Enabled the required FlexSEA Buffers for this board:
-#define ENABLE_FLEXSEA_BUF_1		//RS-485 #1
-#define ENABLE_FLEXSEA_BUF_2		//RS-485 #2
-#define ENABLE_FLEXSEA_BUF_3		//SPI
-#define ENABLE_FLEXSEA_BUF_4		//USB
-#define ENABLE_FLEXSEA_BUF_5		//Wireless
-
 //Overload buffer & function names (for user convenience):
 
 #define comm_str_485_1					comm_str_1
@@ -104,6 +97,7 @@ uint8_t getSlaveCnt(uint8_t sub);
 #define rx_command_spi					rx_command_3
 #define update_rx_buf_byte_spi			update_rx_buf_byte_3
 #define update_rx_buf_array_spi			update_rx_buf_array_3
+#define update_rx_buf_spi(x, y)			circ_buff_write(commPeriph[PORT_SPI].rx.circularBuff, (x), (y))
 
 #define comm_str_usb					comm_str_4
 #define unpack_payload_usb				unpack_payload_4

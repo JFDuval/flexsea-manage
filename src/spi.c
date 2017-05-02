@@ -185,10 +185,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void SPI_new_data_Callback(void)
 {
-	update_rx_buf_array_spi(aRxBuffer4, 48);
+	//update_rx_buf_array_spi(aRxBuffer4, 48);	//Legacy
+	update_rx_buf_spi(aRxBuffer4, 48);			//Using circular buffer
+	commPeriph[PORT_SPI].rx.bytesReadyFlag = 1;
+
 	//Empty DMA buffer once it's copied:
 	memset(aRxBuffer4, 0, 48);
-	commPeriph[PORT_SPI].rx.bytesReadyFlag++;
+	//commPeriph[PORT_SPI].rx.bytesReadyFlag++;
 }
 
 void spi6Transmit(uint8_t *pData, uint16_t len)

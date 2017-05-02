@@ -77,9 +77,9 @@ void initMasterSlaveComm(void)
 	//ToDo
 
 	//Expansion (currently SPI):
-		initCommPeriph(&commPeriph[PORT_EXP], PORT_EXP, SLAVE, rx_buf_6, \
-				comm_str_6, rx_command_6, &rx_buf_circ_6, \
-				&packet[PORT_EXP][INBOUND], &packet[PORT_EXP][OUTBOUND]);
+	initCommPeriph(&commPeriph[PORT_EXP], PORT_EXP, SLAVE, rx_buf_6, \
+			comm_str_6, rx_command_6, &rx_buf_circ_6, \
+			&packet[PORT_EXP][INBOUND], &packet[PORT_EXP][OUTBOUND]);
 
 	//Personalize specific fields:
 	//...

@@ -156,7 +156,8 @@ void flexsea_receive_from_master(void)
 	commPeriph[PORT_USB].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
 	//SPI:
-	commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);
+	//commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);	//Legacy
+	commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);		//Circular buffer
 
 	//Incomplete, ToDo (flag won't be raised)
 	tryUnpacking(&commPeriph[PORT_WIRELESS], &packet[PORT_WIRELESS][INBOUND]);

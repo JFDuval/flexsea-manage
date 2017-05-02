@@ -67,6 +67,9 @@ void init_peripherals(void)
 	//Extra Power ON delay:
 	HAL_Delay(100);
 
+	//Software:
+	initMasterSlaveComm();
+
 	//Hardware modules:
 	init_systick_timer();		//SysTick timer (1kHz)
 	init_timer_6();				//For us delay function
@@ -133,9 +136,6 @@ void init_peripherals(void)
 		init_comm_test();
 
 	#endif	//USE_COMM_TEST
-
-	//Software:
-	initMasterSlaveComm();
 
 	//All RGB LEDs OFF
 	LEDR(0);
