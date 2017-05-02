@@ -47,9 +47,8 @@ SPI_HandleTypeDef spi4_handle;
 SPI_HandleTypeDef spi5_handle;
 SPI_HandleTypeDef spi6_handle;
 
-uint8_t aTxBuffer[COMM_STR_BUF_LEN];	//SPI4 TX buffer
-uint8_t aRxBuffer[COMM_STR_BUF_LEN];	//SPI4 RX buffer
-
+uint8_t aTxBuffer4[COMM_STR_BUF_LEN];	//SPI4 TX buffer
+uint8_t aRxBuffer4[COMM_STR_BUF_LEN];	//SPI4 RX buffer
 uint8_t aTxBuffer6[100];				//SPI6 TX buffer
 uint8_t aRxBuffer6[100];				//SPI6 RX buffer
 uint8_t endSpi6TxFlag = 0;
@@ -144,15 +143,7 @@ void init_spi6(void)
 	}
 }
 
-#define UNUSED(x) ((void)(x))
-#define __HAL_SPI_CLEAR_OVRFLAG_NEW(__HANDLE__)        \
-  do{                                              \
-    __IO uint32_t tmpreg_ovr = 0x00U;              \
-    tmpreg_ovr = (__HANDLE__)->Instance->DR;       \
-    tmpreg_ovr = (__HANDLE__)->Instance->SR;       \
-    UNUSED(tmpreg_ovr);                            \
-  } while(0)
-
+//EXTI is used for the SPI4 NSS line:
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == GPIO_PIN_4)
@@ -178,10 +169,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 		//Data for the next cycle:
 		//comm_str was already generated, now we place it in the buffer:
-		memcpy(aTxBuffer, comm_str_spi, COMM_STR_BUF_LEN);
+		memcpy(aTxBuffer4, comm_str_spi, COMM_STR_BUF_LEN);
 
-		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer,
-				(uint8_t *) aRxBuffer, COMM_STR_BUF_LEN) != HAL_OK)
+		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer4,
+				(uint8_t *) aRxBuffer4, COMM_STR_BUF_LEN) != HAL_OK)
 		{
 			// Transfer error in transmission process
 			flexsea_error(SE_SEND_SERIAL_MASTER);
@@ -194,33 +185,28 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void SPI_new_data_Callback(void)
 {
-	update_rx_buf_array_spi(aRxBuffer, 48);
+	update_rx_buf_array_spi(aRxBuffer4, 48);
 	//Empty DMA buffer once it's copied:
-	memset(aRxBuffer, 0, 48);
+	memset(aRxBuffer4, 0, 48);
 	commPeriph[PORT_SPI].rx.bytesReadyFlag++;
 }
 
 void spi6Transmit(uint8_t *pData, uint16_t len)
 {
-	HAL_GPIO_WritePin(GPIOG, 1<<8, 0);
+	SPI6_NSS(0);
 
-	//HAL_SPI_Transmit_IT(&spi6_handle, pData, len, 100);
-
-	spi6_handle.RxXferCount = 48;
-	spi4_handle.pRxBuffPtr = aRxBuffer6;
-	spi6_handle.pTxBuffPtr = aTxBuffer6;
+	//spi6_handle.RxXferCount = 48;
+	//spi6_handle.pRxBuffPtr = aRxBuffer6;
+	//spi6_handle.pTxBuffPtr = aTxBuffer6;
 
 	memcpy(aTxBuffer6, pData, len);
 	HAL_SPI_TransmitReceive_IT(&spi6_handle, (uint8_t *) aTxBuffer6, (uint8_t *) aRxBuffer6, len);
-
-	//HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi->Instance == SPI6)	//Expansion port
 	{
-		//HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
 		endSpi6TxFlag = 1;
 	}
 }
@@ -247,7 +233,7 @@ void completeSpi6Transmit(void)
 {
 	if(endSpi6TxFlag)
 	{
-		HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+		SPI6_NSS(1);
 		endSpi6TxFlag = 0;
 
 		//Overrun?
@@ -283,7 +269,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	if(hspi->Instance == SPI4)    //Plan board, SPI Slave
+	if(hspi->Instance == SPI4)		//Plan board, SPI Slave
 	{
 		//Enable GPIO clock
 		__GPIOE_CLK_ENABLE();
@@ -375,7 +361,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 		//Start with pin high:
-		HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
+		SPI6_NSS(1);
 
 		//Enable interrupts/NVIC for SPI data lines
 		HAL_NVIC_SetPriority(SPI6_IRQn, 4, 7);

@@ -47,8 +47,8 @@ extern SPI_HandleTypeDef spi4_handle;
 extern SPI_HandleTypeDef spi5_handle;
 extern SPI_HandleTypeDef spi6_handle;
 
-extern uint8_t aTxBuffer[COMM_STR_BUF_LEN];	//SPI TX buffer
-extern uint8_t aRxBuffer[COMM_STR_BUF_LEN];	//SPI RX buffer
+extern uint8_t aTxBuffer4[COMM_STR_BUF_LEN];	//SPI TX buffer
+extern uint8_t aRxBuffer4[COMM_STR_BUF_LEN];	//SPI RX buffer
 
 //****************************************************************************
 // Public Function Prototype(s):
@@ -70,6 +70,18 @@ void completeSpi6Transmit(void);
 //Interrupt priorities (lower number = higher priority)
 #define EXT4_IRQ_CHANNEL			7
 #define EXT4_IRQ_SUBCHANNEL			0
+
+#define SPI6_NSS(x) HAL_GPIO_WritePin(GPIOG, 1<<8, x);
+
+//Macros from newer Cube libs:
+#define UNUSED(x) ((void)(x))
+#define __HAL_SPI_CLEAR_OVRFLAG_NEW(__HANDLE__)		\
+do{													\
+	__IO uint32_t tmpreg_ovr = 0x00U;				\
+	tmpreg_ovr = (__HANDLE__)->Instance->DR;		\
+	tmpreg_ovr = (__HANDLE__)->Instance->SR;		\
+	UNUSED(tmpreg_ovr);								\
+} while(0)
 
 //Manage 0.1 SPI Hardware pins:
 //=============================

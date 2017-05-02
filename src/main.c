@@ -45,9 +45,6 @@
 #include "flexsea_system.h"
 #include "flexsea_global_structs.h"
 
-//Test only:
-#include "spi.h"
-
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
@@ -55,11 +52,6 @@
 //Map fsm case to an index:
 void (*fsmCases[10])(void) = {&mainFSM0, &mainFSM1, &mainFSM2, &mainFSM3, \
 			&mainFSM4, &mainFSM5, &mainFSM6, &mainFSM7,	&mainFSM8, &mainFSM9};
-
-//Test only:
-uint8_t txData[100] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,\
-						22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,\
-						40,41,42,43,44,45,46,47,48,49,50};
 
 //****************************************************************************
 // Function(s)
@@ -119,19 +111,6 @@ int main(void)
 		//10ms
 		if(tb_10ms_flag)
 		{
-			#ifdef SPI_MASTER
-
-			/*
-			//Test code: transmit packet from SPI6
-			static uint16_t wait = 0;
-			if(wait < 250)
-				wait++;
-			else
-				spi6Transmit(txData, 48);
-				*/
-
-			#endif
-
 			tb_10ms_flag = 0;
 		}
 
