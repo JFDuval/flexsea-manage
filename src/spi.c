@@ -54,7 +54,7 @@ uint8_t aTxBuffer6[100];				//SPI6 TX buffer
 uint8_t aRxBuffer6[100];				//SPI6 RX buffer
 uint8_t endSpi6TxFlag = 0;
 uint16_t errorCnt = 0, ovrCnt = 0, busyCnt = 0;
-uint32_t spi4_sr = 0;
+uint32_t spi4_sr = 0, spi6_sr = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -155,10 +155,6 @@ void init_spi6(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	static uint8_t toggle = 0;
-	toggle ^= 1;
-	LED1(toggle);
-
 	if(GPIO_Pin == GPIO_PIN_4)
 	{
 		// At this point, the SPI transfer is complete
@@ -229,6 +225,7 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 	}
 }
 
+//Error callback
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi->Instance == SPI4)	//Plan
@@ -237,14 +234,38 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 		init_spi4();
 		errorCnt++;
 	}
+	else if(hspi->Instance == SPI6)	//Expansion
+	{
+		//Re-init the bus:
+		init_spi6();
+		errorCnt++;
+	}
 }
 
+//This gets called once an SPI6 transfer is complete
 void completeSpi6Transmit(void)
 {
 	if(endSpi6TxFlag)
 	{
 		HAL_GPIO_WritePin(GPIOG, 1<<8, 1);
 		endSpi6TxFlag = 0;
+
+		//Overrun?
+		spi6_sr = SPI6->SR;
+		if(spi6_sr & SPI_SR_OVR)
+		{
+			//We had an overrun condition:
+			__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi6_handle);
+			init_spi6();
+			ovrCnt++;
+		}
+
+		//Busy when it shouldn't be?
+		if(__HAL_SPI_GET_FLAG(&spi6_handle, SPI_FLAG_BSY))
+		{
+			SPI6->SR &= ~SPI_SR_BSY;
+			busyCnt++;
+		}
 
 		//Update buffers:
 		update_rx_buf_array_exp(aRxBuffer6, 48);

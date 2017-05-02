@@ -169,11 +169,6 @@ void slaveTransmit(Port port)
 			flexsea_send_serial_slave(p);
 		}
 	}
-	/*
-	else if(port == PORT_EXP)
-	{
-
-	}*/
 }
 
 //****************************************************************************
