@@ -193,11 +193,8 @@ void SPI_new_data_Callback(void)
 
 void spi6Transmit(uint8_t *pData, uint16_t len)
 {
+	//Select slave:
 	SPI6_NSS(0);
-
-	//spi6_handle.RxXferCount = 48;
-	//spi6_handle.pRxBuffPtr = aRxBuffer6;
-	//spi6_handle.pTxBuffPtr = aTxBuffer6;
 
 	memcpy(aTxBuffer6, pData, len);
 	HAL_SPI_TransmitReceive_IT(&spi6_handle, (uint8_t *) aTxBuffer6, (uint8_t *) aRxBuffer6, len);
