@@ -50,6 +50,8 @@ extern SPI_HandleTypeDef spi6_handle;
 extern uint8_t aTxBuffer4[COMM_STR_BUF_LEN];	//SPI TX buffer
 extern uint8_t aRxBuffer4[COMM_STR_BUF_LEN];	//SPI RX buffer
 
+extern uint8_t spiWatch;
+
 //****************************************************************************
 // Public Function Prototype(s):
 //****************************************************************************
@@ -61,7 +63,8 @@ void SPI_new_data_Callback(void);
 void spi6Transmit(uint8_t *pData, uint16_t len);
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
-void completeSpi6Transmit(void);
+void completeSpiTransmit(void);
+void restartSpi4(void);
 
 //****************************************************************************
 // Definition(s):

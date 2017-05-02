@@ -37,6 +37,7 @@
 #include <flexsea_payload.h>
 #include <flexsea_board.h>
 #include <stdbool.h>
+#include "spi.h"
 
 //****************************************************************************
 // Variable(s)
@@ -104,6 +105,15 @@ void parseMasterCommands(uint8_t *new_cmd)
 		commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = 0;
 		parseResult = payload_parse_str(&packet[PORT_SPI][INBOUND]);
 		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
+		spiWatch = 0;
+	}
+	else
+	{
+		//Getting many SPI transactions but no packets is a sign that something is wrong
+		if(spiWatch > 10)
+		{
+			restartSpi4();
+		}
 	}
 
 	//Wireless

@@ -184,7 +184,7 @@ void mainFSM10kHz(void)
 	parseMasterCommands(&new_cmd_led);
 	parseSlaveCommands(&new_cmd_led);
 
-	completeSpi6Transmit();
+	completeSpiTransmit();
 }
 
 //Asynchronous time slots:
