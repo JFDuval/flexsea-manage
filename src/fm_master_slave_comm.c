@@ -105,13 +105,14 @@ void parseMasterCommands(uint8_t *new_cmd)
 		commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = 0;
 		parseResult = payload_parse_str(&packet[PORT_SPI][INBOUND]);
 		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
-		spiWatch = 0;
+		spiWatch = 0;	//Valid packets restart the count
 	}
 	else
 	{
 		//Getting many SPI transactions but no packets is a sign that something is wrong
-		if(spiWatch > 10)
+		if(spiWatch > 5)
 		{
+			//After 5 SPI transfers with 0 packets we restart the peripheral:
 			restartSpi4();
 		}
 	}

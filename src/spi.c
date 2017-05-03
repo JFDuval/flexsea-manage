@@ -261,7 +261,6 @@ void completeSpiTransmit(void)
 		}
 
 		// handle the new data however this device wants to
-		//SPI_new_data_Callback();
 		//update_rx_buf_array_spi(aRxBuffer4, 48);	//Legacy
 		update_rx_buf_spi(aRxBuffer4, 48);			//Using circular buffer
 		commPeriph[PORT_SPI].rx.bytesReadyFlag = 1;
@@ -277,10 +276,7 @@ void completeSpiTransmit(void)
 				(uint8_t *) aRxBuffer4, COMM_STR_BUF_LEN) != HAL_OK)
 		{
 			// Transfer error in transmission process
-			flexsea_error(SE_SEND_SERIAL_MASTER);
-
-			//__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
-			//SPI4->SR &= ~SPI_SR_BSY;
+			//flexsea_error(SE_SEND_SERIAL_MASTER); (un-implemented)
 		}
 	}
 
@@ -317,6 +313,13 @@ void completeSpiTransmit(void)
 //When all else fails...
 void restartSpi4(void)
 {
+	//LED1 informs user about restart events:
+	static uint8_t toggle = 0;
+	toggle ^= 1;
+	LED1(toggle);
+
+	//Restart SPI:
+	spiWatch = 0;
 	__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
 	SPI4->SR &= ~SPI_SR_BSY;
 	init_spi4();
