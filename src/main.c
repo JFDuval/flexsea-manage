@@ -148,14 +148,10 @@ int main(void)
 			}
 			else
 			{
-				//spi6Transmit(txData, 48);
-
-				/*
 				info[0] = PORT_RS485_1;
 				//tx_cmd_ricnu_rw(TX_N_DEFAULT, 1, CTRL_NONE, 0, KEEP, 0, 0, 0, 0);
 				tx_cmd_data_read_all_r(TX_N_DEFAULT);
 				packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
-*/
 				LED1(1);
 			}
 
