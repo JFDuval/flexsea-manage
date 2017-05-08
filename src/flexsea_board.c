@@ -93,6 +93,11 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	uint8_t* str = p->packed;
 	uint16_t length = COMM_STR_BUF_LEN;
 
+	//Bridge sends everything over SPI:
+	#ifdef USB_SPI_BRIDGE
+	spi6Transmit(str, length);
+	#else
+
 	//If it's a valid slave port, send message...
 	if(port == PORT_RS485_1)
 	{
@@ -112,6 +117,7 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 		flexsea_error(SE_INVALID_SLAVE);
 		return;
 	}
+	#endif
 
 	//...then take care of the transceiver state to allow reception (if needed)
 	if(IS_CMD_RW(p->cmd))
