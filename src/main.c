@@ -140,6 +140,7 @@ int main(void)
 
 			#endif
 
+			/*
 			//Test code: transmit packet from SPI6
 			if(wait < 250)
 			{
@@ -154,6 +155,7 @@ int main(void)
 				packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
 				LED1(1);
 			}
+			*/
 
 		}
 
