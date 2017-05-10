@@ -48,7 +48,14 @@ uint8_t dev_control = CTRL_NONE;
 int16_t dev_pwm = 0;
 int16_t dev_cur = 0;
 int32_t dev_pos = 0, last_dev_pos = 0;
+#ifdef SPI_MASTER
+uint8_t info[2] = {PORT_EXP, PORT_EXP};
+#else
 uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
+#endif
+
+//#define DEV_DEMO1
+#define DEV_DEMO2
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -104,7 +111,7 @@ void dev_fsm_1(void)
 
 			dev_pwm = 0;
 
-			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 50, 0, 0);
+			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 10, 0, 0);
 			packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
 
 			if (time >= 5)
@@ -115,11 +122,38 @@ void dev_fsm_1(void)
 
 			break;
 
+		#ifdef DEV_DEMO1
 		case 3:	//Position setpoint depends on analog reading
 
 			dev_pos = 10 * exec1.analog[0];
 
 			break;
+		#endif	//DEV_DEMO1
+
+		#ifdef DEV_DEMO2
+		case 3:	//Position setpoint moves up and down
+
+			dev_pos = 10 * time;
+			if (time >= 4000)
+			{
+				//time = 0;
+				state = 4;
+			}
+
+			break;
+
+		case 4:	//Position setpoint moves up and down
+
+			dev_pos = 10 * (8000-time);
+			if (time >= 8000)
+			{
+				time = 0;
+				state = 3;
+			}
+
+			break;
+
+		#endif	//DEV_DEMO1
 
 		default:
 			//Handle exceptions here

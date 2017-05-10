@@ -53,7 +53,7 @@
 //Board architecture. Has to be changed in all the flexsea_board files!
 
 #ifdef SPI_MASTER
-uint8_t board_id = FLEXSEA_MANAGE_2;		//This board
+uint8_t board_id = FLEXSEA_MANAGE_1 - 1;	//This board
 #else
 uint8_t board_id = FLEXSEA_MANAGE_1;		//This board
 #endif

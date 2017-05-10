@@ -136,7 +136,7 @@ int main(void)
 				spi6Transmit(txData, 48);
 				LED1(1);
 			}
-			*/
+			 */
 
 			#endif
 
