@@ -54,7 +54,9 @@ uint8_t aRxBuffer6[100];				//SPI6 RX buffer
 uint8_t endSpi6TxFlag = 0, endSpi4Flag = 0;
 uint16_t errorCnt = 0, ovrCnt = 0, busyCnt = 0, badCommCnt = 0;
 uint32_t spi4_sr = 0, spi6_sr = 0;
-uint8_t spiWatch = 0;
+uint8_t spi4Watch = 0, spi6Watch = 0;
+uint8_t spi6Block = 0;
+volatile uint8_t catch = 0;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -150,44 +152,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if(GPIO_Pin == GPIO_PIN_4)
 	{
 		// At this point, the SPI transfer is complete
-
 		endSpi4Flag = 1;
-
-		/*
-		//Overrun?
-		spi4_sr = SPI4->SR;
-		if(spi4_sr & SPI_SR_OVR)
-		{
-			//We had an overrun condition:
-			__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
-			init_spi4();
-			ovrCnt++;
-		}
-
-		//Busy when it shouldn't be?
-		if(__HAL_SPI_GET_FLAG(&spi4_handle, SPI_FLAG_BSY))
-		{
-			SPI4->SR &= ~SPI_SR_BSY;
-			busyCnt++;
-		}
-
-		//Data for the next cycle:
-		//comm_str was already generated, now we place it in the buffer:
-		memcpy(aTxBuffer4, comm_str_spi, COMM_STR_BUF_LEN);
-
-		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer4,
-				(uint8_t *) aRxBuffer4, COMM_STR_BUF_LEN) != HAL_OK)
-		{
-			// Transfer error in transmission process
-			flexsea_error(SE_SEND_SERIAL_MASTER);
-
-			//__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
-			//SPI4->SR &= ~SPI_SR_BSY;
-		}
-
-		// handle the new data however this device wants to
-		SPI_new_data_Callback();
-		*/
 	}
 }
 
@@ -203,11 +168,20 @@ void SPI_new_data_Callback(void)
 
 void spi6Transmit(uint8_t *pData, uint16_t len)
 {
-	//Select slave:
-	SPI6_NSS(0);
+	if(!spi6Block)	//Don't try sending while configuring or restarting
+	{
+		//Select slave:
+		SPI6_NSS(0);
 
-	memcpy(aTxBuffer6, pData, len);
-	HAL_SPI_TransmitReceive_IT(&spi6_handle, (uint8_t *) aTxBuffer6, (uint8_t *) aRxBuffer6, len);
+		spi6Watch++;
+
+		memcpy(aTxBuffer6, pData, len);
+		HAL_SPI_TransmitReceive_IT(&spi6_handle, (uint8_t *) aTxBuffer6, (uint8_t *) aRxBuffer6, len);
+	}
+	else
+	{
+		catch++;
+	}
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
@@ -230,8 +204,10 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 	else if(hspi->Instance == SPI6)	//Expansion
 	{
 		//Re-init the bus:
+		spi6Block = 1;
 		init_spi6();
 		errorCnt++;
+		spi6Block = 0;
 	}
 }
 
@@ -241,7 +217,7 @@ void completeSpiTransmit(void)
 	if(endSpi4Flag)
 	{
 		endSpi4Flag = 0;
-		spiWatch++;
+		spi4Watch++;
 
 		//Overrun?
 		spi4_sr = SPI4->SR;
@@ -289,17 +265,21 @@ void completeSpiTransmit(void)
 		spi6_sr = SPI6->SR;
 		if(spi6_sr & SPI_SR_OVR)
 		{
+			spi6Block = 1;
 			//We had an overrun condition:
 			__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi6_handle);
 			init_spi6();
 			ovrCnt++;
+			spi6Block = 0;
 		}
 
 		//Busy when it shouldn't be?
 		if(__HAL_SPI_GET_FLAG(&spi6_handle, SPI_FLAG_BSY))
 		{
+			spi6Block = 1;
 			SPI6->SR &= ~SPI_SR_BSY;
 			busyCnt++;
+			spi6Block = 0;
 		}
 
 		//Update buffers:
@@ -311,7 +291,7 @@ void completeSpiTransmit(void)
 }
 
 //When all else fails...
-void restartSpi4(void)
+void restartSpi(uint8_t port)
 {
 	//LED1 informs user about restart events:
 	static uint8_t toggle = 0;
@@ -319,10 +299,22 @@ void restartSpi4(void)
 	LED1(toggle);
 
 	//Restart SPI:
-	spiWatch = 0;
-	__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
-	SPI4->SR &= ~SPI_SR_BSY;
-	init_spi4();
+	if(port == 4)
+	{
+		spi4Watch = 0;
+		__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi4_handle);
+		SPI4->SR &= ~SPI_SR_BSY;
+		init_spi4();
+	}
+	else if(port == 6)
+	{
+		spi6Block = 1;
+		spi6Watch = 0;
+		__HAL_SPI_CLEAR_OVRFLAG_NEW(&spi6_handle);
+		SPI6->SR &= ~SPI_SR_BSY;
+		init_spi6();
+		spi6Block = 0;
+	}
 
 	badCommCnt++;
 }

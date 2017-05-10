@@ -54,8 +54,8 @@ uint8_t info[2] = {PORT_EXP, PORT_EXP};
 uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
 #endif
 
-//#define DEV_DEMO1
-#define DEV_DEMO2
+#define DEV_DEMO1
+//#define DEV_DEMO2
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -111,7 +111,11 @@ void dev_fsm_1(void)
 
 			dev_pwm = 0;
 
+			#ifdef DEV_DEMO1
+			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 50, 0, 0);
+			#else
 			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 10, 0, 0);
+			#endif
 			packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
 
 			if (time >= 5)

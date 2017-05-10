@@ -105,15 +105,15 @@ void parseMasterCommands(uint8_t *new_cmd)
 		commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = 0;
 		parseResult = payload_parse_str(&packet[PORT_SPI][INBOUND]);
 		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
-		spiWatch = 0;	//Valid packets restart the count
+		spi4Watch = 0;	//Valid packets restart the count
 	}
 	else
 	{
 		//Getting many SPI transactions but no packets is a sign that something is wrong
-		if(spiWatch > 5)
+		if(spi4Watch > 5)
 		{
 			//After 5 SPI transfers with 0 packets we restart the peripheral:
-			restartSpi4();
+			restartSpi(4);
 		}
 	}
 
@@ -131,6 +131,8 @@ void parseMasterCommands(uint8_t *new_cmd)
 //Did we receive new commands? Can we parse them?
 void parseSlaveCommands(uint8_t *new_cmd)
 {
+	uint8_t parseResult = 0;
+
 	//Valid communication from RS-485 #1?
 	if(commPeriph[PORT_RS485_1].rx.unpackedPacketsAvailable > 0)
 	{
@@ -149,7 +151,17 @@ void parseSlaveCommands(uint8_t *new_cmd)
 	if(commPeriph[PORT_EXP].rx.unpackedPacketsAvailable > 0)
 	{
 		commPeriph[PORT_EXP].rx.unpackedPacketsAvailable = 0;
-		payload_parse_str(&packet[PORT_EXP][INBOUND]);
+		parseResult = payload_parse_str(&packet[PORT_EXP][INBOUND]);
+		if(parseResult == PARSE_SUCCESSFUL){spi6Watch = 0;}
+	}
+	else
+	{
+		//Getting many SPI transactions but no packets is a sign that something is wrong
+		if(spi6Watch > 5)
+		{
+			//After 5 SPI transfers with 0 packets we restart the peripheral:
+			restartSpi(6);
+		}
 	}
 }
 
