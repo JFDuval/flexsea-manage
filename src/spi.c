@@ -246,7 +246,15 @@ void completeSpiTransmit(void)
 
 		//Data for the next cycle:
 		//comm_str was already generated, now we place it in the buffer:
-		memcpy(aTxBuffer4, comm_str_spi, COMM_STR_BUF_LEN);
+		if(commPeriph[PORT_SPI].tx.packetReady == 1)
+		{
+			memcpy(aTxBuffer4, comm_str_spi, COMM_STR_BUF_LEN);
+			commPeriph[PORT_SPI].tx.packetReady = 0;
+		}
+		else
+		{
+			memset(aTxBuffer4, 0xCC, 48);
+		}
 
 		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *) aTxBuffer4,
 				(uint8_t *) aRxBuffer4, COMM_STR_BUF_LEN) != HAL_OK)
@@ -283,10 +291,11 @@ void completeSpiTransmit(void)
 		}
 
 		//Update buffers:
-		update_rx_buf_array_exp(aRxBuffer6, 48);
+		//update_rx_buf_array_exp(aRxBuffer6, 48);	//Legacy
+		update_rx_buf_exp(aRxBuffer6, 48);			//Using circular buffer
 		//Empty DMA buffer once it's copied:
 		memset(aRxBuffer6, 0, 48);
-		commPeriph[PORT_EXP].rx.bytesReadyFlag++;
+		commPeriph[PORT_EXP].rx.bytesReadyFlag = 1;
 	}
 }
 
@@ -356,10 +365,10 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
 		//Enable interrupts/NVIC for SPI data lines
-		HAL_NVIC_SetPriority(SPI4_IRQn, 0, 1);
+		HAL_NVIC_SetPriority(SPI4_IRQn, 1, 1);
 		HAL_NVIC_EnableIRQ(SPI4_IRQn);
 		//And for the the CS pin
-		HAL_NVIC_SetPriority(EXTI4_IRQn, EXT4_IRQ_CHANNEL, EXT4_IRQ_SUBCHANNEL);
+		HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
 		HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 	}
 	else if(hspi->Instance == SPI5)    //FLASH, SPI Master

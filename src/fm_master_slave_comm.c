@@ -152,14 +152,14 @@ void parseSlaveCommands(uint8_t *new_cmd)
 	{
 		commPeriph[PORT_EXP].rx.unpackedPacketsAvailable = 0;
 		parseResult = payload_parse_str(&packet[PORT_EXP][INBOUND]);
-		if(parseResult == PARSE_SUCCESSFUL){spi6Watch = 0;}
+		spi6Watch = 0;
 	}
 	else
 	{
 		//Getting many SPI transactions but no packets is a sign that something is wrong
-		if(spi6Watch > 5)
+		if(spi6Watch > 10)
 		{
-			//After 5 SPI transfers with 0 packets we restart the peripheral:
+			//After 10 SPI transfers with 0 packets we restart the peripheral:
 			restartSpi(6);
 		}
 	}

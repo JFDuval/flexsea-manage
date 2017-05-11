@@ -139,6 +139,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 
 	if(port == PORT_SPI)
 	{
+		commPeriph[PORT_SPI].tx.packetReady = 1;
 		//This will be sent during the next SPI transaction
 		memcpy(comm_str_spi, str, length);
 	}
@@ -196,7 +197,8 @@ void flexsea_receive_from_slave(void)
 	//=====================
 	tryUnpacking(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);
 	tryUnpacking(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);
-	tryUnpacking(&commPeriph[PORT_EXP], &packet[PORT_EXP][INBOUND]);
+	//tryUnpacking(&commPeriph[PORT_EXP], &packet[PORT_EXP][INBOUND]);	//Legacy
+	commPeriph[PORT_EXP].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_EXP], &packet[PORT_EXP][INBOUND]);		//Circular buffer
 }
 
 uint8_t getBoardID(void)
