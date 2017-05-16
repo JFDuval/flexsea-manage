@@ -33,17 +33,17 @@
 // Include(s)
 //****************************************************************************
 
+#include <adc.h>
 #include "main.h"
 #include "fm_misc.h"
 #include <fm_master_slave_comm.h>
-#include "fm_ui.h"
+#include <imu.h>
+#include <ui.h>
 #include "fm_dio.h"
 #include "fm_timer.h"
-#include "fm_adc.h"
 #include "fm_uarts.h"
 #include "fm_spi.h"
 #include "fm_i2c.h"
-#include "fm_imu.h"
 #include "fm_adv_analog.h"
 #include "fm_pwr_out.h"
 #include "usb_device.h"
