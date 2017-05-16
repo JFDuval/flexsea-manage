@@ -53,6 +53,12 @@
 void (*fsmCases[10])(void) = {&mainFSM0, &mainFSM1, &mainFSM2, &mainFSM3, \
 			&mainFSM4, &mainFSM5, &mainFSM6, &mainFSM7,	&mainFSM8, &mainFSM9};
 
+//UART3 test code ***ToDo Remove***
+uint8_t info[2] = {PORT_WIRELESS, PORT_WIRELESS};
+uint16_t delay = 0;
+#include "flexsea_system.h"
+
+
 //****************************************************************************
 // Function(s)
 //****************************************************************************
@@ -113,7 +119,9 @@ int main(void)
 		{
 			tb_10ms_flag = 0;
 
-			//...
+			//UART3 test code ***ToDo Remove***
+			tx_cmd_data_read_all_w(TX_N_DEFAULT);
+			packAndSend(P_AND_S_DEFAULT, FLEXSEA_PLAN_1, info, SEND_TO_MASTER);
 		}
 
 		//100ms
