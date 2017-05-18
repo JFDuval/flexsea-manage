@@ -60,6 +60,11 @@ void init_spi4(void);
 void init_spi5(void);
 void init_spi6(void);
 void SPI_new_data_Callback(void);
+void spi6Transmit(uint8_t *pData, uint16_t len);
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
+void completeSpiTransmit(void);
+void restartSpi(uint8_t port);
 
 //****************************************************************************
 // Definition(s):
@@ -98,6 +103,4 @@ do{													\
 //MISO6: 	PG12
 //SCK6: 	PG13
 
-
 #endif // INC_FM_SPI_H
-

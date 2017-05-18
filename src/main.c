@@ -105,15 +105,12 @@ int main(void)
 		if(tb_1ms_flag)
 		{
 			tb_1ms_flag = 0;
-
 		}
 
 		//10ms
 		if(tb_10ms_flag)
 		{
 			tb_10ms_flag = 0;
-
-			//...
 		}
 
 		//100ms
