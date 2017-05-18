@@ -39,9 +39,9 @@
 #include "../../flexsea-system/inc/flexsea_system.h"
 #include <flexsea_comm.h>
 #include <flexsea_payload.h>
+#include <spi.h>
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
-#include "fm_spi.h"
 #include "fm_stm32f4xx_hal_spi.h"
 
 //****************************************************************************
@@ -52,7 +52,12 @@
 //==============
 //Board architecture. Has to be changed in all the flexsea_board files!
 
+#ifdef SPI_MASTER
+uint8_t board_id = FLEXSEA_MANAGE_1 - 1;	//This board
+#else
 uint8_t board_id = FLEXSEA_MANAGE_1;		//This board
+#endif
+
 uint8_t board_up_id = FLEXSEA_PLAN_1;		//This board's master
 
 //Slave bus #1 (RS-485 #1):
@@ -62,6 +67,8 @@ uint8_t board_sub1_id[SLAVE_BUS_1_CNT] = {FLEXSEA_EXECUTE_1, FLEXSEA_EXECUTE_3};
 //Slave bus #2 (RS-485 #2):
 //=========================
 uint8_t board_sub2_id[SLAVE_BUS_2_CNT] = {FLEXSEA_EXECUTE_2, FLEXSEA_EXECUTE_4};
+
+uint8_t board_sub3_id[SLAVE_BUS_3_CNT] = {FLEXSEA_MANAGE_1};
 
 //(make sure to update SLAVE_BUS_x_CNT in flexsea_board.h!)
 
@@ -86,6 +93,11 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	uint8_t* str = p->packed;
 	uint16_t length = COMM_STR_BUF_LEN;
 
+	//Bridge sends everything over SPI:
+	#ifdef USB_SPI_BRIDGE
+	spi6Transmit(str, length);
+	#else
+
 	//If it's a valid slave port, send message...
 	if(port == PORT_RS485_1)
 	{
@@ -95,12 +107,17 @@ void flexsea_send_serial_slave(PacketWrapper* p)
 	{
 		puts_rs485_2(str, length);
 	}
+	else if(port == PORT_EXP)
+	{
+		spi6Transmit(str, length);
+	}
 	else
 	{
 		//Unknown port, call flexsea_error()
 		flexsea_error(SE_INVALID_SLAVE);
 		return;
 	}
+	#endif
 
 	//...then take care of the transceiver state to allow reception (if needed)
 	if(IS_CMD_RW(p->cmd))
@@ -122,6 +139,7 @@ void flexsea_send_serial_master(PacketWrapper* p)
 
 	if(port == PORT_SPI)
 	{
+		commPeriph[PORT_SPI].tx.packetReady = 1;
 		//This will be sent during the next SPI transaction
 		memcpy(comm_str_spi, str, length);
 	}
@@ -144,8 +162,11 @@ void flexsea_receive_from_master(void)
 	//USB:
 	commPeriph[PORT_USB].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_USB], &packet[PORT_USB][INBOUND]);
 
+	//SPI:
+	//commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);	//Legacy
+	commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);		//Circular buffer
+
 	//Incomplete, ToDo (flag won't be raised)
-	tryUnpacking(&commPeriph[PORT_SPI], &packet[PORT_SPI][INBOUND]);
 	tryUnpacking(&commPeriph[PORT_WIRELESS], &packet[PORT_WIRELESS][INBOUND]);
 }
 
@@ -154,7 +175,7 @@ void flexsea_start_receiving_from_master(void)
 	// start receive over SPI
 	if (HAL_SPI_GetState(&spi4_handle) == HAL_SPI_STATE_READY)
 	{
-		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer, (uint8_t *)aRxBuffer, COMM_STR_BUF_LEN) != HAL_OK)
+		if(HAL_SPI_TransmitReceive_IT(&spi4_handle, (uint8_t *)aTxBuffer4, (uint8_t *)aRxBuffer4, COMM_STR_BUF_LEN) != HAL_OK)
 		{
 			// Transfer error in transmission process
 			flexsea_error(SE_RECEIVE_FROM_MASTER);
@@ -176,6 +197,7 @@ void flexsea_receive_from_slave(void)
 	//=====================
 	tryUnpacking(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);
 	tryUnpacking(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);
+	commPeriph[PORT_EXP].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_EXP], &packet[PORT_EXP][INBOUND]);		//Circular buffer
 }
 
 uint8_t getBoardID(void)
@@ -192,6 +214,7 @@ uint8_t getBoardSubID(uint8_t sub, uint8_t idx)
 {
 	if(sub == 0){return board_sub1_id[idx];}
 	else if(sub == 1){return board_sub2_id[idx];}
+	else if(sub == 2){return board_sub3_id[idx];}
 
 	return 0;
 }
@@ -200,6 +223,7 @@ uint8_t getSlaveCnt(uint8_t sub)
 {
 	if(sub == 0){return SLAVE_BUS_1_CNT;}
 	else if(sub == 1){return SLAVE_BUS_2_CNT;}
+	else if(sub == 2){return SLAVE_BUS_3_CNT;}
 
 	return 0;
 }

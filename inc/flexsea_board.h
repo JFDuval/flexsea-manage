@@ -67,22 +67,16 @@ uint8_t getSlaveCnt(uint8_t sub);
 //#define BOARD_TYPE_FLEXSEA_EXECUTE
 
 //How many slave busses?
-#define COMM_SLAVE_BUS				2
+#define COMM_SLAVE_BUS				3
 
 //How many slaves per bus?
 #define SLAVE_BUS_1_CNT				2
 #define SLAVE_BUS_2_CNT				2
+#define SLAVE_BUS_3_CNT				1
 //Note: only Manage can have a value different than 0 or 1
 
 //How many possible masters?
 #define COMM_MASTERS				3
-
-//Enabled the required FlexSEA Buffers for this board:
-#define ENABLE_FLEXSEA_BUF_1		//RS-485 #1
-#define ENABLE_FLEXSEA_BUF_2		//RS-485 #2
-#define ENABLE_FLEXSEA_BUF_3		//SPI
-#define ENABLE_FLEXSEA_BUF_4		//USB
-#define ENABLE_FLEXSEA_BUF_5		//Wireless
 
 //Overload buffer & function names (for user convenience):
 
@@ -103,20 +97,27 @@ uint8_t getSlaveCnt(uint8_t sub);
 #define rx_command_spi					rx_command_3
 #define update_rx_buf_byte_spi			update_rx_buf_byte_3
 #define update_rx_buf_array_spi			update_rx_buf_array_3
+#define update_rx_buf_spi(x, y)			circ_buff_write(commPeriph[PORT_SPI].rx.circularBuff, (x), (y))
 
- #define comm_str_usb					comm_str_4
- #define unpack_payload_usb				unpack_payload_4
- #define rx_command_usb					rx_command_4
- #define update_rx_buf_byte_usb			update_rx_buf_byte_4
- #define update_rx_buf_array_usb		update_rx_buf_array_4
-#define update_rx_buf_usb(x, y)		circ_buff_write(commPeriph[PORT_USB].rx.circularBuff, (x), (y))
-
+#define comm_str_usb					comm_str_4
+#define unpack_payload_usb				unpack_payload_4
+#define rx_command_usb					rx_command_4
+#define update_rx_buf_byte_usb			update_rx_buf_byte_4
+#define update_rx_buf_array_usb			update_rx_buf_array_4
+#define update_rx_buf_usb(x, y)			circ_buff_write(commPeriph[PORT_USB].rx.circularBuff, (x), (y))
 
 #define comm_str_wireless				comm_str_5
 #define unpack_payload_wireless			unpack_payload_5
 #define rx_command_wireless				rx_command_5
 #define update_rx_buf_byte_wireless		update_rx_buf_byte_5
 #define update_rx_buf_array_wireless	update_rx_buf_array_5
+
+#define comm_str_exp					comm_str_6
+#define unpack_payload_exp				unpack_payload_6
+#define rx_command_exp					rx_command_6
+#define update_rx_buf_byte_exp			update_rx_buf_byte_6
+#define update_rx_buf_array_exp			update_rx_buf_array_6
+#define update_rx_buf_exp(x, y)			circ_buff_write(commPeriph[PORT_EXP].rx.circularBuff, (x), (y))
 
 //===============
 //</FlexSEA User>

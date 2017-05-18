@@ -44,6 +44,7 @@
 #include "fm_i2c.h"
 #include "rgb_led.h"
 #include "user-mn.h"
+#include "spi.h"
 
 //****************************************************************************
 // Variable(s)
@@ -97,7 +98,7 @@ void mainFSM4(void)
 //Case 5:
 void mainFSM5(void)
 {
-
+	slaveTransmit(PORT_EXP);
 }
 
 //Case 6:
@@ -182,6 +183,8 @@ void mainFSM10kHz(void)
 	//Did we receive new commands? Can we parse them?
 	parseMasterCommands(&new_cmd_led);
 	parseSlaveCommands(&new_cmd_led);
+
+	completeSpiTransmit();
 }
 
 //Asynchronous time slots:

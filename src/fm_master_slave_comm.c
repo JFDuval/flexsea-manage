@@ -37,6 +37,7 @@
 #include <flexsea_payload.h>
 #include <flexsea_board.h>
 #include <stdbool.h>
+#include "spi.h"
 
 //****************************************************************************
 // Variable(s)
@@ -53,16 +54,33 @@
 //Prepares the structures:
 void initMasterSlaveComm(void)
 {
-	//Default state:
+	//USB:
 	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_4, \
 			comm_str_4, rx_command_4, &rx_buf_circ_4, \
 			&packet[PORT_USB][INBOUND], &packet[PORT_USB][OUTBOUND]);
+
+	//RS_485 #1:
 	initCommPeriph(&commPeriph[PORT_RS485_1], PORT_RS485_1, SLAVE, rx_buf_1, \
 			comm_str_1, rx_command_1, &rx_buf_circ_1, \
 			&packet[PORT_RS485_1][INBOUND], &packet[PORT_RS485_1][OUTBOUND]);
+
+	//RS_485 #2:
 	initCommPeriph(&commPeriph[PORT_RS485_2], PORT_RS485_2, SLAVE, rx_buf_2, \
 			comm_str_2, rx_command_2, &rx_buf_circ_2, \
 			&packet[PORT_RS485_2][INBOUND], &packet[PORT_RS485_2][OUTBOUND]);
+
+	//SPI (Plan):
+	initCommPeriph(&commPeriph[PORT_SPI], PORT_SPI, MASTER, rx_buf_3, \
+			comm_str_3, rx_command_3, &rx_buf_circ_3, \
+			&packet[PORT_SPI][INBOUND], &packet[PORT_SPI][OUTBOUND]);
+
+	//Wireless:
+	//ToDo
+
+	//Expansion (currently SPI):
+	initCommPeriph(&commPeriph[PORT_EXP], PORT_EXP, SLAVE, rx_buf_6, \
+			comm_str_6, rx_command_6, &rx_buf_circ_6, \
+			&packet[PORT_EXP][INBOUND], &packet[PORT_EXP][OUTBOUND]);
 
 	//Personalize specific fields:
 	//...
@@ -87,6 +105,16 @@ void parseMasterCommands(uint8_t *new_cmd)
 		commPeriph[PORT_SPI].rx.unpackedPacketsAvailable = 0;
 		parseResult = payload_parse_str(&packet[PORT_SPI][INBOUND]);
 		newCmdLed += (parseResult == PARSE_SUCCESSFUL) ? 1 : 0;
+		spi4Watch = 0;	//Valid packets restart the count
+	}
+	else
+	{
+		//Getting many SPI transactions but no packets is a sign that something is wrong
+		if(spi4Watch > 5)
+		{
+			//After 5 SPI transfers with 0 packets we restart the peripheral:
+			restartSpi(4);
+		}
 	}
 
 	//Wireless
@@ -103,6 +131,8 @@ void parseMasterCommands(uint8_t *new_cmd)
 //Did we receive new commands? Can we parse them?
 void parseSlaveCommands(uint8_t *new_cmd)
 {
+	uint8_t parseResult = 0;
+
 	//Valid communication from RS-485 #1?
 	if(commPeriph[PORT_RS485_1].rx.unpackedPacketsAvailable > 0)
 	{
@@ -116,6 +146,23 @@ void parseSlaveCommands(uint8_t *new_cmd)
 		commPeriph[PORT_RS485_2].rx.unpackedPacketsAvailable = 0;
 		payload_parse_str(&packet[PORT_RS485_2][INBOUND]);
 	}
+
+	//Valid communication from Expansion?
+	if(commPeriph[PORT_EXP].rx.unpackedPacketsAvailable > 0)
+	{
+		commPeriph[PORT_EXP].rx.unpackedPacketsAvailable = 0;
+		parseResult = payload_parse_str(&packet[PORT_EXP][INBOUND]);
+		spi6Watch = 0;
+	}
+	else
+	{
+		//Getting many SPI transactions but no packets is a sign that something is wrong
+		if(spi6Watch > 10)
+		{
+			//After 10 SPI transfers with 0 packets we restart the peripheral:
+			restartSpi(6);
+		}
+	}
 }
 
 //Slave Communication function. Call at 1kHz.
@@ -123,10 +170,9 @@ void slaveTransmit(Port port)
 {
 	/*Note: this is only a demonstration. In the final application, we want
 			 * to send the commands accumulated on a ring buffer here.*/
-	uint8_t slaveIndex = 0;
 	PacketWrapper *p;
 
-	if((port == PORT_RS485_1) || (port == PORT_RS485_2))
+	if((port == PORT_RS485_1) || (port == PORT_RS485_2) || (port == PORT_EXP))
 	{
 		p = &packet[port][OUTBOUND];
 

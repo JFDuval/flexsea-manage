@@ -38,11 +38,11 @@
 #include "fm_misc.h"
 #include <fm_master_slave_comm.h>
 #include <imu.h>
+#include <spi.h>
 #include <ui.h>
 #include "fm_dio.h"
 #include "fm_timer.h"
 #include "fm_uarts.h"
-#include "fm_spi.h"
 #include "fm_i2c.h"
 #include "fm_adv_analog.h"
 #include "fm_pwr_out.h"
@@ -67,6 +67,9 @@ void init_peripherals(void)
 	//Extra Power ON delay:
 	HAL_Delay(100);
 
+	//Software:
+	initMasterSlaveComm();
+
 	//Hardware modules:
 	init_systick_timer();		//SysTick timer (1kHz)
 	init_timer_6();				//For us delay function
@@ -78,6 +81,7 @@ void init_peripherals(void)
 	init_switches();
 	init_dio();					//All inputs by default
 	init_adc1();
+	init_spi6();				//Expansion
 	init_spi4();				//Plan
 
 	#ifdef USE_UART3
@@ -92,8 +96,6 @@ void init_peripherals(void)
 		flashLogInit();			//Start the logger
 
 	#endif
-
-	//init_spi6();				//Expansion
 
 	#ifdef USE_I2C_1
 
@@ -134,9 +136,6 @@ void init_peripherals(void)
 		init_comm_test();
 
 	#endif	//USE_COMM_TEST
-
-	//Software:
-	initMasterSlaveComm();
 
 	//All RGB LEDs OFF
 	LEDR(0);

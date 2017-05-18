@@ -14,8 +14,8 @@
 //****************************************************************************
 
 #include <adc.h>
+#include <spi.h>
 #include "main.h"
-#include "fm_spi.h"
 #include "fm_i2c.h"
 #include "fm_stm32f4xx_hal_spi.h"
 #include "fm_stm32f4xx_it.h"
@@ -61,6 +61,11 @@ void SPI4_IRQHandler(void)
 	spi_bytes_ready++;
 
 	HAL_SPI_IRQHandler(&spi4_handle);
+}
+
+void SPI6_IRQHandler(void)
+{
+	HAL_SPI_IRQHandler(&spi6_handle);
 }
 
 void EXTI4_IRQHandler(void)
@@ -151,7 +156,6 @@ void DMA2_Stream0_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(&hdma_adc1);
 }
-
 
 //USB:
 void OTG_FS_IRQHandler(void)
