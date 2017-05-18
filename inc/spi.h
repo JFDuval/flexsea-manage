@@ -103,6 +103,4 @@ do{													\
 //MISO6: 	PG12
 //SCK6: 	PG13
 
-
 #endif // INC_FM_SPI_H
-

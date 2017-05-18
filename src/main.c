@@ -45,9 +45,6 @@
 #include "flexsea_system.h"
 #include "flexsea_global_structs.h"
 
-#include "spi.h"
-#include "cmd-RICNU_Knee_v1.h"
-
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
@@ -55,12 +52,6 @@
 //Map fsm case to an index:
 void (*fsmCases[10])(void) = {&mainFSM0, &mainFSM1, &mainFSM2, &mainFSM3, \
 			&mainFSM4, &mainFSM5, &mainFSM6, &mainFSM7,	&mainFSM8, &mainFSM9};
-
-//Test:
-//uint8_t txData[100] = {237,4,10,20,1,45,76,238,0,0,0};	//Read All Mn1
-uint8_t txData[100] = {237,4,10,20,1,45,76,238,0,0,0};	//Read All Mn1
-uint16_t wait = 0;
-uint8_t info[2];
 
 //****************************************************************************
 // Function(s)
@@ -114,49 +105,12 @@ int main(void)
 		if(tb_1ms_flag)
 		{
 			tb_1ms_flag = 0;
-
 		}
 
 		//10ms
 		if(tb_10ms_flag)
 		{
 			tb_10ms_flag = 0;
-
-			#ifdef SPI_MASTER
-
-			/*
-			//Test code: transmit packet from SPI6
-			if(wait < 250)
-			{
-				LED1(0);
-				wait++;
-			}
-			else
-			{
-				spi6Transmit(txData, 48);
-				LED1(1);
-			}
-			 */
-
-			#endif
-
-			/*
-			//Test code: transmit packet from SPI6
-			if(wait < 250)
-			{
-				LED1(0);
-				wait++;
-			}
-			else
-			{
-				info[0] = PORT_RS485_1;
-				//tx_cmd_ricnu_rw(TX_N_DEFAULT, 1, CTRL_NONE, 0, KEEP, 0, 0, 0, 0);
-				tx_cmd_data_read_all_r(TX_N_DEFAULT);
-				packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
-				LED1(1);
-			}
-			*/
-
 		}
 
 		//100ms

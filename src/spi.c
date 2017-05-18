@@ -39,9 +39,6 @@
 #include "flexsea_sys_def.h"
 #include "ui.h"
 
-//Test only:
-#include "fm_timer.h"
-
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
@@ -60,7 +57,6 @@ uint32_t spi4_sr = 0, spi6_sr = 0;
 uint8_t spi4Watch = 0, spi6Watch = 0;
 uint8_t spi6Block = 0;
 volatile uint8_t catch = 0;
-volatile uint16_t leadingDelay = 1, trailingDelay = 1;
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -155,7 +151,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == GPIO_PIN_4)
 	{
-		// At this point, the SPI transfer is complete
+		//At this point, the SPI transfer is complete
 		endSpi4Flag = 1;
 	}
 }
@@ -176,9 +172,6 @@ void spi6Transmit(uint8_t *pData, uint16_t len)
 	{
 		//Select slave:
 		SPI6_NSS(0);
-		//Awful test, ToDo remove! ***************
-		delayUsBlocking(leadingDelay);
-
 		spi6Watch++;
 
 		memcpy(aTxBuffer6, pData, len);
@@ -205,7 +198,6 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 	{
 		//Re-init the bus:
 		init_spi4();
-		//restartSpi(4);
 		errorCnt++;
 	}
 	else if(hspi->Instance == SPI6)	//Expansion
@@ -273,8 +265,6 @@ void completeSpiTransmit(void)
 
 	if(endSpi6TxFlag)
 	{
-		//Awful test, ToDo remove! ***************
-		delayUsBlocking(trailingDelay);
 		SPI6_NSS(1);
 		endSpi6TxFlag = 0;
 
