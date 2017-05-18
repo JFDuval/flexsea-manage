@@ -443,7 +443,8 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	}
 
 	//Deal with FlexSEA buffers here:
-	update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);
+	//update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);	//Legacy
+	update_rx_buf_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);		//Circular Buffer
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
 	commPeriph[PORT_RS485_1].rx.bytesReadyFlag++;
@@ -459,7 +460,6 @@ void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 	//Ready to start receiving?
 	if(husart->Instance == USART1)
 	{
-		//DEBUG_OUT_DIO4(0);	//ToDo remove, debug only
 		transceiver = PORT_RS485_1;
 	}
 	else if(husart->Instance == USART6)
@@ -495,7 +495,8 @@ void DMA2_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	}
 
 	//Deal with FlexSEA buffers here:
-	update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);
+	//update_rx_buf_array_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);	//Legacy
+	update_rx_buf_485_2(uart6_dma_rx_buf, rs485_2_dma_xfer_len);			//Circular Buffer
 	//Empty DMA buffer once it's copied:
 	memset(uart6_dma_rx_buf, 0, rs485_2_dma_xfer_len);
 	commPeriph[PORT_RS485_2].rx.bytesReadyFlag++;

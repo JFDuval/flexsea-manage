@@ -48,6 +48,7 @@
 #include <ui.h>
 #include "usb_device.h"
 #include "user-mn.h"
+#include "batt.h"
 
 //****************************************************************************
 // Variable(s)

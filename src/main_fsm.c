@@ -32,6 +32,7 @@
 // Include(s)
 //****************************************************************************
 
+#include "user-mn.h"
 #include <adc.h>
 #include <dio.h>
 #include <i2c.h>
@@ -43,7 +44,6 @@
 #include "flexsea_global_structs.h"
 #include "flexsea_board.h"
 #include "rgb_led.h"
-#include "user-mn.h"
 #include "spi.h"
 
 //****************************************************************************

@@ -85,12 +85,14 @@ uint8_t getSlaveCnt(uint8_t sub);
 #define rx_command_485_1				rx_command_1
 #define update_rx_buf_byte_485_1		update_rx_buf_byte_1
 #define update_rx_buf_array_485_1		update_rx_buf_array_1
+#define update_rx_buf_485_1(x, y)		circ_buff_write(commPeriph[PORT_RS485_1].rx.circularBuff, (x), (y))
 
 #define comm_str_485_2					comm_str_2
 #define unpack_payload_485_2			unpack_payload_2
 #define rx_command_485_2				rx_command_2
 #define update_rx_buf_byte_485_2		update_rx_buf_byte_2
 #define update_rx_buf_array_485_2		update_rx_buf_array_2
+#define update_rx_buf_485_2(x, y)		circ_buff_write(commPeriph[PORT_RS485_2].rx.circularBuff, (x), (y))
 
 #define comm_str_spi					comm_str_3
 #define unpack_payload_spi				unpack_payload_3

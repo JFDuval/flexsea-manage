@@ -195,8 +195,12 @@ void flexsea_receive_from_slave(void)
 
 	//Did we get new bytes?
 	//=====================
-	tryUnpacking(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);
-	tryUnpacking(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);
+	//tryUnpacking(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);
+	//tryUnpacking(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);
+
+	commPeriph[PORT_RS485_1].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_RS485_1], &packet[PORT_RS485_1][INBOUND]);		//Circular buffer
+	commPeriph[PORT_RS485_2].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_RS485_2], &packet[PORT_RS485_2][INBOUND]);		//Circular buffer
+
 	commPeriph[PORT_EXP].rx.unpackedPacketsAvailable = tryParseRx(&commPeriph[PORT_EXP], &packet[PORT_EXP][INBOUND]);		//Circular buffer
 }
 
