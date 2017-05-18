@@ -54,11 +54,6 @@
 //Prepares the structures:
 void initMasterSlaveComm(void)
 {
-	//USB:
-	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_4, \
-			comm_str_4, rx_command_4, &rx_buf_circ_4, \
-			&packet[PORT_USB][INBOUND], &packet[PORT_USB][OUTBOUND]);
-
 	//RS_485 #1:
 	initCommPeriph(&commPeriph[PORT_RS485_1], PORT_RS485_1, SLAVE, rx_buf_1, \
 			comm_str_1, rx_command_1, &rx_buf_circ_1, \
@@ -74,16 +69,20 @@ void initMasterSlaveComm(void)
 			comm_str_3, rx_command_3, &rx_buf_circ_3, \
 			&packet[PORT_SPI][INBOUND], &packet[PORT_SPI][OUTBOUND]);
 
-	//Wireless:
-	//ToDo
+	//USB:
+	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_4, \
+			comm_str_4, rx_command_4, &rx_buf_circ_4, \
+			&packet[PORT_USB][INBOUND], &packet[PORT_USB][OUTBOUND]);
+
+	//Wireless/UART3:
+	initCommPeriph(&commPeriph[PORT_WIRELESS], PORT_WIRELESS, MASTER, rx_buf_5, \
+		comm_str_5, rx_command_5, &rx_buf_circ_5, \
+		&packet[PORT_WIRELESS][INBOUND], &packet[PORT_WIRELESS][OUTBOUND]);
 
 	//Expansion (currently SPI):
 	initCommPeriph(&commPeriph[PORT_EXP], PORT_EXP, SLAVE, rx_buf_6, \
 			comm_str_6, rx_command_6, &rx_buf_circ_6, \
 			&packet[PORT_EXP][INBOUND], &packet[PORT_EXP][OUTBOUND]);
-
-	//Personalize specific fields:
-	//...
 }
 
 //Did we receive new commands? Can we parse them?
