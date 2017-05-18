@@ -42,10 +42,10 @@
 // Include(s)
 //****************************************************************************
 
+#include <adv_analog.h>
+#include <i2c.h>
+#include <timer.h>
 #include "main.h"
-#include "fm_adv_analog.h"
-#include "fm_i2c.h"
-#include "fm_timer.h"
 #include "stm32f4xx_hal_i2c.h"
 #include "user-mn.h"
 
