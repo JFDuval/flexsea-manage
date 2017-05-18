@@ -36,6 +36,7 @@
 #include <imu.h>
 #include "main.h"
 #include "user-mn.h"
+#include "batt.h"
 
 //****************************************************************************
 // Variable(s)
