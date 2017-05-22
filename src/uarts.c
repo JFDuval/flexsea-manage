@@ -323,6 +323,8 @@ void puts_rs485_1(uint8_t *str, uint16_t length)
 	for(i = 0; i < 1000; i++);
 
 	//Send data via DMA:
+	__HAL_DMA_CLEAR_FLAG(husart1.hdmatx, DMA_FLAG_TCIF3_7 | DMA_FLAG_DMEIF3_7 | \
+					DMA_FLAG_TEIF3_7 | DMA_FLAG_HTIF3_7 | DMA_FLAG_TCIF3_7);
 	HAL_USART_Transmit_DMA(&husart1, uart1_dma_buf_ptr, length);
 }
 
@@ -517,6 +519,34 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
 	//masterComm[2].rx.bytesReady++;
 	commPeriph[PORT_WIRELESS].rx.bytesReadyFlag++;
+}
+
+//USART Error callback:
+void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
+{
+	if(husart->Instance == USART1)
+	{
+		//...
+		/*
+		 * Test - doesn't seem to do much:
+		if(husart->ErrorCode != HAL_USART_ERROR_NONE)
+		{
+			husart->ErrorCode = HAL_USART_ERROR_NONE;
+			husart->State= HAL_USART_STATE_READY;
+		}
+
+		if(husart->hdmatx->State == HAL_DMA_STATE_ERROR || \
+				husart->hdmatx->State == HAL_DMA_STATE_TIMEOUT)
+		{
+			husart->hdmatx->State = HAL_DMA_STATE_RESET;
+		}
+		*/
+
+	}
+	else if(husart->Instance == USART6)
+	{
+		//...
+	}
 }
 
 //****************************************************************************
@@ -735,7 +765,12 @@ static void init_dma2_stream7_ch4(void)
 	hdma2_str7_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str7_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;		//Align: bytes
 	hdma2_str7_ch4.Init.Mode = DMA_NORMAL;
-	hdma2_str7_ch4.Init.Priority = DMA_PRIORITY_MEDIUM;
+	hdma2_str7_ch4.Init.Priority = DMA_PRIORITY_HIGH;
+	//Below if from 05/22 (ToDo delete this comment once fully tested):
+	hdma2_str7_ch4.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+	hdma2_str7_ch4.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+	hdma2_str7_ch4.Init.MemBurst = DMA_MBURST_SINGLE;
+	hdma2_str7_ch4.Init.PeriphBurst = DMA_PBURST_SINGLE;
 
 	//Link DMA handle and UART TX:
 	husart1.hdmatx = &hdma2_str7_ch4;
@@ -745,8 +780,7 @@ static void init_dma2_stream7_ch4(void)
 	HAL_DMA_Init(husart1.hdmatx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, DMA_STR7_IRQ_CHANNEL,
-			DMA_STR7_IRQ_SUBCHANNEL);
+	HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 	__HAL_DMA_ENABLE_IT(husart1.hdmatx, DMA_IT_TC);
 }
