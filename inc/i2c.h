@@ -47,8 +47,8 @@
 extern I2C_HandleTypeDef hi2c1, hi2c2;
 extern uint8_t i2c_2_r_buf[24];
 
-extern int8_t i2c1FsmState;
-extern uint8_t i2c1_dma_rx_buf[24];
+extern int8_t i2c1FsmState, i2c2FsmState;
+extern uint8_t i2c1_dma_rx_buf[24], i2c2_dma_rx_buf[24];
 
 //****************************************************************************
 // Public Function Prototype(s):
@@ -86,5 +86,15 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
 #define I2C1_FSM_TX_ADDR_DONE	2
 #define I2C1_FSM_RX_DATA		3
 #define I2C1_FSM_RX_DATA_DONE	4
+
+//I2C2 State Machine:
+#define I2C2_FSM_PROBLEM		-1
+#define I2C2_FSM_DEFAULT		0
+#define I2C2_FSM_TX_ADDR		1
+#define I2C2_FSM_TX_ADDR_DONE	2
+#define I2C2_FSM_RX_DATA		3
+#define I2C2_FSM_RX_DATA_DONE	4
+
+//ToDo merge #1 and 2 once we confirm they have the same states
 
 #endif //INC_FM_I2C_H
