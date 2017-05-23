@@ -37,6 +37,7 @@
 #include "main.h"
 #include "user-mn.h"
 #include "batt.h"
+#include "isr.h"
 
 //****************************************************************************
 // Variable(s)
@@ -441,7 +442,7 @@ static void init_dma1_stream0_ch1(void)
 	HAL_DMA_Init(hi2c1.hdmarx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, ISR_DMA1_STREAM0, ISR_SUB_DMA1_STREAM0);
 	HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
 }
 
@@ -471,7 +472,7 @@ static void init_dma1_stream6_ch1(void)
 	HAL_DMA_Init(hi2c1.hdmatx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, ISR_DMA1_STREAM6, ISR_SUB_DMA1_STREAM6);
 	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 }
 
@@ -501,7 +502,7 @@ static void init_dma1_stream2_ch7(void)
 	HAL_DMA_Init(hi2c2.hdmarx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, ISR_DMA1_STREAM2, ISR_SUB_DMA1_STREAM2);
 	HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
 }
 
@@ -531,6 +532,6 @@ static void init_dma1_stream7_ch7(void)
 	HAL_DMA_Init(hi2c2.hdmatx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, ISR_DMA1_STREAM7, ISR_SUB_DMA1_STREAM7);
 	HAL_NVIC_EnableIRQ(DMA1_Stream7_IRQn);
 }

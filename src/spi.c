@@ -38,6 +38,7 @@
 #include "flexsea_board.h"
 #include "flexsea_sys_def.h"
 #include "ui.h"
+#include "isr.h"
 
 //****************************************************************************
 // Variable(s)
@@ -364,10 +365,10 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
 		//Enable interrupts/NVIC for SPI data lines
-		HAL_NVIC_SetPriority(SPI4_IRQn, 1, 1);
+		HAL_NVIC_SetPriority(SPI4_IRQn, ISR_SPI4, ISR_SUB_SPI4);
 		HAL_NVIC_EnableIRQ(SPI4_IRQn);
 		//And for the the CS pin
-		HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
+		HAL_NVIC_SetPriority(EXTI4_IRQn, ISR_EXTI4, ISR_SUB_EXTI4);
 		HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 	}
 	else if(hspi->Instance == SPI5)    //FLASH, SPI Master
@@ -393,7 +394,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
 		//Enable interrupts/NVIC for SPI data lines
-		HAL_NVIC_SetPriority(SPI5_IRQn, 7, 7);
+		HAL_NVIC_SetPriority(SPI5_IRQn, ISR_SPI5, ISR_SPI5);
 		HAL_NVIC_EnableIRQ(SPI5_IRQn);
 	}
 	else if(hspi->Instance == SPI6)    //Expansion connector, SPI Master
@@ -430,7 +431,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		SPI6_NSS(1);
 
 		//Enable interrupts/NVIC for SPI data lines
-		HAL_NVIC_SetPriority(SPI6_IRQn, 4, 7);
+		HAL_NVIC_SetPriority(SPI6_IRQn, ISR_SPI6, ISR_SUB_SPI6);
 		HAL_NVIC_EnableIRQ(SPI6_IRQn);
 	}
 	else

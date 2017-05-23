@@ -40,6 +40,7 @@
 #include <uarts.h>
 #include "flexsea_sys_def.h"
 #include "flexsea_board.h"
+#include "isr.h"
 
 //****************************************************************************
 // Variable(s)
@@ -96,8 +97,8 @@ void init_usart1(uint32_t baudrate)
 	HAL_USART_MspInit(&husart1);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(USART1_IRQn, UART1_IRQ_CHANNEL, UART1_IRQ_SUBCHANNEL);
-	HAL_NVIC_EnableIRQ(USART1_IRQn);
+	HAL_NVIC_SetPriority(USART1_IRQn, ISR_UART1, ISR_SUB_UART1);
+	HAL_NVIC_EnableIRQ(USART1_IRQn);	//Should that be enabled?
 
 	//UART1 module:
 	husart1.Init.BaudRate = baudrate;	//Wrong, see below
@@ -137,7 +138,7 @@ void init_usart6(uint32_t baudrate)
 	HAL_USART_MspInit(&husart6);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(USART6_IRQn, UART6_IRQ_CHANNEL, UART6_IRQ_SUBCHANNEL);
+	HAL_NVIC_SetPriority(USART6_IRQn, ISR_UART6, ISR_SUB_UART6);
 	HAL_NVIC_EnableIRQ(USART6_IRQn);
 
 	//UART1 module:
@@ -177,7 +178,7 @@ void init_usart3(uint32_t baudrate)
 	HAL_USART_MspInit(&husart3);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(USART3_IRQn, UART3_IRQ_CHANNEL, UART3_IRQ_SUBCHANNEL);
+	HAL_NVIC_SetPriority(USART3_IRQn, ISR_UART3, ISR_SUB_UART3);
 	HAL_NVIC_EnableIRQ(USART3_IRQn);
 
 	//UART3 module:
@@ -440,7 +441,7 @@ void DMA2_Str2_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 
 	//Deal with FlexSEA buffers here:
 	//update_rx_buf_array_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);	//Legacy
-	update_rx_buf_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);		//Circular Buffer
+	update_rx_buf_485_1(uart1_dma_rx_buf, rs485_1_dma_xfer_len);			//Circular Buffer
 	//Empty DMA buffer once it's copied:
 	memset(uart1_dma_rx_buf, 0, rs485_1_dma_xfer_len);
 	commPeriph[PORT_RS485_1].rx.bytesReadyFlag++;
@@ -648,8 +649,7 @@ static void init_dma2_stream2_ch4(void)
 	HAL_DMA_Init(&hdma2_str2_ch4);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, DMA_STR2_IRQ_CHANNEL,
-			DMA_STR2_IRQ_SUBCHANNEL);
+	HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, ISR_DMA2_STREAM2, ISR_SUB_DMA2_STREAM2);
 	HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 	__HAL_DMA_ENABLE_IT(&hdma2_str2_ch4, DMA_IT_TC);
 
@@ -690,8 +690,7 @@ static void init_dma2_stream1_ch5(void)
 	HAL_DMA_Init(&hdma2_str1_ch5);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, DMA_STR1_IRQ_CHANNEL,
-			DMA_STR1_IRQ_SUBCHANNEL);
+	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, ISR_DMA2_STREAM1, ISR_SUB_DMA2_STREAM1);
 	HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 	__HAL_DMA_ENABLE_IT(&hdma2_str1_ch5, DMA_IT_TC);
 
@@ -730,7 +729,7 @@ static void init_dma1_stream1_ch4(void)
 	HAL_DMA_Init(&hdma1_str1_ch4);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);	//ToDo adjust
+	HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, ISR_DMA1_STREAM1, ISR_SUB_DMA1_STREAM1);
 	HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
 	__HAL_DMA_ENABLE_IT(&hdma1_str1_ch4, DMA_IT_TC);
 
@@ -772,7 +771,7 @@ static void init_dma2_stream7_ch4(void)
 	HAL_DMA_Init(husart1.hdmatx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 3, 0);
+	HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, ISR_DMA2_STREAM7, ISR_SUB_DMA2_STREAM7);
 	HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 	__HAL_DMA_ENABLE_IT(husart1.hdmatx, DMA_IT_TC);
 }
@@ -810,7 +809,7 @@ static void init_dma2_stream6_ch5(void)
 	HAL_DMA_Init(&hdma2_str6_ch5);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 3, 0);
+	HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, ISR_DMA2_STREAM6, ISR_SUB_DMA2_STREAM6);
 	HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 	__HAL_DMA_ENABLE_IT(husart6.hdmatx, DMA_IT_TC);
 }
@@ -844,7 +843,7 @@ static void init_dma1_stream3_ch4(void)
 	HAL_DMA_Init(husart3.hdmatx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 3, 0);
+	HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, ISR_DMA1_STREAM3, ISR_SUB_DMA1_STREAM3);
 	HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 	__HAL_DMA_ENABLE_IT(husart3.hdmatx, DMA_IT_TC);
 }
