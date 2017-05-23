@@ -70,10 +70,6 @@ void restartSpi(uint8_t port);
 // Definition(s):
 //****************************************************************************
 
-//Interrupt priorities (lower number = higher priority)
-#define EXT4_IRQ_CHANNEL			7
-#define EXT4_IRQ_SUBCHANNEL			0
-
 #define SPI6_NSS(x) HAL_GPIO_WritePin(GPIOG, 1<<8, x);
 
 //Macros from newer Cube libs:
