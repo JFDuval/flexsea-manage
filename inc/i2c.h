@@ -77,24 +77,13 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
 //ISR reading of I2C1 sensors (IMU, Battery, etc):
 #define I2C1_RQ_GYRO			1
 #define I2C1_RQ_ACCEL			2
-#define I2C1_RQ_BATTBOARD		3	//ToDo: batt is on I2C2, not 1!
 
-//I2C1 State Machine:
-#define I2C1_FSM_PROBLEM		-1
-#define I2C1_FSM_DEFAULT		0
-#define I2C1_FSM_TX_ADDR		1
-#define I2C1_FSM_TX_ADDR_DONE	2
-#define I2C1_FSM_RX_DATA		3
-#define I2C1_FSM_RX_DATA_DONE	4
-
-//I2C2 State Machine:
-#define I2C2_FSM_PROBLEM		-1
-#define I2C2_FSM_DEFAULT		0
-#define I2C2_FSM_TX_ADDR		1
-#define I2C2_FSM_TX_ADDR_DONE	2
-#define I2C2_FSM_RX_DATA		3
-#define I2C2_FSM_RX_DATA_DONE	4
-
-//ToDo merge #1 and 2 once we confirm they have the same states
+//I2C State Machine:
+#define I2C_FSM_PROBLEM			-1
+#define I2C_FSM_DEFAULT			0
+#define I2C_FSM_TX_ADDR		1
+#define I2C_FSM_TX_ADDR_DONE	2
+#define I2C_FSM_RX_DATA		3
+#define I2C_FSM_RX_DATA_DONE	4
 
 #endif //INC_FM_I2C_H

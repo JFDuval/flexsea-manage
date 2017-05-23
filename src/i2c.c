@@ -48,8 +48,8 @@ DMA_HandleTypeDef hdma_i2c1_tx, hdma_i2c1_rx;
 DMA_HandleTypeDef hdma_i2c2_tx, hdma_i2c2_rx;
 
 uint8_t i2c_2_r_buf[24];
-int8_t i2c1FsmState = I2C1_FSM_DEFAULT;
-int8_t i2c2FsmState = I2C2_FSM_DEFAULT;
+int8_t i2c1FsmState = I2C_FSM_DEFAULT;
+int8_t i2c2FsmState = I2C_FSM_DEFAULT;
 __attribute__ ((aligned (4))) uint8_t i2c1_dma_rx_buf[24];
 __attribute__ ((aligned (4))) uint8_t i2c2_dma_rx_buf[24];
 
@@ -85,7 +85,7 @@ void i2c1_fsm(void)
 		//Case 0.0: Write register
 		case 0:
 
-			i2c1FsmState = I2C1_FSM_TX_ADDR;
+			i2c1FsmState = I2C_FSM_TX_ADDR;
 			IMUPrepareRead();
 
 			break;
@@ -93,10 +93,10 @@ void i2c1_fsm(void)
 		//Case 0.1: Read data via DMA
 		case 1:
 
-			if(i2c1FsmState == I2C1_FSM_TX_ADDR_DONE)
+			if(i2c1FsmState == I2C_FSM_TX_ADDR_DONE)
 			{
 				//Start reading:
-				i2c1FsmState = I2C1_FSM_RX_DATA;
+				i2c1FsmState = I2C_FSM_RX_DATA;
 				IMUReadAll();
 			}
 
@@ -105,7 +105,7 @@ void i2c1_fsm(void)
 		//Case 0.2: Parse data
 		case 2:
 
-			if(i2c1FsmState == I2C1_FSM_RX_DATA_DONE)
+			if(i2c1FsmState == I2C_FSM_RX_DATA_DONE)
 			{
 				//Decode received data
 				IMUParseData();
@@ -123,7 +123,7 @@ void i2c1_fsm(void)
 	}
 
 	//ToDo: recover from errors:
-	if(i2c1FsmState == I2C1_FSM_PROBLEM)
+	if(i2c1FsmState == I2C_FSM_PROBLEM)
 	{
 		//Deal with it
 	}
@@ -149,7 +149,7 @@ void i2c2_fsm(void)
 		//Case 0.0: Write register
 		case 0:
 
-			i2c2FsmState = I2C2_FSM_TX_ADDR;
+			i2c2FsmState = I2C_FSM_TX_ADDR;
 			battPrepareRead();
 
 			break;
@@ -157,10 +157,10 @@ void i2c2_fsm(void)
 		//Case 0.1: Read data via DMA
 		case 1:
 
-			if(i2c2FsmState == I2C2_FSM_TX_ADDR_DONE)
+			if(i2c2FsmState == I2C_FSM_TX_ADDR_DONE)
 			{
 				//Start reading:
-				i2c2FsmState = I2C2_FSM_RX_DATA;
+				i2c2FsmState = I2C_FSM_RX_DATA;
 				battReadAll();
 			}
 
@@ -169,7 +169,7 @@ void i2c2_fsm(void)
 		//Case 0.2: Parse data
 		case 2:
 
-			if(i2c2FsmState == I2C2_FSM_RX_DATA_DONE)
+			if(i2c2FsmState == I2C_FSM_RX_DATA_DONE)
 			{
 				//Decode received data
 				battParseData();
@@ -187,7 +187,7 @@ void i2c2_fsm(void)
 	}
 
 	//ToDo: recover from errors:
-	if(i2c2FsmState == I2C2_FSM_PROBLEM)
+	if(i2c2FsmState == I2C_FSM_PROBLEM)
 	{
 		//Deal with it
 	}
@@ -256,28 +256,28 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	//I2C1:
 	if(hi2c->Instance == I2C1)
 	{
-		if(i2c1FsmState == I2C1_FSM_RX_DATA)
+		if(i2c1FsmState == I2C_FSM_RX_DATA)
 		{
 			//Indicate that it's done receiving:
-			i2c1FsmState = I2C1_FSM_RX_DATA_DONE;
+			i2c1FsmState = I2C_FSM_RX_DATA_DONE;
 		}
 		else
 		{
-			i2c1FsmState = I2C1_FSM_PROBLEM;
+			i2c1FsmState = I2C_FSM_PROBLEM;
 		}
 	}
 
 	//I2C2:
 	if(hi2c->Instance == I2C2)
 	{
-		if(i2c2FsmState == I2C2_FSM_RX_DATA)
+		if(i2c2FsmState == I2C_FSM_RX_DATA)
 		{
 			//Indicate that it's done receiving:
-			i2c2FsmState = I2C2_FSM_RX_DATA_DONE;
+			i2c2FsmState = I2C_FSM_RX_DATA_DONE;
 		}
 		else
 		{
-			i2c2FsmState = I2C2_FSM_PROBLEM;
+			i2c2FsmState = I2C_FSM_PROBLEM;
 		}
 	}
 }
@@ -288,28 +288,28 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 	//I2C1:
 	if(hi2c->Instance == I2C1)
 	{
-		if(i2c1FsmState == I2C1_FSM_TX_ADDR)
+		if(i2c1FsmState == I2C_FSM_TX_ADDR)
 		{
 			//Indicate that it's done transmitting:
-			i2c1FsmState = I2C1_FSM_TX_ADDR_DONE;
+			i2c1FsmState = I2C_FSM_TX_ADDR_DONE;
 		}
 		else
 		{
-			i2c1FsmState = I2C1_FSM_PROBLEM;
+			i2c1FsmState = I2C_FSM_PROBLEM;
 		}
 	}
 
 	//I2C2:
 	if(hi2c->Instance == I2C2)
 	{
-		if(i2c2FsmState == I2C2_FSM_TX_ADDR)
+		if(i2c2FsmState == I2C_FSM_TX_ADDR)
 		{
 			//Indicate that it's done transmitting:
-			i2c2FsmState = I2C2_FSM_TX_ADDR_DONE;
+			i2c2FsmState = I2C_FSM_TX_ADDR_DONE;
 		}
 		else
 		{
-			i2c2FsmState = I2C2_FSM_PROBLEM;
+			i2c2FsmState = I2C_FSM_PROBLEM;
 		}
 	}
 }
