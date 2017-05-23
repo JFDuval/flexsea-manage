@@ -98,7 +98,7 @@ void init_usart1(uint32_t baudrate)
 
 	//Interrupts:
 	HAL_NVIC_SetPriority(USART1_IRQn, ISR_UART1, ISR_SUB_UART1);
-	HAL_NVIC_EnableIRQ(USART1_IRQn);	//Should that be enabled?
+	//HAL_NVIC_EnableIRQ(USART1_IRQn);	//(All done via DMA)
 
 	//UART1 module:
 	husart1.Init.BaudRate = baudrate;	//Wrong, see below
@@ -139,7 +139,7 @@ void init_usart6(uint32_t baudrate)
 
 	//Interrupts:
 	HAL_NVIC_SetPriority(USART6_IRQn, ISR_UART6, ISR_SUB_UART6);
-	HAL_NVIC_EnableIRQ(USART6_IRQn);
+	//HAL_NVIC_EnableIRQ(USART6_IRQn);	//(All done via DMA)
 
 	//UART1 module:
 	husart6.Init.BaudRate = baudrate;	//Wrong, see below
