@@ -311,8 +311,6 @@ void puts_rs485_1(uint8_t *str, uint16_t length)
 	uint8_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint8_t*) &uart1_dma_tx_buf;
 
-	//DEBUG_OUT_DIO4(1);	//ToDo remove, debug only
-
 	//Transmit enable
 	rs485_set_mode(PORT_RS485_1, RS485_TX);
 
@@ -334,8 +332,6 @@ uint8_t reception_rs485_1_blocking(void)
 {
 	int delay = 0;
 
-	//DEBUG_OUT_DIO6(1);	//ToDo remove, debug only
-
 	//Pointer to our storage buffer:
 	uint32_t *uart1_dma_buf_ptr;
 	uart1_dma_buf_ptr = (uint32_t*) &uart1_dma_rx_buf;
@@ -350,14 +346,10 @@ uint8_t reception_rs485_1_blocking(void)
 	tmp = USART1->DR;	//Read buffer to clear
 
 	//Start the DMA peripheral
-	//DEBUG_OUT_DIO5(1);	//ToDo remove, debug only
 	dmaRx1ConfigFlag = 1;
 	HAL_DMA_Start_IT(&hdma2_str2_ch4, (uint32_t) &USART1->DR,
 			(uint32_t) uart1_dma_buf_ptr, rs485_1_dma_xfer_len);
 	dmaRx1ConfigFlag = 0;
-	//DEBUG_OUT_DIO5(0);	//ToDo remove, debug only
-
-	//DEBUG_OUT_DIO6(0);	//ToDo remove, debug only
 
 	return 0;
 }
@@ -379,6 +371,8 @@ void puts_rs485_2(uint8_t *str, uint16_t length)
 	for(i = 0; i < 1000; i++);
 
 	//Send data
+	__HAL_DMA_CLEAR_FLAG(husart6.hdmatx, DMA_FLAG_TCIF2_6 | DMA_FLAG_DMEIF2_6 | \
+						DMA_FLAG_TEIF2_6 | DMA_FLAG_HTIF2_6 | DMA_FLAG_TCIF2_6);
 	HAL_USART_Transmit_DMA(&husart6, uart6_dma_buf_ptr, length);
 }
 
@@ -517,7 +511,6 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);
 	//Empty DMA buffer once it's copied:
 	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
-	//masterComm[2].rx.bytesReady++;
 	commPeriph[PORT_WIRELESS].rx.bytesReadyFlag++;
 }
 
@@ -766,7 +759,6 @@ static void init_dma2_stream7_ch4(void)
 	hdma2_str7_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;		//Align: bytes
 	hdma2_str7_ch4.Init.Mode = DMA_NORMAL;
 	hdma2_str7_ch4.Init.Priority = DMA_PRIORITY_HIGH;
-	//Below if from 05/22 (ToDo delete this comment once fully tested):
 	hdma2_str7_ch4.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
 	hdma2_str7_ch4.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
 	hdma2_str7_ch4.Init.MemBurst = DMA_MBURST_SINGLE;
@@ -804,7 +796,11 @@ static void init_dma2_stream6_ch5(void)
 	hdma2_str6_ch5.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str6_ch5.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Align: bytes
 	hdma2_str6_ch5.Init.Mode = DMA_NORMAL;
-	hdma2_str6_ch5.Init.Priority = DMA_PRIORITY_MEDIUM;
+	hdma2_str6_ch5.Init.Priority = DMA_PRIORITY_HIGH;
+	hdma2_str6_ch5.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+	hdma2_str6_ch5.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+	hdma2_str6_ch5.Init.MemBurst = DMA_MBURST_SINGLE;
+	hdma2_str6_ch5.Init.PeriphBurst = DMA_PBURST_SINGLE;
 
 	//Link DMA handle and UART TX:
 	husart6.hdmatx = &hdma2_str6_ch5;
@@ -814,8 +810,7 @@ static void init_dma2_stream6_ch5(void)
 	HAL_DMA_Init(&hdma2_str6_ch5);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, DMA_STR6_IRQ_CHANNEL,
-			DMA_STR6_IRQ_SUBCHANNEL);
+	HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 	__HAL_DMA_ENABLE_IT(husart6.hdmatx, DMA_IT_TC);
 }
@@ -849,7 +844,7 @@ static void init_dma1_stream3_ch4(void)
 	HAL_DMA_Init(husart3.hdmatx);
 
 	//Interrupts:
-	HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);	//ToDo adjust priority
+	HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 	__HAL_DMA_ENABLE_IT(husart3.hdmatx, DMA_IT_TC);
 }
