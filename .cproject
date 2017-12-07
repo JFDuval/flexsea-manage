@@ -116,14 +116,17 @@
 									<listOptionValue builtIn="false" value="../flexsea-user/MIT_2DoF_Ankle_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/RICNU_Knee_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/MotorTestBench/inc"/>
+									<listOptionValue builtIn="false" value="../flexsea-user/ActPack/inc"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.957020218" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
+									<listOptionValue builtIn="false" value="SPI_MASTER"/>
 									<listOptionValue builtIn="false" value="NULL=0"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=12000000"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F427xx"/>
 									<listOptionValue builtIn="false" value="BOARD_TYPE_FLEXSEA_MANAGE"/>
+									<listOptionValue builtIn="false" value="INCLUDE_UPROJ_ACTPACK"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other.409903104" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other" useByScannerDiscovery="true" value="-Wno-unused-but-set-variable" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.180102228" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
@@ -290,6 +293,7 @@
 									<listOptionValue builtIn="false" value="../flexsea-user/MIT_2DoF_Ankle_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/RICNU_Knee_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/MotorTestBench/inc"/>
+									<listOptionValue builtIn="false" value="../flexsea-user/ActPack/inc"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1418081600" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
@@ -299,6 +303,7 @@
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F427xx"/>
 									<listOptionValue builtIn="false" value="BOARD_TYPE_FLEXSEA_MANAGE"/>
+									<listOptionValue builtIn="false" value="INCLUDE_UPROJ_ACTPACK"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other.1639727129" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other" useByScannerDiscovery="true" value="-Wno-unused-but-set-variable" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.189024042" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
@@ -345,6 +350,7 @@
 									<listOptionValue builtIn="false" value="../flexsea-user/MIT_2DoF_Ankle_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/RICNU_Knee_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/MotorTestBench/inc"/>
+									<listOptionValue builtIn="false" value="../flexsea-user/ActPack/inc"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.179867850" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
@@ -636,15 +642,17 @@
 									<listOptionValue builtIn="false" value="../flexsea-user/MIT_2DoF_Ankle_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/RICNU_Knee_v1/inc"/>
 									<listOptionValue builtIn="false" value="../flexsea-user/MotorTestBench/inc"/>
+									<listOptionValue builtIn="false" value="../flexsea-user/ActPack/inc"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.958811237" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
+									<listOptionValue builtIn="false" value="SPI_MASTER"/>
 									<listOptionValue builtIn="false" value="NULL=0"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=12000000"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F427xx"/>
 									<listOptionValue builtIn="false" value="BOARD_TYPE_FLEXSEA_MANAGE"/>
-									<listOptionValue builtIn="false" value="SPI_MASTER"/>
+									<listOptionValue builtIn="false" value="INCLUDE_UPROJ_ACTPACK"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.218866919" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -841,16 +849,13 @@
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1648035603;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.973385947">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1304284317;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.189024042">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.892954039;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.749386132">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.267061003;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.245529378">
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.471540224;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.218866919">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.497450059;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1149021389">
@@ -859,10 +864,22 @@
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.277062035;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.561579217">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1651864683;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.180102228">
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1529547632;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1668880527">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1529547632;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1668880527">
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1648035603;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.973385947">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.981481402.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.35513265;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.824128098">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.267061003;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.245529378">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.2071972849.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.2042558782;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.696824314">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1626890021.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1651864683;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.180102228">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
