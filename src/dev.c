@@ -54,8 +54,8 @@ uint8_t info[2] = {PORT_EXP, PORT_EXP};
 uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
 #endif
 
-#define DEV_DEMO1
-//#define DEV_DEMO2
+//#define DEV_DEMO1
+#define DEV_DEMO2
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -211,7 +211,7 @@ void dev_fsm_2(void)
 
 			break;
 
-		case 3:	//Communicating with Execute #1 - Open Setpoint
+		case 3:	//Communicating with Execute #1 - Position Setpoint
 
 			if((dev_pos > (last_dev_pos + 5)) || (dev_pos < (last_dev_pos - 5)))
 			{
