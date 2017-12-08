@@ -38,10 +38,22 @@
 #include "flexsea_system.h"
 #include "flexsea_sys_def.h"
 #include "flexsea.h"
+#include "cmd-ActPack.h"
 
 //****************************************************************************
 // Variable(s)
 //****************************************************************************
+
+struct devCtrl_s
+{
+	uint8_t ctrl;
+	int16_t g0;
+	int16_t g1;
+	int32_t setp;
+	uint8_t gains;
+};
+
+struct devCtrl_s devCtrl;
 
 //Use this to share info between the two FSM:
 uint8_t dev_control = CTRL_NONE;
@@ -80,11 +92,11 @@ void dev_fsm_1(void)
 
 	switch(state)
 	{
-		case 0:	//Wait for 5 seconds to let everything load
+		case 0:	//Wait for 11 seconds to let everything load
 
 			dev_pwm = 0;
 
-			if (time >= 5000)
+			if (time >= 11000)
 			{
 				time = 0;
 				state = 1;
@@ -96,8 +108,9 @@ void dev_fsm_1(void)
 
 			dev_pwm = 0;
 
-			tx_cmd_ctrl_mode_w(TX_N_DEFAULT, CTRL_POSITION);
-			packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
+			//tx_cmd_ctrl_mode_w(TX_N_DEFAULT, CTRL_POSITION);
+			//packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
+			devCtrl.ctrl = CTRL_POSITION;
 
 			if (time >= 5)
 			{
@@ -114,14 +127,17 @@ void dev_fsm_1(void)
 			#ifdef DEV_DEMO1
 			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 50, 0, 0);
 			#else
-			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 10, 0, 0);
+			//tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 10, 0, 0);
+			devCtrl.g0 = 10;
+			devCtrl.gains = CHANGE;
 			#endif
-			packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
+			//packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
 
 			if (time >= 5)
 			{
 				time = 0;
 				state = 3;
+				devCtrl.gains = KEEP;
 			}
 
 			break;
@@ -138,6 +154,7 @@ void dev_fsm_1(void)
 		case 3:	//Position setpoint moves up and down
 
 			dev_pos = 10 * time;
+			devCtrl.setp = dev_pos;
 			if (time >= 4000)
 			{
 				//time = 0;
@@ -149,6 +166,7 @@ void dev_fsm_1(void)
 		case 4:	//Position setpoint moves up and down
 
 			dev_pos = 10 * (8000-time);
+			devCtrl.setp = dev_pos;
 			if (time >= 8000)
 			{
 				time = 0;
@@ -185,7 +203,7 @@ void dev_fsm_2(void)
 
 			if(timer < 10000)
 			{
-				//We wait 7s before sending the first commands
+				//We wait 10s before sending the first commands
 				timer++;
 			}
 			else
@@ -198,8 +216,13 @@ void dev_fsm_2(void)
 
 		case 1:	//Communicating with Execute #1 - Read All
 
+			/*
 			tx_cmd_data_read_all_r(TX_N_DEFAULT);
 			packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
+			*/
+			tx_cmd_actpack_rw(TX_N_DEFAULT, 0, devCtrl.ctrl, \
+					devCtrl.setp, devCtrl.gains, devCtrl.g0, devCtrl.g1, 0, 0, 0);
+			packAndSend(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, SEND_TO_SLAVE);
 			ex_refresh_fsm_state++;
 
 			break;
@@ -213,12 +236,14 @@ void dev_fsm_2(void)
 
 		case 3:	//Communicating with Execute #1 - Position Setpoint
 
+			/*
 			if((dev_pos > (last_dev_pos + 5)) || (dev_pos < (last_dev_pos - 5)))
 			{
 				tx_cmd_ctrl_p_w(TX_N_DEFAULT, dev_pos, dev_pos, dev_pos, 200000, 200000);
 				packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
 				last_dev_pos = dev_pos;
 			}
+			*/
 
 			ex_refresh_fsm_state++;
 
