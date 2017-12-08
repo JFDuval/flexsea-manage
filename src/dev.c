@@ -44,30 +44,13 @@
 // Variable(s)
 //****************************************************************************
 
-struct devCtrl_s
-{
-	uint8_t ctrl;
-	int16_t g0;
-	int16_t g1;
-	int32_t setp;
-	uint8_t gains;
-};
-
 struct devCtrl_s devCtrl;
 
-//Use this to share info between the two FSM:
-uint8_t dev_control = CTRL_NONE;
-int16_t dev_pwm = 0;
-int16_t dev_cur = 0;
-int32_t dev_pos = 0, last_dev_pos = 0;
 #ifdef SPI_MASTER
 uint8_t info[2] = {PORT_EXP, PORT_EXP};
 #else
 uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
 #endif
-
-//#define DEV_DEMO1
-#define DEV_DEMO2
 
 //****************************************************************************
 // Private Function Prototype(s):
@@ -94,8 +77,6 @@ void dev_fsm_1(void)
 	{
 		case 0:	//Wait for 11 seconds to let everything load
 
-			dev_pwm = 0;
-
 			if (time >= 11000)
 			{
 				time = 0;
@@ -106,76 +87,36 @@ void dev_fsm_1(void)
 
 		case 1:	//Set to Position Control mode
 
-			dev_pwm = 0;
-
-			//tx_cmd_ctrl_mode_w(TX_N_DEFAULT, CTRL_POSITION);
-			//packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
 			devCtrl.ctrl = CTRL_POSITION;
+			devCtrl.g0 = 10;
+			devCtrl.gains = CHANGE;
 
 			if (time >= 5)
+			{
+				time = 0;
+				state = 2;
+				devCtrl.gains = KEEP;
+			}
+
+			break;
+
+		case 2:	//Position setpoint moves up and down
+
+			devCtrl.setp = 10 * time;
+			if (time >= 4000){state = 3;}
+
+			break;
+
+		case 3:	//Position setpoint moves up and down
+
+			devCtrl.setp = 10 * (8000-time);
+			if (time >= 8000)
 			{
 				time = 0;
 				state = 2;
 			}
 
 			break;
-
-		case 2:	//Set Position Gains
-
-			dev_pwm = 0;
-
-			#ifdef DEV_DEMO1
-			tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 50, 0, 0);
-			#else
-			//tx_cmd_ctrl_p_g_w(TX_N_DEFAULT, 10, 0, 0);
-			devCtrl.g0 = 10;
-			devCtrl.gains = CHANGE;
-			#endif
-			//packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
-
-			if (time >= 5)
-			{
-				time = 0;
-				state = 3;
-				devCtrl.gains = KEEP;
-			}
-
-			break;
-
-		#ifdef DEV_DEMO1
-		case 3:	//Position setpoint depends on analog reading
-
-			dev_pos = 10 * exec1.analog[0];
-
-			break;
-		#endif	//DEV_DEMO1
-
-		#ifdef DEV_DEMO2
-		case 3:	//Position setpoint moves up and down
-
-			dev_pos = 10 * time;
-			devCtrl.setp = dev_pos;
-			if (time >= 4000)
-			{
-				//time = 0;
-				state = 4;
-			}
-
-			break;
-
-		case 4:	//Position setpoint moves up and down
-
-			dev_pos = 10 * (8000-time);
-			devCtrl.setp = dev_pos;
-			if (time >= 8000)
-			{
-				time = 0;
-				state = 3;
-			}
-
-			break;
-
-		#endif	//DEV_DEMO1
 
 		default:
 			//Handle exceptions here
@@ -186,7 +127,6 @@ void dev_fsm_1(void)
 }
 
 //Second state machine for the Dev project:
-//Deals with the communication between Manage and 1x Execute
 //This function is called at 1kHz. We divide it down to 250Hz for now
 void dev_fsm_2(void)
 {
@@ -194,7 +134,6 @@ void dev_fsm_2(void)
 
 	static uint8_t ex_refresh_fsm_state = 0;
 	static uint32_t timer = 0;
-	//uint8_t info[2] = {PORT_RS485_1, PORT_RS485_1};
 
 	//This FSM talks to the slaves at 250Hz each
 	switch(ex_refresh_fsm_state)
@@ -214,12 +153,8 @@ void dev_fsm_2(void)
 
 			break;
 
-		case 1:	//Communicating with Execute #1 - Read All
+		case 1:	//Communicating with Rigid-Mn #1 - ActPack
 
-			/*
-			tx_cmd_data_read_all_r(TX_N_DEFAULT);
-			packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
-			*/
 			tx_cmd_actpack_rw(TX_N_DEFAULT, 0, devCtrl.ctrl, \
 					devCtrl.setp, devCtrl.gains, devCtrl.g0, devCtrl.g1, 0, 0, 0);
 			packAndSend(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, SEND_TO_SLAVE);
@@ -234,17 +169,9 @@ void dev_fsm_2(void)
 
 			break;
 
-		case 3:	//Communicating with Execute #1 - Position Setpoint
+		case 3:	//
 
-			/*
-			if((dev_pos > (last_dev_pos + 5)) || (dev_pos < (last_dev_pos - 5)))
-			{
-				tx_cmd_ctrl_p_w(TX_N_DEFAULT, dev_pos, dev_pos, dev_pos, 200000, 200000);
-				packAndSend(P_AND_S_DEFAULT, FLEXSEA_EXECUTE_1, info, SEND_TO_SLAVE);
-				last_dev_pos = dev_pos;
-			}
-			*/
-
+			//Skipping one cycle
 			ex_refresh_fsm_state++;
 
 			break;

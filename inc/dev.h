@@ -52,6 +52,14 @@ void dev_fsm_2(void);
 // Definition(s):
 //****************************************************************************
 
+struct devCtrl_s
+{
+	uint8_t ctrl;
+	int16_t g0;
+	int16_t g1;
+	int32_t setp;
+	uint8_t gains;
+};
 
 #endif // INC_DEV_H
 
