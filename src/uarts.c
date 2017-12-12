@@ -506,7 +506,8 @@ void DMA1_Str1_CompleteTransfer_Callback(DMA_HandleTypeDef *hdma)
 	}
 
 	//Deal with FlexSEA buffers here:
-	update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);
+	//update_rx_buf_array_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);	//Legacy
+	update_rx_buf_wireless(uart3_dma_rx_buf, uart3_dma_xfer_len);			//Circular Buffer
 	//Empty DMA buffer once it's copied:
 	memset(uart3_dma_rx_buf, 0, uart3_dma_xfer_len);
 	commPeriph[PORT_WIRELESS].rx.bytesReadyFlag++;
